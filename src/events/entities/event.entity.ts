@@ -11,6 +11,12 @@ import {
 } from 'typeorm';
 import { EventRegistration } from './event-registration.entity';
 
+export enum EventCategory {
+  TECHNICAL = 'Technical',
+  NON_TECHNICAL = 'Non-Technical',
+  SOCIAL = 'Social',
+}
+
 @Entity('events')
 export class Event {
   @PrimaryGeneratedColumn('uuid')
@@ -21,6 +27,9 @@ export class Event {
 
   @Column({ type: 'text' })
   description: string;
+
+  @Column({ type: 'enum', enum: EventCategory })
+  category: EventCategory;
 
   @Column()
   location: string;
