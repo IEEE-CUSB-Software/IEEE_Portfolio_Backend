@@ -5,7 +5,6 @@ import {
   Patch,
   Param,
   Delete,
-  UseGuards,
   ParseUUIDPipe,
 } from '@nestjs/common';
 import {
@@ -40,7 +39,6 @@ import { ResponseMessage } from 'src/decorators/response-message.decorator';
 
 @Controller('admin/roles')
 @ApiTags('admin/roles')
-@UseGuards(AuthGuard('jwt'))
 @ApiBearerAuth()
 export class AdminRolesController {
   constructor(private readonly adminRolesService: AdminRolesService) {}

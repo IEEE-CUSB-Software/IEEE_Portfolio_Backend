@@ -89,7 +89,8 @@ export const SUCCESS_MESSAGES = {
     'Email update process initiated. Check your new email for verification',
   EMAIL_UPDATED: 'Email updated successfully',
   PASSWORD_CONFIRMED: 'Password confirmed successfully',
-  USER_UPDATED: 'User Data Updated Succesfully',
+  USER_UPDATED: 'User Data Updated Successfully',
+  AUTH_ME: 'Current user retrieved successfully',
   PROFILE_UPDATED: 'Profile updated successfully',
   // OAuth completion
   BIRTH_DATE_SET: 'Birth date set successfully',

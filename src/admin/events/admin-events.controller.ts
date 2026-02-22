@@ -6,7 +6,6 @@ import {
   Param,
   Delete,
   Get,
-  UseGuards,
   Query,
   Req,
   ParseUUIDPipe,
@@ -18,7 +17,6 @@ import {
   ApiTags,
   ApiBearerAuth,
 } from '@nestjs/swagger';
-import { AuthGuard } from '@nestjs/passport';
 import type { Request } from 'express';
 import { AdminEventsService } from './admin-events.service';
 import { CreateEventDto } from 'src/admin/events/dto/create-event.dto';
@@ -28,7 +26,6 @@ import { BulkRegisterUsersDto } from 'src/admin/events/dto/bulk-register-users.d
 import { User } from 'src/users/entities/user.entity';
 import {
   ApiBadRequestErrorResponse,
-  ApiConflictErrorResponse,
   ApiForbiddenErrorResponse,
   ApiInternalServerError,
   ApiNotFoundErrorResponse,
@@ -50,7 +47,6 @@ import { ResponseMessage } from 'src/decorators/response-message.decorator';
 
 @ApiTags('admin/events')
 @Controller('admin/events')
-@UseGuards(AuthGuard('jwt'))
 @ApiBearerAuth()
 export class AdminEventsController {
   constructor(
@@ -84,7 +80,6 @@ export class AdminEventsController {
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateEventDto: UpdateEventDto,
-    @Req() req: Request & { user: User },
   ) {
     return this.adminEventsService.update(id, updateEventDto);
   }

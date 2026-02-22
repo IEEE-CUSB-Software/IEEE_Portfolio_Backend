@@ -30,7 +30,6 @@ import {
 
 @ApiTags('admin/users')
 @Controller('admin/users')
-@UseGuards(AuthGuard('jwt'))
 @ApiBearerAuth()
 export class AdminUsersController {
   constructor(private readonly adminUsersService: AdminUsersService) {}
