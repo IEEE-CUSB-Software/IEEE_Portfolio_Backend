@@ -31,6 +31,7 @@ import {
   SUCCESS_MESSAGES,
 } from 'src/constants/swagger-messages';
 import {
+  get_current_user_swagger,
   login_swagger,
   logout_swagger,
   register_swagger,
@@ -85,6 +86,18 @@ export class AuthController {
     const redirectUrl = `${frontendUrl}/auth/callback?needs_profile_completion=${needsProfileCompletion}`;
 
     response.redirect(redirectUrl);
+  }
+
+  @Get('me')
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth()
+  @ApiOperation(get_current_user_swagger.operation)
+  @ApiOkResponse(get_current_user_swagger.responses.success)
+  @ApiUnauthorizedErrorResponse(ERROR_MESSAGES.INVALID_OR_EXPIRED_TOKEN)
+  @ApiInternalServerError(ERROR_MESSAGES.INTERNAL_SERVER_ERROR)
+  @ResponseMessage(SUCCESS_MESSAGES.AUTH_ME)
+  async getCurrentUser(@Req() req: Request & { user: User }) {
+    return req.user;
   }
 
   @ApiOperation(login_swagger.operation)

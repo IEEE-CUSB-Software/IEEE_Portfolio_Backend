@@ -14,6 +14,33 @@ const user_example = {
   avatar_url: null,
 };
 
+export const get_current_user_swagger = {
+  operation: {
+    summary: 'Get current user',
+    description:
+      'Get the currently authenticated user profile information.',
+  },
+  responses: {
+    success: {
+      description: 'Current user retrieved successfully',
+      schema: {
+        example: {
+          data: {
+            ...user_example,
+            role: {
+              id: '550e8400-e29b-41d4-a716-446655440000',
+              name: 'User',
+              description: 'Regular user with basic access',
+            },
+          },
+          count: 1,
+          message: 'Current user retrieved successfully',
+        },
+      },
+    },
+  },
+};
+
 export const login_swagger = {
   operation: {
     summary: 'User login',
