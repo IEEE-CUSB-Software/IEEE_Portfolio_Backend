@@ -178,16 +178,6 @@ export class AdminEventsService {
       },
     });
 
-    const registeredCount = await this.registrationsRepository.count({
-      where: {
-        event_id: eventId,
-        status: In([
-          EventRegistrationStatus.REGISTERED,
-          EventRegistrationStatus.ATTENDED,
-        ]),
-      },
-    });
-
     const newRegistrations: EventRegistration[] = [];
     const updatedRegistrations: EventRegistration[] = [];
 
@@ -197,8 +187,9 @@ export class AdminEventsService {
       );
 
       if (existingReg) {
-        // Update existing cancelled registration
-        if (existingReg.status === EventRegistrationStatus.CANCELLED) {
+        if (existingReg.status === EventRegistrationStatus.CANCELLED || 
+          existingReg.status === EventRegistrationStatus.WAITLISTED
+        ) {
           existingReg.status = EventRegistrationStatus.REGISTERED;
           updatedRegistrations.push(existingReg);
         }
@@ -212,13 +203,6 @@ export class AdminEventsService {
         newRegistrations.push(registration);
       }
     }
-
-    // Calculate how many new spots are needed
-    // no check for capacity for admins
-    const newRegistrationsCount = newRegistrations.length + updatedRegistrations.length;
-    const totalRegisteredAfter = registeredCount + newRegistrationsCount;
-    event.capacity = totalRegisteredAfter;
-    await this.eventsRepository.save(event);
 
     const saved = await this.registrationsRepository.save([
       ...newRegistrations,
