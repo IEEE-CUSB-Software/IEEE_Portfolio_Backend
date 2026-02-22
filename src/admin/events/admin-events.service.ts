@@ -214,7 +214,7 @@ export class AdminEventsService {
     }
 
     // Calculate how many new spots are needed
-    // no check for capaciry for admins
+    // no check for capacity for admins
     const newRegistrationsCount = newRegistrations.length + updatedRegistrations.length;
     const totalRegisteredAfter = registeredCount + newRegistrationsCount;
     event.capacity = totalRegisteredAfter;
