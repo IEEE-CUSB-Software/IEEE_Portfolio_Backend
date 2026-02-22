@@ -11,18 +11,14 @@ import {
   Req,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import {
-  ApiCreatedResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
   ApiBearerAuth,
 } from '@nestjs/swagger';
 import {
-  ApiBadRequestErrorResponse,
-  ApiConflictErrorResponse,
   ApiForbiddenErrorResponse,
   ApiInternalServerError,
   ApiNotFoundErrorResponse,
@@ -33,10 +29,8 @@ import {
   SUCCESS_MESSAGES,
 } from 'src/constants/swagger-messages';
 import {
-  create_user_swagger,
   get_user_by_id_swagger,
   update_user_swagger,
-  delete_user_swagger,
 } from './users.swagger';
 import { ResponseMessage } from 'src/decorators/response-message.decorator';
 import { SkipPhoneNumberCheck } from 'src/decorators/skip-phone-number-check.decorator';

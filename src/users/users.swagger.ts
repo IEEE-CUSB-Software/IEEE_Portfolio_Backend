@@ -16,29 +16,6 @@ const user_example = {
   updated_at: '2025-12-03T10:30:00Z',
 };
 
-export const create_user_swagger = {
-  operation: {
-    summary: 'Create a new user',
-    description:
-      'Create a new user account with email, password, and profile information.',
-  },
-
-  responses: {
-    success: {
-      description: 'User created successfully',
-      schema: {
-        example: {
-          data: {
-            ...user_example,
-          },
-          count: 1,
-          message: SUCCESS_MESSAGES.USER_REGISTERED,
-        },
-      },
-    },
-  },
-};
-
 export const get_user_by_id_swagger = {
   operation: {
     summary: 'Get user by ID',
@@ -78,28 +55,6 @@ export const update_user_swagger = {
           },
           count: 1,
           message: 'User updated successfully',
-        },
-      },
-    },
-  },
-};
-
-export const delete_user_swagger = {
-  operation: {
-    summary: 'Delete user',
-    description: 'Delete a user account and all associated data.',
-  },
-
-  responses: {
-    success: {
-      description: 'User deleted successfully',
-      schema: {
-        example: {
-          data: {
-            id: user_example.id,
-          },
-          count: 1,
-          message: 'User deleted successfully',
         },
       },
     },
