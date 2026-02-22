@@ -190,7 +190,7 @@ export class EventsService {
       await this.registrationsRepository.save(registration);
 
       // After cancellation, try to pop one waitlisted user to registered
-      this.popOneWaitlistedToRegistered(eventId);
+      await this.popOneWaitlistedToRegistered(eventId);
     }
 
     return registration;
