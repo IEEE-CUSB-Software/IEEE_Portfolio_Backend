@@ -31,6 +31,7 @@ export const ERROR_MESSAGES = {
 
   // user
   USER_NOT_FOUND: 'User not found',
+  USER_OR_MORE_USERS_NOT_FOUND: 'One or more users not found',
   FORBIDDEN_ACTION: 'You do not have permission to perform this action',
 
   // role
