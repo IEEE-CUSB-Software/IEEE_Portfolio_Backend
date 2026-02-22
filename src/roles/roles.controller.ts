@@ -3,7 +3,6 @@ import {
   Get,
   Param,
   Query,
-  Req,
   ParseUUIDPipe,
   UseGuards,
 } from '@nestjs/common';
@@ -14,9 +13,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
-import type { Request } from 'express';
 import { RolesService } from './roles.service';
-import { User } from 'src/users/entities/user.entity';
 import {
   ApiInternalServerError,
   ApiNotFoundErrorResponse,
@@ -45,11 +42,10 @@ export class RolesController {
   @ApiForbiddenErrorResponse(ERROR_MESSAGES.FORBIDDEN_ACTION)
   @ApiInternalServerError(ERROR_MESSAGES.INTERNAL_SERVER_ERROR)
   findAll(
-    @Req() req: Request & { user: User },
     @Query('page') page: string = '1',
     @Query('limit') limit: string = '10',
   ) {
-    return this.rolesService.findAll(req.user, parseInt(page), parseInt(limit));
+    return this.rolesService.findAll(parseInt(page), parseInt(limit));
   }
 
   @UseGuards(AuthGuard('jwt'))
@@ -63,8 +59,7 @@ export class RolesController {
   @ApiInternalServerError(ERROR_MESSAGES.INTERNAL_SERVER_ERROR)
   findOne(
     @Param('id', ParseUUIDPipe) id: string,
-    @Req() req: Request & { user: User },
   ) {
-    return this.rolesService.findOne(id, req.user);
+    return this.rolesService.findOne(id);
   }
 }
