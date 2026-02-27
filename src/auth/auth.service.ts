@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -64,6 +65,18 @@ export class AuthService {
     return purpose === AuthOtpPurpose.PasswordReset
       ? this.REDIS_PASSWORD_OTP_PREFIX
       : this.REDIS_EMAIL_OTP_PREFIX;
+  }
+
+  private normalizeEmail(email: string): string {
+    return email.trim().toLowerCase();
+  }
+
+  private normalizeUsername(username: string): string {
+    return username.trim().toLowerCase();
+  }
+
+  private normalizeIdentifier(identifier: string): string {
+    return identifier.trim();
   }
 
   private getRefreshTokenSetKey(user_id: string): string {
@@ -133,15 +146,20 @@ export class AuthService {
   }
 
   async checkIdentifier(identifier: string) {
+    const normalizedIdentifier = this.normalizeIdentifier(identifier);
     let identifier_type: string = '';
     let user: User | null = null;
 
-    if (identifier.includes('@')) {
+    if (normalizedIdentifier.includes('@')) {
       identifier_type = 'email';
-      user = await this.user_repository.findByEmail(identifier);
+      user = await this.user_repository.findByEmailInsensitive(
+        normalizedIdentifier,
+      );
     } else {
       identifier_type = 'username';
-      user = await this.user_repository.findByUsername(identifier);
+      user = await this.user_repository.findByUsernameInsensitive(
+        normalizedIdentifier,
+      );
     }
 
     if (!user) {
@@ -163,6 +181,10 @@ export class AuthService {
     const { user_id, identifier_type } = await this.checkIdentifier(identifier);
     const user = await this.validateUserPassword(user_id, password);
 
+    if (!user.verified_email) {
+      throw new ForbiddenException(ERROR_MESSAGES.EMAIL_NOT_VERIFIED);
+    }
+
     const { access_token, refresh_token } = await this.generateTokens(user_id);
 
     return {
@@ -174,8 +196,8 @@ export class AuthService {
 
   async register(register_dto: RegisterDTO): Promise<User> {
     const {
-      email,
-      username,
+      email: rawEmail,
+      username: rawUsername,
       password,
       confirmPassword,
       name,
@@ -185,18 +207,22 @@ export class AuthService {
       academic_year,
     } = register_dto as any;
 
+    const email = this.normalizeEmail(rawEmail);
+    const username = this.normalizeUsername(rawUsername);
+
     if (password !== confirmPassword) {
       throw new BadRequestException(
         ERROR_MESSAGES.PASSWORD_CONFIRMATION_MISMATCH,
       );
     }
 
-    const emailExists = await this.user_repository.findByEmail(email);
+    const emailExists = await this.user_repository.findByEmailInsensitive(email);
     if (emailExists) {
       throw new BadRequestException(ERROR_MESSAGES.EMAIL_ALREADY_EXISTS);
     }
 
-    const usernameExists = await this.user_repository.findByUsername(username);
+    const usernameExists =
+      await this.user_repository.findByUsernameInsensitive(username);
     if (usernameExists) {
       throw new BadRequestException(ERROR_MESSAGES.USERNAME_ALREADY_TAKEN);
     }
@@ -219,6 +245,8 @@ export class AuthService {
       verified_email: false,
       // Add other required fields with defaults as needed
     });
+
+    await this.generateOtp(email, AuthOtpPurpose.EmailVerification);
 
     return newUser;
   }
@@ -284,7 +312,10 @@ export class AuthService {
     email: string,
     purpose: AuthOtpPurpose,
   ): Promise<{ success: boolean }> {
-    const user = await this.user_repository.findByEmail(email);
+    const normalizedEmail = this.normalizeEmail(email);
+    const user = await this.user_repository.findByEmailInsensitive(
+      normalizedEmail,
+    );
     if (!user) {
       throw new NotFoundException(ERROR_MESSAGES.USER_NOT_FOUND);
     }
@@ -309,9 +340,9 @@ export class AuthService {
     );
 
     if (purpose === AuthOtpPurpose.EmailVerification) {
-      await this.mailerService.sendEmailVerificationOtp(email, otp);
+      await this.mailerService.sendEmailVerificationOtp(normalizedEmail, otp);
     } else if (purpose === AuthOtpPurpose.PasswordReset) {
-      await this.mailerService.sendPasswordResetOtp(email, otp);
+      await this.mailerService.sendPasswordResetOtp(normalizedEmail, otp);
     }
     // For now, just a console log
     // console.log(
@@ -326,7 +357,10 @@ export class AuthService {
     otp: string,
     purpose: AuthOtpPurpose,
   ): Promise<{ success: boolean }> {
-    const user = await this.user_repository.findByEmail(email);
+    const normalizedEmail = this.normalizeEmail(email);
+    const user = await this.user_repository.findByEmailInsensitive(
+      normalizedEmail,
+    );
     if (!user) {
       throw new NotFoundException(ERROR_MESSAGES.USER_NOT_FOUND);
     }
@@ -362,12 +396,23 @@ export class AuthService {
     return this.generateOtp(user.email, AuthOtpPurpose.EmailVerification);
   }
 
+  async sendEmailOtpByEmail(email: string): Promise<{ success: boolean }> {
+    return this.generateOtp(email, AuthOtpPurpose.EmailVerification);
+  }
+
   async verifyEmailOtpForUser(
     user_id: string,
     otp: string,
   ): Promise<{ success: boolean }> {
     const user = await this.user_repository.findById(user_id);
     return this.verifyOtp(user.email, otp, AuthOtpPurpose.EmailVerification);
+  }
+
+  async verifyEmailOtpByEmail(
+    email: string,
+    otp: string,
+  ): Promise<{ success: boolean }> {
+    return this.verifyOtp(email, otp, AuthOtpPurpose.EmailVerification);
   }
 
   async sendPasswordResetOtp(email: string): Promise<{ success: boolean }> {
@@ -380,13 +425,17 @@ export class AuthService {
     password: string,
     confirmPassword: string,
   ): Promise<{ success: boolean }> {
+    const normalizedEmail = this.normalizeEmail(email);
+
     if (password !== confirmPassword) {
       throw new BadRequestException(
         ERROR_MESSAGES.PASSWORD_CONFIRMATION_MISMATCH,
       );
     }
 
-    const user = await this.user_repository.findByEmail(email);
+    const user = await this.user_repository.findByEmailInsensitive(
+      normalizedEmail,
+    );
     if (!user) {
       throw new NotFoundException(ERROR_MESSAGES.USER_NOT_FOUND);
     }
@@ -398,7 +447,7 @@ export class AuthService {
       }
     }
 
-    await this.verifyOtp(email, otp, AuthOtpPurpose.PasswordReset);
+    await this.verifyOtp(normalizedEmail, otp, AuthOtpPurpose.PasswordReset);
 
     const saltRounds = Number(process.env.BCRYPT_SALT_ROUNDS ?? 10);
     const passwordHash = await bcrypt.hash(password, saltRounds);
@@ -455,10 +504,11 @@ export class AuthService {
   }
 
   async validateGoogleOAuth(googleOAuthDto: GoogleOAuthDto) {
-    const { google_id, email, name, avatar_url } = googleOAuthDto;
+    const { google_id, email: rawEmail, name, avatar_url } = googleOAuthDto;
+    const email = this.normalizeEmail(rawEmail);
 
     // Check if user with this google_id exists
-    let user = await this.user_repository.findByEmail(email);
+    let user = await this.user_repository.findByEmailInsensitive(email);
 
     if (user && user.google_id === google_id) {
       // User exists with same google_id, return user with tokens
@@ -510,16 +560,18 @@ export class AuthService {
   }
 
   async validateGithubOAuth(githubOAuthDto: GithubOAuthDto) {
-    const { github_id, email, name, avatar_url } = githubOAuthDto;
+    const { github_id, email: rawEmail, name, avatar_url } = githubOAuthDto;
 
-    if (!email) {
+    if (!rawEmail) {
       throw new BadRequestException(
         ERROR_MESSAGES.EMAIL_NOT_PROVIDED_BY_OAUTH_GITHUB,
       );
     }
 
+    const email = this.normalizeEmail(rawEmail);
+
     // Check if user with this github_id exists
-    let user = await this.user_repository.findByEmail(email);
+    let user = await this.user_repository.findByEmailInsensitive(email);
 
     if (user && user.github_id === github_id) {
       const { access_token, refresh_token } = await this.generateTokens(
@@ -578,9 +630,13 @@ export class AuthService {
 
     // Check if username is provided and is unique
     if (completeProfileDto.username) {
-      const usernameExists = await this.user_repository.findByUsername(
+      const normalizedUsername = this.normalizeUsername(
         completeProfileDto.username,
       );
+      const usernameExists =
+        await this.user_repository.findByUsernameInsensitive(
+          normalizedUsername,
+        );
       if (usernameExists && usernameExists.id !== userId) {
         throw new BadRequestException(ERROR_MESSAGES.USERNAME_ALREADY_TAKEN);
       }
@@ -593,7 +649,7 @@ export class AuthService {
       academic_year: completeProfileDto.academic_year,
       phone: completeProfileDto.phone,
       ...(completeProfileDto.username && {
-        username: completeProfileDto.username,
+        username: this.normalizeUsername(completeProfileDto.username),
       }),
       ...(completeProfileDto.major && { major: completeProfileDto.major }),
     });

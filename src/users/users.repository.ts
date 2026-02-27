@@ -52,6 +52,26 @@ export class UsersRepository {
     }
   }
 
+  async findByEmailInsensitive(
+    email: string,
+    relations: string[] = ['role'],
+  ): Promise<User | null> {
+    try {
+      const normalizedEmail = email.trim().toLowerCase();
+
+      return await this.userRepository
+        .createQueryBuilder('user')
+        .leftJoinAndSelect('user.role', 'role')
+        .where('LOWER(user.email) = :email', { email: normalizedEmail })
+        .getOne();
+    } catch (error) {
+      console.error('Error in findByEmailInsensitive:', error);
+      throw new InternalServerErrorException(
+        ERROR_MESSAGES.FAILED_TO_FETCH_FROM_DB,
+      );
+    }
+  }
+
   async findByUsername(
     username: string,
     relations: string[] = ['role'],
@@ -63,6 +83,28 @@ export class UsersRepository {
       });
     } catch (error) {
       console.error('Error in findByUsername:', error);
+      throw new InternalServerErrorException(
+        ERROR_MESSAGES.FAILED_TO_FETCH_FROM_DB,
+      );
+    }
+  }
+
+  async findByUsernameInsensitive(
+    username: string,
+    relations: string[] = ['role'],
+  ): Promise<User | null> {
+    try {
+      const normalizedUsername = username.trim().toLowerCase();
+
+      return await this.userRepository
+        .createQueryBuilder('user')
+        .leftJoinAndSelect('user.role', 'role')
+        .where('LOWER(user.username) = :username', {
+          username: normalizedUsername,
+        })
+        .getOne();
+    } catch (error) {
+      console.error('Error in findByUsernameInsensitive:', error);
       throw new InternalServerErrorException(
         ERROR_MESSAGES.FAILED_TO_FETCH_FROM_DB,
       );

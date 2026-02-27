@@ -45,7 +45,13 @@ import {
   github_oauth_swagger,
   github_oauth_callback_swagger,
 } from './auth.swagger';
-import { LoginDTO, RegisterDTO, GenerateOtpDTO, VerifyOtpDTO } from './dto';
+import {
+  LoginDTO,
+  RegisterDTO,
+  GenerateOtpDTO,
+  VerifyOtpDTO,
+  VerifyEmailOtpDto,
+} from './dto';
 import { CompleteOAuthProfileDto } from './dto/complete-oauth-profile.dto';
 import { ResponseMessage } from 'src/decorators/response-message.decorator';
 import { SkipPhoneNumberCheck } from 'src/decorators/skip-phone-number-check.decorator';
@@ -162,6 +168,37 @@ export class AuthController {
       await this.auth_service.refreshAccessToken(refresh_token);
 
     return { access_token };
+  }
+
+  @ApiOperation(send_email_otp_swagger.operation)
+  @ApiBody({ type: GenerateOtpDTO })
+  @ApiOkResponse(send_email_otp_swagger.responses.success)
+  @ApiNotFoundErrorResponse(ERROR_MESSAGES.USER_NOT_FOUND)
+  @ApiBadRequestErrorResponse(ERROR_MESSAGES.ACCOUNT_ALREADY_VERIFIED)
+  @ResponseMessage(SUCCESS_MESSAGES.OTP_GENERATED)
+  @SkipPhoneNumberCheck()
+  @Post('otp/email/send/public')
+  async sendEmailOtpPublic(@Body() generate_otp_dto: GenerateOtpDTO) {
+    const result = await this.auth_service.sendEmailOtpByEmail(
+      generate_otp_dto.email,
+    );
+    return result;
+  }
+
+  @ApiOperation(verify_email_otp_swagger.operation)
+  @ApiBody({ type: VerifyEmailOtpDto })
+  @ApiOkResponse(verify_email_otp_swagger.responses.success)
+  @ApiNotFoundErrorResponse(ERROR_MESSAGES.USER_NOT_FOUND)
+  @ApiBadRequestErrorResponse(ERROR_MESSAGES.INVALID_OR_EXPIRED_TOKEN)
+  @ResponseMessage(SUCCESS_MESSAGES.EMAIL_VERIFIED)
+  @SkipPhoneNumberCheck()
+  @Patch('otp/email/verify/public')
+  async verifyEmailOtpPublic(@Body() verify_email_otp_dto: VerifyEmailOtpDto) {
+    const result = await this.auth_service.verifyEmailOtpByEmail(
+      verify_email_otp_dto.email,
+      verify_email_otp_dto.otp,
+    );
+    return result;
   }
 
   @ApiOperation(send_email_otp_swagger.operation)
