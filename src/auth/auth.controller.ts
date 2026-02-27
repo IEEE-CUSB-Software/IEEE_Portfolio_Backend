@@ -259,7 +259,10 @@ export class AuthController {
   @ApiBadRequestErrorResponse(ERROR_MESSAGES.NEW_PASSWORD_SAME_AS_OLD)
   @ResponseMessage(SUCCESS_MESSAGES.PASSWORD_RESET)
   @Patch('password/reset')
-  async resetPassword(@Body() reset_password_dto: ResetPasswordDTO) {
+  async resetPassword(
+    @Body() reset_password_dto: ResetPasswordDTO,
+    @Res({ passthrough: true }) response: Response,
+  ) {
     const email = String(reset_password_dto.email);
     const otp = String(reset_password_dto.otp);
     const password = String(reset_password_dto.password);
@@ -270,7 +273,9 @@ export class AuthController {
       password,
       confirmPassword,
     );
-    return result;
+
+    this.httpOnlyRefreshToken(response, result.refresh_token);
+    return { success: result.success, access_token: result.access_token };
   }
 
   @UseGuards(AuthGuard('jwt'))
@@ -312,10 +317,7 @@ export class AuthController {
   @UseGuards(GoogleGuard)
   @SkipPhoneNumberCheck()
   @Get('google/callback')
-  async googleAuthCallback(
-    @Req() request: Request,
-    @Res() response: Response,
-  ) {
+  async googleAuthCallback(@Req() request: Request, @Res() response: Response) {
     const user = request.user as any;
 
     if (!user?.google_id || !user?.email) {
@@ -324,16 +326,13 @@ export class AuthController {
       );
     }
 
-    const {
-      access_token,
-      refresh_token,
-      needsProfileCompletion,
-    } = await this.auth_service.validateGoogleOAuth({
-      google_id: user.google_id,
-      email: user.email,
-      name: user.name,
-      avatar_url: user.avatar_url,
-    });
+    const { access_token, refresh_token, needsProfileCompletion } =
+      await this.auth_service.validateGoogleOAuth({
+        google_id: user.google_id,
+        email: user.email,
+        name: user.name,
+        avatar_url: user.avatar_url,
+      });
 
     this.redirectWithTokens(
       response,
@@ -354,10 +353,7 @@ export class AuthController {
   @UseGuards(GithubGuard)
   @SkipPhoneNumberCheck()
   @Get('github/callback')
-  async githubAuthCallback(
-    @Req() request: Request,
-    @Res() response: Response,
-  ) {
+  async githubAuthCallback(@Req() request: Request, @Res() response: Response) {
     const user = request.user as any;
 
     if (!user?.github_id || !user?.email) {
@@ -366,16 +362,13 @@ export class AuthController {
       );
     }
 
-    const {
-      access_token,
-      refresh_token,
-      needsProfileCompletion,
-    } = await this.auth_service.validateGithubOAuth({
-      github_id: user.github_id,
-      email: user.email,
-      name: user.name,
-      avatar_url: user.avatar_url,
-    });
+    const { access_token, refresh_token, needsProfileCompletion } =
+      await this.auth_service.validateGithubOAuth({
+        github_id: user.github_id,
+        email: user.email,
+        name: user.name,
+        avatar_url: user.avatar_url,
+      });
 
     this.redirectWithTokens(
       response,
@@ -387,7 +380,8 @@ export class AuthController {
 
   @ApiOperation({
     summary: 'Complete OAuth user profile',
-    description: 'Complete missing profile information after Google OAuth login',
+    description:
+      'Complete missing profile information after Google OAuth login',
   })
   @ApiBearerAuth()
   @UseGuards(JwtGuard)
