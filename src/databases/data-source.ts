@@ -26,8 +26,6 @@ const base_config: any = {
     5432,
 
   entities: [
-    // TODO:
-    // add the entities here ya Ali
     'src/users/entities/user.entity.ts',
     'src/roles/entities/role.entity.ts',
     'src/events/entities/event.entity.ts',

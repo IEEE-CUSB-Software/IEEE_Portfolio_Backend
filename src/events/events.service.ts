@@ -1,7 +1,6 @@
 import {
   BadRequestException,
   ConflictException,
-  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -12,10 +11,7 @@ import {
   EventRegistration,
   EventRegistrationStatus,
 } from './entities/event-registration.entity';
-import { CreateEventDto } from './dto/create-event.dto';
-import { UpdateEventDto } from './dto/update-event.dto';
 import { User } from 'src/users/entities/user.entity';
-import { RoleName } from 'src/roles/entities/role.entity';
 import { ERROR_MESSAGES } from 'src/constants/swagger-messages';
 
 @Injectable()
@@ -27,52 +23,67 @@ export class EventsService {
     private readonly registrationsRepository: Repository<EventRegistration>,
   ) {}
 
-  private ensureAdmin(currentUser: User) {
-    if (
-      currentUser.role.name !== RoleName.SUPER_ADMIN &&
-      currentUser.role.name !== RoleName.ADMIN
-    ) {
-      throw new ForbiddenException(ERROR_MESSAGES.FORBIDDEN_ACTION);
-    }
-  }
-
-  private validateEventTimes(
-    start_time: Date,
-    end_time: Date,
-    registration_deadline: Date,
-  ) {
-    if (start_time >= end_time) {
-      throw new BadRequestException(ERROR_MESSAGES.EVENT_INVALID_TIME_RANGE);
-    }
-
-    if (registration_deadline > start_time) {
-      throw new BadRequestException(ERROR_MESSAGES.EVENT_INVALID_TIME_RANGE);
-    }
-  }
-
-  async create(createEventDto: CreateEventDto, currentUser: User) {
-    this.ensureAdmin(currentUser);
-
-    const start_time = new Date(createEventDto.start_time);
-    const end_time = new Date(createEventDto.end_time);
-    const registration_deadline = new Date(
-      createEventDto.registration_deadline,
-    );
-
-    this.validateEventTimes(start_time, end_time, registration_deadline);
-
-    const event = this.eventsRepository.create({
-      ...createEventDto,
-      start_time,
-      end_time,
-      registration_deadline,
-      created_by: currentUser.id,
+  // is_full / remainingSpots / is_registered / registration_id
+  private async enrichEventWithDetails(event: Event, currentUser?: User) {
+    const registeredCount = await this.registrationsRepository.count({
+      where: {
+        event_id: event.id,
+        status: In([
+          EventRegistrationStatus.REGISTERED,
+          EventRegistrationStatus.ATTENDED,
+        ]),
+      },
     });
 
-    return this.eventsRepository.save(event);
+    const remainingSpots = event.capacity - registeredCount;
+    const is_full = remainingSpots <= 0;
+
+    const enrichedEvent: any = {
+      ...event,
+      remainingSpots,
+      is_full,
+    };
+
+    // Add user-specific registration info if authenticated
+    if (currentUser) {
+      const userRegistration = await this.registrationsRepository.findOne({
+        where: {
+          event_id: event.id,
+          user_id: currentUser.id,
+          status: In([
+            EventRegistrationStatus.REGISTERED,
+            EventRegistrationStatus.ATTENDED,
+            EventRegistrationStatus.WAITLISTED,
+          ]),
+        },
+      });
+
+      enrichedEvent.is_registered = !!userRegistration;
+      enrichedEvent.registration_id = userRegistration?.id || null;
+    }
+
+    return enrichedEvent;
   }
 
-  async findAll(page: number = 1, limit: number = 10) {
+  private async popOneWaitlistedToRegistered(eventId: string) {
+    const [waitlisted] = await this.registrationsRepository.find({
+      where: {
+        event_id: eventId,
+        status: EventRegistrationStatus.WAITLISTED,
+      },
+      order: { created_at: 'ASC' },
+      take: 1,
+    });
+
+    if (waitlisted) {
+      waitlisted.status = EventRegistrationStatus.REGISTERED;
+      await this.registrationsRepository.save(waitlisted);
+
+      // TODO: Send notification to user about registration update
+    }
+  }
+
+  async findAll(page: number = 1, limit: number = 10, currentUser?: User) {
     const skip = (page - 1) * limit;
 
     const [events, total] = await this.eventsRepository.findAndCount({
@@ -81,8 +92,13 @@ export class EventsService {
       order: { start_time: 'ASC' },
     });
 
+    // Enrich events with capacity and registration details
+    const enrichedEvents = await Promise.all(
+      events.map((event) => this.enrichEventWithDetails(event, currentUser)),
+    );
+
     return {
-      data: events,
+      data: enrichedEvents,
       total,
       page,
       limit,
@@ -90,7 +106,7 @@ export class EventsService {
     };
   }
 
-  async findOne(id: string) {
+  async findOne(id: string, currentUser?: User) {
     const event = await this.eventsRepository.findOne({
       where: { id },
     });
@@ -99,55 +115,21 @@ export class EventsService {
       throw new NotFoundException(ERROR_MESSAGES.EVENT_NOT_FOUND);
     }
 
+    if (currentUser) {
+      return this.enrichEventWithDetails(event, currentUser);
+    }
+
     return event;
   }
 
-  async update(id: string, updateEventDto: UpdateEventDto, currentUser: User) {
-    this.ensureAdmin(currentUser);
-
-    const event = await this.eventsRepository.preload({
-      id,
-      ...updateEventDto,
-      start_time: updateEventDto.start_time
-        ? new Date(updateEventDto.start_time)
-        : undefined,
-      end_time: updateEventDto.end_time
-        ? new Date(updateEventDto.end_time)
-        : undefined,
-      registration_deadline: updateEventDto.registration_deadline
-        ? new Date(updateEventDto.registration_deadline)
-        : undefined,
+  async register(eventId: string, currentUser: User) {
+    const event = await this.eventsRepository.findOne({
+      where: { id: eventId },
     });
 
     if (!event) {
       throw new NotFoundException(ERROR_MESSAGES.EVENT_NOT_FOUND);
     }
-
-    if (event.start_time && event.end_time && event.registration_deadline) {
-      this.validateEventTimes(
-        event.start_time,
-        event.end_time,
-        event.registration_deadline,
-      );
-    }
-
-    return this.eventsRepository.save(event);
-  }
-
-  async remove(id: string, currentUser: User) {
-    this.ensureAdmin(currentUser);
-
-    const result = await this.eventsRepository.delete(id);
-
-    if (result.affected === 0) {
-      throw new NotFoundException(ERROR_MESSAGES.EVENT_NOT_FOUND);
-    }
-
-    return { message: 'Event deleted successfully' };
-  }
-
-  async register(eventId: string, currentUser: User) {
-    const event = await this.findOne(eventId);
 
     if (new Date() > event.registration_deadline) {
       throw new BadRequestException(ERROR_MESSAGES.EVENT_REGISTRATION_CLOSED);
@@ -174,8 +156,9 @@ export class EventsService {
       },
     });
 
+    const remainingSpots = event.capacity - registeredCount;
     const status =
-      registeredCount >= event.capacity
+      remainingSpots <= 0
         ? EventRegistrationStatus.WAITLISTED
         : EventRegistrationStatus.REGISTERED;
 
@@ -206,92 +189,10 @@ export class EventsService {
       registration.status = EventRegistrationStatus.CANCELLED;
       await this.registrationsRepository.save(registration);
 
-      const [waitlisted] = await this.registrationsRepository.find({
-        where: {
-          event_id: eventId,
-          status: EventRegistrationStatus.WAITLISTED,
-        },
-        order: { created_at: 'ASC' },
-        take: 1,
-      });
-
-      if (waitlisted) {
-        waitlisted.status = EventRegistrationStatus.REGISTERED;
-        await this.registrationsRepository.save(waitlisted);
-      }
+      // After cancellation, try to pop one waitlisted user to registered
+      await this.popOneWaitlistedToRegistered(eventId);
     }
 
     return registration;
-  }
-
-  async getEventRegistrations(
-    eventId: string,
-    currentUser: User,
-    page: number = 1,
-    limit: number = 10,
-  ) {
-    this.ensureAdmin(currentUser);
-
-    await this.findOne(eventId);
-
-    const skip = (page - 1) * limit;
-
-    const [registrations, total] =
-      await this.registrationsRepository.findAndCount({
-        where: { event_id: eventId },
-        relations: ['user'],
-        skip,
-        take: limit,
-        order: { created_at: 'DESC' },
-      });
-
-    return {
-      data: registrations,
-      total,
-      page,
-      limit,
-      totalPages: Math.ceil(total / limit),
-    };
-  }
-
-  async updateRegistrationStatus(
-    eventId: string,
-    registrationId: string,
-    status: EventRegistrationStatus,
-    currentUser: User,
-  ) {
-    this.ensureAdmin(currentUser);
-
-    const registration = await this.registrationsRepository.findOne({
-      where: { id: registrationId, event_id: eventId },
-    });
-
-    if (!registration) {
-      throw new NotFoundException(ERROR_MESSAGES.EVENT_REGISTRATION_NOT_FOUND);
-    }
-
-    if (
-      status === EventRegistrationStatus.REGISTERED &&
-      registration.status !== EventRegistrationStatus.REGISTERED
-    ) {
-      const event = await this.findOne(eventId);
-      const registeredCount = await this.registrationsRepository.count({
-        where: {
-          event_id: eventId,
-          status: In([
-            EventRegistrationStatus.REGISTERED,
-            EventRegistrationStatus.ATTENDED,
-          ]),
-        },
-      });
-
-      if (registeredCount >= event.capacity) {
-        throw new BadRequestException(ERROR_MESSAGES.EVENT_FULL);
-      }
-    }
-
-    registration.status = status;
-
-    return this.registrationsRepository.save(registration);
   }
 }

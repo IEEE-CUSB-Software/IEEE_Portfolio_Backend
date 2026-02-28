@@ -31,6 +31,7 @@ export const ERROR_MESSAGES = {
 
   // user
   USER_NOT_FOUND: 'User not found',
+  USER_OR_MORE_USERS_NOT_FOUND: 'One or more users not found',
   FORBIDDEN_ACTION: 'You do not have permission to perform this action',
 
   // role
@@ -88,7 +89,8 @@ export const SUCCESS_MESSAGES = {
     'Email update process initiated. Check your new email for verification',
   EMAIL_UPDATED: 'Email updated successfully',
   PASSWORD_CONFIRMED: 'Password confirmed successfully',
-  USER_UPDATED: 'User Data Updated Succesfully',
+  USER_UPDATED: 'User Data Updated Successfully',
+  AUTH_ME: 'Current user retrieved successfully',
   PROFILE_UPDATED: 'Profile updated successfully',
   // OAuth completion
   BIRTH_DATE_SET: 'Birth date set successfully',

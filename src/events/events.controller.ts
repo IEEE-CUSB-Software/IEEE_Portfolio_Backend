@@ -37,6 +37,7 @@ import {
 } from './events.swagger';
 import { ResponseMessage } from 'src/decorators/response-message.decorator';
 import { User } from 'src/users/entities/user.entity';
+import { OptionalJwtGuard } from 'src/auth/guards/optional-jwt.guard';
 
 @ApiTags('events')
 @Controller('events')
@@ -44,23 +45,33 @@ export class EventsController {
   constructor(private readonly eventsService: EventsService) {}
 
   @Get()
+  @UseGuards(OptionalJwtGuard)
   @ApiOperation(get_all_events_swagger.operation)
   @ApiOkResponse(get_all_events_swagger.responses.success)
   @ApiInternalServerError(ERROR_MESSAGES.INTERNAL_SERVER_ERROR)
   findAll(
     @Query('page') page: string = '1',
     @Query('limit') limit: string = '10',
+    @Req() req: Request & { user?: User },
   ) {
-    return this.eventsService.findAll(parseInt(page), parseInt(limit));
+    return this.eventsService.findAll(
+      parseInt(page),
+      parseInt(limit),
+      req.user,
+    );
   }
 
   @Get(':id')
+  @UseGuards(OptionalJwtGuard)
   @ApiOperation(get_event_by_id_swagger.operation)
   @ApiOkResponse(get_event_by_id_swagger.responses.success)
   @ApiNotFoundErrorResponse(ERROR_MESSAGES.EVENT_NOT_FOUND)
   @ApiInternalServerError(ERROR_MESSAGES.INTERNAL_SERVER_ERROR)
-  findOne(@Param('id', ParseUUIDPipe) id: string) {
-    return this.eventsService.findOne(id);
+  findOne(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Req() req: Request & { user?: User },
+  ) {
+    return this.eventsService.findOne(id, req.user);
   }
 
   @UseGuards(AuthGuard('jwt'))

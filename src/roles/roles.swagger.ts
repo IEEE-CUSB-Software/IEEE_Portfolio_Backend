@@ -6,29 +6,6 @@ const role_example = {
   updated_at: '2025-12-03T10:30:00Z',
 };
 
-export const create_role_swagger = {
-  operation: {
-    summary: 'Create a new role',
-    description:
-      'Create a new role with specific permissions and access levels.',
-  },
-
-  responses: {
-    success: {
-      description: 'Role created successfully',
-      schema: {
-        example: {
-          data: {
-            ...role_example,
-          },
-          count: 1,
-          message: 'Role created successfully',
-        },
-      },
-    },
-  },
-};
-
 export const get_all_roles_swagger = {
   operation: {
     summary: 'Get all roles',
@@ -65,49 +42,6 @@ export const get_role_by_id_swagger = {
           },
           count: 1,
           message: 'Role retrieved successfully',
-        },
-      },
-    },
-  },
-};
-
-export const update_role_swagger = {
-  operation: {
-    summary: 'Update role',
-    description: 'Update role information and permissions.',
-  },
-
-  responses: {
-    success: {
-      description: 'Role updated successfully',
-      schema: {
-        example: {
-          data: {
-            ...role_example,
-            updated_at: '2025-12-03T15:45:00Z',
-          },
-          count: 1,
-          message: 'Role updated successfully',
-        },
-      },
-    },
-  },
-};
-
-export const delete_role_swagger = {
-  operation: {
-    summary: 'Delete role',
-    description: 'Delete a role and remove it from the system.',
-  },
-
-  responses: {
-    success: {
-      description: 'Role deleted successfully',
-      schema: {
-        example: {
-          data: {},
-          count: 1,
-          message: 'Role deleted successfully',
         },
       },
     },

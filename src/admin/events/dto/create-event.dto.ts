@@ -1,5 +1,6 @@
 import {
   IsDateString,
+  IsEnum,
   IsInt,
   IsNotEmpty,
   IsString,
@@ -8,6 +9,7 @@ import {
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { STRING_MAX_LENGTH } from 'src/constants/variables';
+import { EventCategory } from '../../../events/entities/event.entity';
 
 export class CreateEventDto {
   @ApiProperty({
@@ -27,6 +29,15 @@ export class CreateEventDto {
   @IsNotEmpty()
   @MaxLength(1000)
   description: string;
+
+  @ApiProperty({
+    description: 'Event category',
+    enum: EventCategory,
+    example: EventCategory.TECHNICAL,
+  })
+  @IsEnum(EventCategory)
+  @IsNotEmpty()
+  category: EventCategory;
 
   @ApiProperty({
     description: 'Event location',
