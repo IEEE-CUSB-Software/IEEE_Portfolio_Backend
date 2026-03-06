@@ -12,6 +12,8 @@ import { GoogleStrategy } from './strategies/google.strategy';
 import { GithubStrategy } from './strategies/github.strategy';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { MailModule } from 'src/mail/mail.module';
+import { VerificationService } from './services/verification.service';
+import { AuthTokenService } from './services/auth-token.service';
 @Module({
   imports: [
     ConfigModule,
@@ -44,7 +46,14 @@ import { MailModule } from 'src/mail/mail.module';
     RolesModule,
     MailModule,
   ],
-  providers: [AuthService, GoogleStrategy, GithubStrategy, JwtStrategy],
+  providers: [
+    AuthService,
+    VerificationService,
+    AuthTokenService,
+    GoogleStrategy,
+    GithubStrategy,
+    JwtStrategy,
+  ],
   controllers: [AuthController],
 })
 export class AuthModule {}

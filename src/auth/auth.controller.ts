@@ -46,7 +46,13 @@ import {
   github_oauth_swagger,
   github_oauth_callback_swagger,
 } from './auth.swagger';
-import { LoginDTO, RegisterDTO, GenerateOtpDTO, VerifyOtpDTO } from './dto';
+import {
+  LoginDTO,
+  RegisterDTO,
+  GenerateOtpDTO,
+  VerifyOtpDTO,
+  VerifyEmailOtpDto,
+} from './dto';
 import { CompleteOAuthProfileDto } from './dto/complete-oauth-profile.dto';
 import { ResponseMessage } from 'src/decorators/response-message.decorator';
 import { SkipPhoneNumberCheck } from 'src/decorators/skip-phone-number-check.decorator';
@@ -178,6 +184,37 @@ export class AuthController {
   }
 
   @ApiOperation(send_email_otp_swagger.operation)
+  @ApiBody({ type: GenerateOtpDTO })
+  @ApiOkResponse(send_email_otp_swagger.responses.success)
+  @ApiNotFoundErrorResponse(ERROR_MESSAGES.USER_NOT_FOUND)
+  @ApiBadRequestErrorResponse(ERROR_MESSAGES.ACCOUNT_ALREADY_VERIFIED)
+  @ResponseMessage(SUCCESS_MESSAGES.OTP_GENERATED)
+  @SkipPhoneNumberCheck()
+  @Post('otp/email/send/public')
+  async sendEmailOtpPublic(@Body() generate_otp_dto: GenerateOtpDTO) {
+    const result = await this.auth_service.sendEmailOtpByEmail(
+      generate_otp_dto.email,
+    );
+    return result;
+  }
+
+  @ApiOperation(verify_email_otp_swagger.operation)
+  @ApiBody({ type: VerifyEmailOtpDto })
+  @ApiOkResponse(verify_email_otp_swagger.responses.success)
+  @ApiNotFoundErrorResponse(ERROR_MESSAGES.USER_NOT_FOUND)
+  @ApiBadRequestErrorResponse(ERROR_MESSAGES.INVALID_OR_EXPIRED_TOKEN)
+  @ResponseMessage(SUCCESS_MESSAGES.EMAIL_VERIFIED)
+  @SkipPhoneNumberCheck()
+  @Patch('otp/email/verify/public')
+  async verifyEmailOtpPublic(@Body() verify_email_otp_dto: VerifyEmailOtpDto) {
+    const result = await this.auth_service.verifyEmailOtpByEmail(
+      verify_email_otp_dto.email,
+      verify_email_otp_dto.otp,
+    );
+    return result;
+  }
+
+  @ApiOperation(send_email_otp_swagger.operation)
   @ApiOkResponse(send_email_otp_swagger.responses.success)
   @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth()
@@ -235,7 +272,10 @@ export class AuthController {
   @ApiBadRequestErrorResponse(ERROR_MESSAGES.NEW_PASSWORD_SAME_AS_OLD)
   @ResponseMessage(SUCCESS_MESSAGES.PASSWORD_RESET)
   @Patch('password/reset')
-  async resetPassword(@Body() reset_password_dto: ResetPasswordDTO) {
+  async resetPassword(
+    @Body() reset_password_dto: ResetPasswordDTO,
+    @Res({ passthrough: true }) response: Response,
+  ) {
     const email = String(reset_password_dto.email);
     const otp = String(reset_password_dto.otp);
     const password = String(reset_password_dto.password);
@@ -246,7 +286,9 @@ export class AuthController {
       password,
       confirmPassword,
     );
-    return result;
+
+    this.httpOnlyRefreshToken(response, result.refresh_token);
+    return { success: result.success, access_token: result.access_token };
   }
 
   @UseGuards(AuthGuard('jwt'))
@@ -288,10 +330,7 @@ export class AuthController {
   @UseGuards(GoogleGuard)
   @SkipPhoneNumberCheck()
   @Get('google/callback')
-  async googleAuthCallback(
-    @Req() request: Request,
-    @Res() response: Response,
-  ) {
+  async googleAuthCallback(@Req() request: Request, @Res() response: Response) {
     const user = request.user as any;
 
     if (!user?.google_id || !user?.email) {
@@ -300,16 +339,13 @@ export class AuthController {
       );
     }
 
-    const {
-      access_token,
-      refresh_token,
-      needsProfileCompletion,
-    } = await this.auth_service.validateGoogleOAuth({
-      google_id: user.google_id,
-      email: user.email,
-      name: user.name,
-      avatar_url: user.avatar_url,
-    });
+    const { access_token, refresh_token, needsProfileCompletion } =
+      await this.auth_service.validateGoogleOAuth({
+        google_id: user.google_id,
+        email: user.email,
+        name: user.name,
+        avatar_url: user.avatar_url,
+      });
 
     this.redirectWithTokens(
       response,
@@ -330,10 +366,7 @@ export class AuthController {
   @UseGuards(GithubGuard)
   @SkipPhoneNumberCheck()
   @Get('github/callback')
-  async githubAuthCallback(
-    @Req() request: Request,
-    @Res() response: Response,
-  ) {
+  async githubAuthCallback(@Req() request: Request, @Res() response: Response) {
     const user = request.user as any;
 
     if (!user?.github_id || !user?.email) {
@@ -342,16 +375,13 @@ export class AuthController {
       );
     }
 
-    const {
-      access_token,
-      refresh_token,
-      needsProfileCompletion,
-    } = await this.auth_service.validateGithubOAuth({
-      github_id: user.github_id,
-      email: user.email,
-      name: user.name,
-      avatar_url: user.avatar_url,
-    });
+    const { access_token, refresh_token, needsProfileCompletion } =
+      await this.auth_service.validateGithubOAuth({
+        github_id: user.github_id,
+        email: user.email,
+        name: user.name,
+        avatar_url: user.avatar_url,
+      });
 
     this.redirectWithTokens(
       response,
@@ -363,7 +393,8 @@ export class AuthController {
 
   @ApiOperation({
     summary: 'Complete OAuth user profile',
-    description: 'Complete missing profile information after Google OAuth login',
+    description:
+      'Complete missing profile information after Google OAuth login',
   })
   @ApiBearerAuth()
   @UseGuards(JwtGuard)

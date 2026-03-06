@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -10,109 +11,27 @@ import { GithubOAuthDto } from './dto/github-oauth.dto';
 import { CompleteOAuthProfileDto } from './dto/complete-oauth-profile.dto';
 import { ERROR_MESSAGES } from 'src/constants/swagger-messages';
 import * as bcrypt from 'bcrypt';
-import { StringValue } from 'ms';
-import * as crypto from 'crypto';
-import { JwtService } from '@nestjs/jwt';
 import { UsersRepository } from 'src/users/users.repository';
 import { User } from 'src/users/entities/user.entity';
-import { RedisService } from 'src/redis/redis.service';
-import { RedisKeyPrefix } from 'src/redis/redis.constants';
 import { RolesService } from 'src/roles/roles.service';
 import { RoleName } from 'src/roles/entities/role.entity';
-import { MailService } from 'src/mail/mail.service';
-
-enum AuthOtpPurpose {
-  EmailVerification = 'emailVerification',
-  PasswordReset = 'passwordReset',
-}
+import { VerificationService } from './services/verification.service';
+import { AuthOtpPurpose } from './types/auth-otp-purpose.enum';
+import {
+  normalizeEmail,
+  normalizeIdentifier,
+  normalizeUsername,
+} from './utils/auth-normalization.util';
+import { AuthTokenService } from './services/auth-token.service';
 
 @Injectable()
 export class AuthService {
-  private readonly REDIS_REFRESH_TOKEN_PREFIX =
-    process.env.REDIS_REFRESH_TOKEN_PREFIX ?? RedisKeyPrefix.RefreshToken;
-  private readonly REDIS_EMAIL_OTP_PREFIX =
-    process.env.REDIS_EMAIL_OTP_PREFIX ?? RedisKeyPrefix.EmailVerificationOtp;
-  private readonly REDIS_PASSWORD_OTP_PREFIX =
-    process.env.REDIS_PASSWORD_OTP_PREFIX ?? RedisKeyPrefix.PasswordResetOtp;
-  private readonly REDIS_REFRESH_TOKEN_SET_PREFIX =
-    process.env.REDIS_REFRESH_TOKEN_SET_PREFIX ?? 'refresh_token_set';
-  private readonly REFRESH_TOKEN_TTL = Number(
-    process.env.REDIS_REFRESH_TOKEN_TTL_SECONDS ?? 7 * 24 * 60 * 60,
-  );
-  private readonly OTP_TTL = Number(
-    process.env.REDIS_OTP_TTL_SECONDS ?? 10 * 60,
-  );
-
   constructor(
     private readonly user_repository: UsersRepository,
-    private readonly jwt_service: JwtService,
-    private readonly redisService: RedisService,
     private readonly roles_service: RolesService,
-    private readonly mailerService: MailService,
+    private readonly verification_service: VerificationService,
+    private readonly auth_token_service: AuthTokenService,
   ) {}
-
-  // Private Helper Method to generate OTP
-  private generateNumericOtp(length: number = 6): string {
-    // Generates a string like "123456"
-    return crypto
-      .randomInt(0, Math.pow(10, length))
-      .toString()
-      .padStart(length, '0');
-  }
-
-  private getOtpPrefix(purpose: AuthOtpPurpose): string {
-    return purpose === AuthOtpPurpose.PasswordReset
-      ? this.REDIS_PASSWORD_OTP_PREFIX
-      : this.REDIS_EMAIL_OTP_PREFIX;
-  }
-
-  private getRefreshTokenSetKey(user_id: string): string {
-    return `${this.REDIS_REFRESH_TOKEN_SET_PREFIX}:${user_id}`;
-  }
-
-  private async revokeAllRefreshTokens(user_id: string): Promise<void> {
-    const setKey = this.getRefreshTokenSetKey(user_id);
-    const keys = await this.redisService.smembers(setKey);
-
-    await this.redisService.deleteKeys(keys);
-    await this.redisService.del(setKey);
-  }
-
-  async generateTokens(user_id: string) {
-    const access_token = this.jwt_service.sign(
-      { id: user_id },
-      {
-        secret: process.env.JWT_TOKEN_SECRET ?? 'fallback-secret',
-        expiresIn: (process.env.JWT_TOKEN_EXPIRATION_TIME ??
-          '1h') as StringValue,
-      },
-    );
-
-    const jti = crypto.randomUUID();
-    const refresh_payload = { id: user_id, jti };
-    const refresh_token = this.jwt_service.sign(refresh_payload, {
-      secret: process.env.JWT_REFRESH_SECRET ?? 'fallback-refresh-secret',
-      expiresIn: (process.env.JWT_REFRESH_EXPIRATION_TIME ??
-        '7d') as StringValue,
-    });
-
-    // Store refresh token in Redis with configured TTL
-    const refreshKey = `${this.REDIS_REFRESH_TOKEN_PREFIX}:${user_id}:${jti}`;
-    await this.redisService.setex(
-      refreshKey,
-      this.REFRESH_TOKEN_TTL,
-      refresh_token,
-    );
-    await this.redisService.sadd(
-      this.getRefreshTokenSetKey(user_id),
-      refreshKey,
-    );
-
-    return {
-      access_token: access_token,
-      refresh_token: refresh_token,
-    };
-  }
 
   async validateUserPassword(id: string, password: string): Promise<User> {
     const user = await this.user_repository.findByIdWithPassword(id);
@@ -133,15 +52,20 @@ export class AuthService {
   }
 
   async checkIdentifier(identifier: string) {
+    const normalizedIdentifier = normalizeIdentifier(identifier);
     let identifier_type: string = '';
     let user: User | null = null;
 
-    if (identifier.includes('@')) {
+    if (normalizedIdentifier.includes('@')) {
       identifier_type = 'email';
-      user = await this.user_repository.findByEmail(identifier);
+      user =
+        await this.user_repository.findByEmailInsensitive(normalizedIdentifier);
     } else {
       identifier_type = 'username';
-      user = await this.user_repository.findByUsername(identifier);
+      user =
+        await this.user_repository.findByUsernameInsensitive(
+          normalizedIdentifier,
+        );
     }
 
     if (!user) {
@@ -160,10 +84,15 @@ export class AuthService {
 
   async login(login_dto: LoginDTO) {
     const { identifier, password } = login_dto;
-    const { user_id, identifier_type } = await this.checkIdentifier(identifier);
+    const { user_id } = await this.checkIdentifier(identifier);
     const user = await this.validateUserPassword(user_id, password);
 
-    const { access_token, refresh_token } = await this.generateTokens(user_id);
+    if (!user.verified_email) {
+      throw new ForbiddenException(ERROR_MESSAGES.EMAIL_NOT_VERIFIED);
+    }
+
+    const { access_token, refresh_token } =
+      await this.auth_token_service.generateTokens(user_id);
 
     return {
       user: user,
@@ -174,8 +103,8 @@ export class AuthService {
 
   async register(register_dto: RegisterDTO): Promise<User> {
     const {
-      email,
-      username,
+      email: rawEmail,
+      username: rawUsername,
       password,
       confirmPassword,
       name,
@@ -185,18 +114,23 @@ export class AuthService {
       academic_year,
     } = register_dto as any;
 
+    const email = normalizeEmail(rawEmail);
+    const username = normalizeUsername(rawUsername);
+
     if (password !== confirmPassword) {
       throw new BadRequestException(
         ERROR_MESSAGES.PASSWORD_CONFIRMATION_MISMATCH,
       );
     }
 
-    const emailExists = await this.user_repository.findByEmail(email);
+    const emailExists =
+      await this.user_repository.findByEmailInsensitive(email);
     if (emailExists) {
       throw new BadRequestException(ERROR_MESSAGES.EMAIL_ALREADY_EXISTS);
     }
 
-    const usernameExists = await this.user_repository.findByUsername(username);
+    const usernameExists =
+      await this.user_repository.findByUsernameInsensitive(username);
     if (usernameExists) {
       throw new BadRequestException(ERROR_MESSAGES.USERNAME_ALREADY_TAKEN);
     }
@@ -220,146 +154,35 @@ export class AuthService {
       // Add other required fields with defaults as needed
     });
 
+    await this.verification_service.generateOtp(
+      email,
+      AuthOtpPurpose.EmailVerification,
+    );
+
     return newUser;
   }
 
   async logout(refresh_token?: string) {
-    if (!refresh_token) {
-      return { success: true };
-    }
-
-    let payload: { id?: string; jti?: string } | null = null;
-    try {
-      payload = this.jwt_service.verify(refresh_token, {
-        secret: process.env.JWT_REFRESH_SECRET ?? 'fallback-refresh-secret',
-      });
-    } catch {
-      throw new UnauthorizedException(ERROR_MESSAGES.INVALID_OR_EXPIRED_TOKEN);
-    }
-
-    if (payload?.id && payload?.jti) {
-      const refreshKey = `${this.REDIS_REFRESH_TOKEN_PREFIX}:${payload.id}:${payload.jti}`;
-      await this.redisService.del(refreshKey);
-      await this.redisService.srem(
-        this.getRefreshTokenSetKey(payload.id),
-        refreshKey,
-      );
-    }
-
-    return { success: true };
+    return this.auth_token_service.revokeRefreshToken(refresh_token);
   }
 
   async refreshAccessToken(refresh_token: string) {
-    let payload: { id?: string; jti?: string } | null = null;
-    try {
-      payload = this.jwt_service.verify(refresh_token, {
-        secret: process.env.JWT_REFRESH_SECRET ?? 'fallback-refresh-secret',
-      });
-    } catch {
-      throw new UnauthorizedException(ERROR_MESSAGES.INVALID_OR_EXPIRED_TOKEN);
-    }
-
-    if (!payload?.id || !payload?.jti) {
-      throw new UnauthorizedException(ERROR_MESSAGES.INVALID_OR_EXPIRED_TOKEN);
-    }
-
-    const refreshKey = `${this.REDIS_REFRESH_TOKEN_PREFIX}:${payload.id}:${payload.jti}`;
-    const storedToken = await this.redisService.get(refreshKey);
-    if (!storedToken || storedToken !== refresh_token) {
-      throw new UnauthorizedException(ERROR_MESSAGES.INVALID_OR_EXPIRED_TOKEN);
-    }
-
-    const access_token = this.jwt_service.sign(
-      { id: payload.id },
-      {
-        secret: process.env.JWT_TOKEN_SECRET ?? 'fallback-secret',
-        expiresIn: (process.env.JWT_TOKEN_EXPIRATION_TIME ?? '1h') as StringValue,
-      },
-    );
-
-    return { access_token };
-  }
-
-  private async generateOtp(
-    email: string,
-    purpose: AuthOtpPurpose,
-  ): Promise<{ success: boolean }> {
-    const user = await this.user_repository.findByEmail(email);
-    if (!user) {
-      throw new NotFoundException(ERROR_MESSAGES.USER_NOT_FOUND);
-    }
-
-    if (purpose === AuthOtpPurpose.EmailVerification && user.verified_email) {
-      throw new BadRequestException(ERROR_MESSAGES.ACCOUNT_ALREADY_VERIFIED);
-    }
-
-    const otp = this.generateNumericOtp(6);
-
-    const saltRounds = Number(process.env.BCRYPT_SALT_ROUNDS ?? 10);
-    const otpHash = await bcrypt.hash(otp, saltRounds);
-
-    // Store OTP in Redis with configured TTL
-    const otpData = JSON.stringify({ otpHash: otpHash, userId: user.id });
-    const otp_prefix = this.getOtpPrefix(purpose);
-
-    await this.redisService.setex(
-      `${otp_prefix}:${user.id}`,
-      this.OTP_TTL,
-      otpData,
-    );
-
-    if (purpose === AuthOtpPurpose.EmailVerification) {
-      await this.mailerService.sendEmailVerificationOtp(email, otp);
-    } else if (purpose === AuthOtpPurpose.PasswordReset) {
-      await this.mailerService.sendPasswordResetOtp(email, otp);
-    }
-    // For now, just a console log
-    // console.log(
-    //   `[DEV] OTP for ${email} (${purpose}): ${otp} (Expires in 10 minutes)`,
-    // );
-
-    return { success: true };
-  }
-
-  private async verifyOtp(
-    email: string,
-    otp: string,
-    purpose: AuthOtpPurpose,
-  ): Promise<{ success: boolean }> {
-    const user = await this.user_repository.findByEmail(email);
-    if (!user) {
-      throw new NotFoundException(ERROR_MESSAGES.USER_NOT_FOUND);
-    }
-
-    // Retrieve OTP record from Redis
-    const otp_prefix = this.getOtpPrefix(purpose);
-    const otpDataString = await this.redisService.get(
-      `${otp_prefix}:${user.id}`,
-    );
-    if (!otpDataString) {
-      throw new BadRequestException(ERROR_MESSAGES.INVALID_OR_EXPIRED_TOKEN);
-    }
-
-    const otpRecord = JSON.parse(otpDataString);
-
-    const isOtpValid = await bcrypt.compare(otp, otpRecord.otpHash);
-    if (!isOtpValid) {
-      throw new BadRequestException(ERROR_MESSAGES.INVALID_OR_EXPIRED_TOKEN);
-    }
-
-    // Delete OTP from Redis after successful verification
-    await this.redisService.del(`${otp_prefix}:${user.id}`);
-
-    if (purpose === AuthOtpPurpose.EmailVerification) {
-      await this.user_repository.update(user.id, { verified_email: true });
-    }
-
-    return { success: true };
+    return this.auth_token_service.refreshAccessToken(refresh_token);
   }
 
   async sendEmailOtpForUser(user_id: string): Promise<{ success: boolean }> {
     const user = await this.user_repository.findById(user_id);
-    return this.generateOtp(user.email, AuthOtpPurpose.EmailVerification);
+    return this.verification_service.generateOtp(
+      user.email,
+      AuthOtpPurpose.EmailVerification,
+    );
+  }
+
+  async sendEmailOtpByEmail(email: string): Promise<{ success: boolean }> {
+    return this.verification_service.generateOtp(
+      email,
+      AuthOtpPurpose.EmailVerification,
+    );
   }
 
   async verifyEmailOtpForUser(
@@ -367,11 +190,40 @@ export class AuthService {
     otp: string,
   ): Promise<{ success: boolean }> {
     const user = await this.user_repository.findById(user_id);
-    return this.verifyOtp(user.email, otp, AuthOtpPurpose.EmailVerification);
+    await this.verification_service.verifyOtp(
+      user.email,
+      otp,
+      AuthOtpPurpose.EmailVerification,
+    );
+    await this.user_repository.update(user.id, { verified_email: true });
+    return { success: true };
+  }
+
+  async verifyEmailOtpByEmail(
+    email: string,
+    otp: string,
+  ): Promise<{ success: boolean }> {
+    const normalizedEmail = normalizeEmail(email);
+    const user =
+      await this.user_repository.findByEmailInsensitive(normalizedEmail);
+    if (!user) {
+      throw new NotFoundException(ERROR_MESSAGES.USER_NOT_FOUND);
+    }
+
+    await this.verification_service.verifyOtp(
+      normalizedEmail,
+      otp,
+      AuthOtpPurpose.EmailVerification,
+    );
+    await this.user_repository.update(user.id, { verified_email: true });
+    return { success: true };
   }
 
   async sendPasswordResetOtp(email: string): Promise<{ success: boolean }> {
-    return this.generateOtp(email, AuthOtpPurpose.PasswordReset);
+    return this.verification_service.generateOtp(
+      email,
+      AuthOtpPurpose.PasswordReset,
+    );
   }
 
   async resetPasswordWithOtp(
@@ -379,14 +231,21 @@ export class AuthService {
     otp: string,
     password: string,
     confirmPassword: string,
-  ): Promise<{ success: boolean }> {
+  ): Promise<{
+    success: boolean;
+    access_token: string;
+    refresh_token: string;
+  }> {
+    const normalizedEmail = normalizeEmail(email);
+
     if (password !== confirmPassword) {
       throw new BadRequestException(
         ERROR_MESSAGES.PASSWORD_CONFIRMATION_MISMATCH,
       );
     }
 
-    const user = await this.user_repository.findByEmail(email);
+    const user =
+      await this.user_repository.findByEmailInsensitive(normalizedEmail);
     if (!user) {
       throw new NotFoundException(ERROR_MESSAGES.USER_NOT_FOUND);
     }
@@ -398,16 +257,23 @@ export class AuthService {
       }
     }
 
-    await this.verifyOtp(email, otp, AuthOtpPurpose.PasswordReset);
+    await this.verification_service.verifyOtp(
+      normalizedEmail,
+      otp,
+      AuthOtpPurpose.PasswordReset,
+    );
 
     const saltRounds = Number(process.env.BCRYPT_SALT_ROUNDS ?? 10);
     const passwordHash = await bcrypt.hash(password, saltRounds);
 
     await this.user_repository.update(user.id, { password: passwordHash });
 
-    await this.revokeAllRefreshTokens(user.id);
+    await this.auth_token_service.revokeAllRefreshTokens(user.id);
 
-    return { success: true };
+    const { access_token, refresh_token } =
+      await this.auth_token_service.generateTokens(user.id);
+
+    return { success: true, access_token, refresh_token };
   }
 
   async changePassword(
@@ -449,22 +315,22 @@ export class AuthService {
 
     await this.user_repository.update(user.id, { password: passwordHash });
 
-    await this.revokeAllRefreshTokens(user.id);
+    await this.auth_token_service.revokeAllRefreshTokens(user.id);
 
     return { success: true };
   }
 
   async validateGoogleOAuth(googleOAuthDto: GoogleOAuthDto) {
-    const { google_id, email, name, avatar_url } = googleOAuthDto;
+    const { google_id, email: rawEmail, name, avatar_url } = googleOAuthDto;
+    const email = normalizeEmail(rawEmail);
 
     // Check if user with this google_id exists
-    let user = await this.user_repository.findByEmail(email);
+    let user = await this.user_repository.findByEmailInsensitive(email);
 
     if (user && user.google_id === google_id) {
       // User exists with same google_id, return user with tokens
-      const { access_token, refresh_token } = await this.generateTokens(
-        user.id,
-      );
+      const { access_token, refresh_token } =
+        await this.auth_token_service.generateTokens(user.id);
       return {
         user,
         access_token,
@@ -497,9 +363,8 @@ export class AuthService {
     });
 
     // Generate tokens for new user but mark that profile completion is needed
-    const { access_token, refresh_token } = await this.generateTokens(
-      newUser.id,
-    );
+    const { access_token, refresh_token } =
+      await this.auth_token_service.generateTokens(newUser.id);
 
     return {
       user: newUser,
@@ -510,21 +375,22 @@ export class AuthService {
   }
 
   async validateGithubOAuth(githubOAuthDto: GithubOAuthDto) {
-    const { github_id, email, name, avatar_url } = githubOAuthDto;
+    const { github_id, email: rawEmail, name, avatar_url } = githubOAuthDto;
 
-    if (!email) {
+    if (!rawEmail) {
       throw new BadRequestException(
         ERROR_MESSAGES.EMAIL_NOT_PROVIDED_BY_OAUTH_GITHUB,
       );
     }
 
+    const email = normalizeEmail(rawEmail);
+
     // Check if user with this github_id exists
-    let user = await this.user_repository.findByEmail(email);
+    let user = await this.user_repository.findByEmailInsensitive(email);
 
     if (user && user.github_id === github_id) {
-      const { access_token, refresh_token } = await this.generateTokens(
-        user.id,
-      );
+      const { access_token, refresh_token } =
+        await this.auth_token_service.generateTokens(user.id);
       return {
         user,
         access_token,
@@ -554,9 +420,8 @@ export class AuthService {
       academic_year: 1,
     });
 
-    const { access_token, refresh_token } = await this.generateTokens(
-      newUser.id,
-    );
+    const { access_token, refresh_token } =
+      await this.auth_token_service.generateTokens(newUser.id);
 
     return {
       user: newUser,
@@ -578,9 +443,11 @@ export class AuthService {
 
     // Check if username is provided and is unique
     if (completeProfileDto.username) {
-      const usernameExists = await this.user_repository.findByUsername(
-        completeProfileDto.username,
-      );
+      const normalizedUsername = normalizeUsername(completeProfileDto.username);
+      const usernameExists =
+        await this.user_repository.findByUsernameInsensitive(
+          normalizedUsername,
+        );
       if (usernameExists && usernameExists.id !== userId) {
         throw new BadRequestException(ERROR_MESSAGES.USERNAME_ALREADY_TAKEN);
       }
@@ -593,7 +460,7 @@ export class AuthService {
       academic_year: completeProfileDto.academic_year,
       phone: completeProfileDto.phone,
       ...(completeProfileDto.username && {
-        username: completeProfileDto.username,
+        username: normalizeUsername(completeProfileDto.username),
       }),
       ...(completeProfileDto.major && { major: completeProfileDto.major }),
     });

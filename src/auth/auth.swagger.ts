@@ -219,16 +219,31 @@ export const send_password_reset_otp_swagger = {
 export const reset_password_swagger = {
   operation: {
     summary: 'Reset password with OTP',
-    description: 'Verify OTP and reset the user password.',
+    description:
+      'Verify OTP, reset the user password, and auto-login by issuing new tokens.',
   },
   responses: {
     success: {
-      description: 'Password reset successfully',
+      description: 'Password reset successfully and new tokens issued',
       schema: {
         example: {
-          data: {},
-          count: 0,
+          data: {
+            success: true,
+            access_token:
+              'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImQxMDJkYWRjLTBiMTctNGU4My04MTJiLTAwMTAzYjYwNmExZiIsImlhdCI6MTc1ODE0Nzg2OSwiZXhwIjoxNzU4MTUxNDY5fQ.DV3oA5Fn-cj-KHrGcafGaoWGyvYFx4N50L9Ke4_n6OU',
+          },
+          count: 1,
           message: SUCCESS_MESSAGES.PASSWORD_RESET,
+        },
+      },
+      headers: {
+        'Set-Cookie': {
+          description: 'HttpOnly cookie containing refresh token',
+          schema: {
+            type: 'string',
+            example:
+              'refresh_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...; HttpOnly; Secure; SameSite=Strict',
+          },
         },
       },
     },

@@ -72,10 +72,13 @@ export class RegisterDTO {
   @IsNotEmpty()
   @MinLength(8)
   @MaxLength(STRING_MAX_LENGTH)
-  @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/, {
+  @Matches(
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+    {
     message:
       'Password must contain lowercase, uppercase, number, and special character',
-  })
+    },
+  )
   password: string;
 
   @ApiProperty({
@@ -86,9 +89,12 @@ export class RegisterDTO {
   @IsNotEmpty()
   @MinLength(8)
   @MaxLength(STRING_MAX_LENGTH)
-  @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/, {
+  @Matches(
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+    {
     message:
       'Password must contain lowercase, uppercase, number, and special character',
-  })
+    },
+  )
   confirmPassword: string;
 }
