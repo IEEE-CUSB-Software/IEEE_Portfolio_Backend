@@ -2,6 +2,7 @@ import { Module, NestModule, MiddlewareConsumer, RequestMethod } from '@nestjs/c
 import { AdminUsersModule } from './users/admin-users.module';
 import { AdminEventsModule } from './events/admin-events.module';
 import { AdminRolesModule } from './roles/admin-roles.module';
+import { AdminAwardsModule } from './awards/admin-awards.module';
 import { AdminMiddleware } from 'src/middleware/admin.middleware';
 import { JwtAuthMiddleware } from 'src/middleware/jwt-auth.middleware';
 import { JwtModule } from '@nestjs/jwt';
@@ -21,6 +22,7 @@ import { StringValue } from 'ms';
     AdminUsersModule,
     AdminEventsModule,
     AdminRolesModule,
+    AdminAwardsModule,
   ],
   providers: [JwtStrategy, JwtAuthMiddleware, AdminMiddleware],
 })

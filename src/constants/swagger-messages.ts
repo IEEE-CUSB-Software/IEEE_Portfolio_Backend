@@ -46,6 +46,9 @@ export const ERROR_MESSAGES = {
   EVENT_FULL: 'Event capacity is full',
   EVENT_INVALID_TIME_RANGE: 'Invalid event time range',
 
+  // awards
+  AWARD_NOT_FOUND: 'Award not found',
+
   // communication
   FAILED_TO_SEND_OTP_EMAIL: 'Failed to send OTP email',
   OTP_REQUEST_WAIT: 'Please wait a minute before requesting a new code',
@@ -109,4 +112,9 @@ export const SUCCESS_MESSAGES = {
   EVENT_REGISTRATION_CANCELLED: 'Event registration cancelled successfully',
   EVENT_REGISTRATION_STATUS_UPDATED:
     'Event registration status updated successfully',
+
+  // awards
+  AWARD_CREATED: 'Award created successfully',
+  AWARD_DELETED: 'Award deleted successfully',
+  AWARDS_RETRIEVED: 'Awards retrieved successfully',
 } as const;
