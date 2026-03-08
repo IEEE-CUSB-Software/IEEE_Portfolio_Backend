@@ -30,6 +30,7 @@ const base_config: any = {
     'src/roles/entities/role.entity.ts',
     'src/events/entities/event.entity.ts',
     'src/events/entities/event-registration.entity.ts',
+    'src/awards/entities/award.entity.ts',
   ],
 
   migrations: ['src/migrations/*{.ts,.js}'],
