@@ -1,5 +1,6 @@
 export const ERROR_MESSAGES = {
   // auth
+  WRONG_CREDENTIALS: 'Invalid credentials',
   WRONG_PASSWORD: 'Wrong password',
   PASSWORD_CONFIRMATION_MISMATCH: 'Confirmation password must match password',
   NEW_PASSWORD_SAME_AS_OLD:
@@ -45,6 +46,19 @@ export const ERROR_MESSAGES = {
   EVENT_ALREADY_REGISTERED: 'You are already registered for this event',
   EVENT_FULL: 'Event capacity is full',
   EVENT_INVALID_TIME_RANGE: 'Invalid event time range',
+
+  // board
+  BOARD_MEMBER_NOT_FOUND: 'Board member not found',
+
+  // categories
+  CATEGORY_NOT_FOUND: 'Category not found',
+  CATEGORY_ALREADY_EXISTS: 'Category name already exists',
+  CATEGORY_HAS_COMMITTEES:
+    'Cannot delete category with existing committees',
+
+  // committees
+  COMMITTEE_NOT_FOUND: 'Committee not found',
+  COMMITTEE_MEMBER_NOT_FOUND: 'Committee member not found',
 
   // communication
   FAILED_TO_SEND_OTP_EMAIL: 'Failed to send OTP email',
@@ -109,4 +123,27 @@ export const SUCCESS_MESSAGES = {
   EVENT_REGISTRATION_CANCELLED: 'Event registration cancelled successfully',
   EVENT_REGISTRATION_STATUS_UPDATED:
     'Event registration status updated successfully',
+
+  // board
+  BOARD_MEMBERS_RETRIEVED: 'Board members retrieved successfully',
+  BOARD_MEMBER_CREATED: 'Board member created successfully',
+  BOARD_MEMBER_UPDATED: 'Board member updated successfully',
+  BOARD_MEMBER_DELETED: 'Board member deleted successfully',
+
+  // categories
+  CATEGORIES_RETRIEVED: 'Categories retrieved successfully',
+  CATEGORY_CREATED: 'Category created successfully',
+  CATEGORY_UPDATED: 'Category updated successfully',
+  CATEGORY_DELETED: 'Category deleted successfully',
+
+  // committees
+  COMMITTEES_RETRIEVED: 'Committees retrieved successfully',
+  COMMITTEE_RETRIEVED: 'Committee retrieved successfully',
+  COMMITTEE_MEMBERS_RETRIEVED: 'Committee members retrieved successfully',
+  COMMITTEE_CREATED: 'Committee created successfully',
+  COMMITTEE_UPDATED: 'Committee updated successfully',
+  COMMITTEE_DELETED: 'Committee deleted successfully',
+  COMMITTEE_MEMBER_CREATED: 'Committee member created successfully',
+  COMMITTEE_MEMBER_UPDATED: 'Committee member updated successfully',
+  COMMITTEE_MEMBER_DELETED: 'Committee member deleted successfully',
 } as const;
