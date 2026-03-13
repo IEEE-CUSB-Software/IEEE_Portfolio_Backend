@@ -1,5 +1,6 @@
 export const ERROR_MESSAGES = {
   // auth
+  WRONG_CREDENTIALS: 'Invalid credentials',
   WRONG_PASSWORD: 'Wrong password',
   PASSWORD_CONFIRMATION_MISMATCH: 'Confirmation password must match password',
   NEW_PASSWORD_SAME_AS_OLD:

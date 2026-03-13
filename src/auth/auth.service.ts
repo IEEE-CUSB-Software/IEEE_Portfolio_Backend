@@ -160,8 +160,15 @@ export class AuthService {
 
   async login(login_dto: LoginDTO) {
     const { identifier, password } = login_dto;
-    const { user_id, identifier_type } = await this.checkIdentifier(identifier);
-    const user = await this.validateUserPassword(user_id, password);
+
+    let user_id: string;
+    let user: User;
+    try {
+      ({ user_id } = await this.checkIdentifier(identifier));
+      user = await this.validateUserPassword(user_id, password);
+    } catch {
+      throw new UnauthorizedException(ERROR_MESSAGES.WRONG_CREDENTIALS);
+    }
 
     const { access_token, refresh_token } = await this.generateTokens(user_id);
 
