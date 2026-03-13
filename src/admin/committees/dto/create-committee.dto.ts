@@ -10,7 +10,7 @@ import { STRING_MAX_LENGTH } from 'src/constants/variables';
 export class CreateCommitteeDto {
   @ApiProperty({
     description: 'Committee name',
-    example: 'Robotics Committee',
+    example: 'Web Development',
   })
   @IsString()
   @IsNotEmpty()
@@ -20,7 +20,7 @@ export class CreateCommitteeDto {
   @ApiProperty({
     description: 'About section describing the committee',
     example:
-      'The Robotics Committee focuses on building autonomous robots and promoting robotics education.',
+      'The Web Development Committee focuses on creating and maintaining the IEEE website and related web applications.',
   })
   @IsString()
   @IsNotEmpty()

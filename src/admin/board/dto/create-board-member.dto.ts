@@ -12,7 +12,7 @@ import { STRING_MAX_LENGTH } from 'src/constants/variables';
 export class CreateBoardMemberDto {
   @ApiProperty({
     description: 'Board member name',
-    example: 'John Doe',
+    example: 'Mario Raafat',
   })
   @IsString()
   @IsNotEmpty()
@@ -21,7 +21,7 @@ export class CreateBoardMemberDto {
 
   @ApiProperty({
     description: 'Board member email',
-    example: 'john.doe@ieee.org',
+    example: 'mario.raafat@ieee.org',
   })
   @IsEmail()
   @IsNotEmpty()
@@ -29,7 +29,7 @@ export class CreateBoardMemberDto {
 
   @ApiProperty({
     description: 'Board member role',
-    example: 'President',
+    example: 'Chair & Vice Chair',
   })
   @IsString()
   @IsNotEmpty()
@@ -38,7 +38,7 @@ export class CreateBoardMemberDto {
 
   @ApiProperty({
     description: 'Board member image URL',
-    example: 'https://example.com/images/john-doe.jpg',
+    example: 'https://example.com/images/mario-raafat.jpg',
   })
   @IsString()
   @IsNotEmpty()

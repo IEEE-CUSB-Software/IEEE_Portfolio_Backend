@@ -17,12 +17,13 @@ import {
   ApiInternalServerError,
   ApiNotFoundErrorResponse,
 } from 'src/decorators/swagger-error-responses.decorator';
-import { ERROR_MESSAGES } from 'src/constants/swagger-messages';
+import { ERROR_MESSAGES, SUCCESS_MESSAGES } from 'src/constants/swagger-messages';
 import {
   get_all_committees_swagger,
   get_committee_by_id_swagger,
 } from './committees.swagger';
 import { OptionalJwtGuard } from 'src/auth/guards/optional-jwt.guard';
+import { ResponseMessage } from 'src/decorators/response-message.decorator';
 
 @ApiTags('committees')
 @Controller('committees')
@@ -40,6 +41,7 @@ export class CommitteesController {
   })
   @ApiOkResponse(get_all_committees_swagger.responses.success)
   @ApiInternalServerError(ERROR_MESSAGES.INTERNAL_SERVER_ERROR)
+  @ResponseMessage(SUCCESS_MESSAGES.COMMITTEES_RETRIEVED)
   findAll(@Query('category_id') categoryId?: string) {
     return this.committeesService.findAll(categoryId);
   }
@@ -50,6 +52,7 @@ export class CommitteesController {
   @ApiOkResponse(get_committee_by_id_swagger.responses.success)
   @ApiNotFoundErrorResponse(ERROR_MESSAGES.COMMITTEE_NOT_FOUND)
   @ApiInternalServerError(ERROR_MESSAGES.INTERNAL_SERVER_ERROR)
+  @ResponseMessage(SUCCESS_MESSAGES.COMMITTEE_RETRIEVED)
   findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.committeesService.findOne(id);
   }

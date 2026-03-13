@@ -12,9 +12,10 @@ import { BoardService } from './board.service';
 import {
   ApiInternalServerError,
 } from 'src/decorators/swagger-error-responses.decorator';
-import { ERROR_MESSAGES } from 'src/constants/swagger-messages';
+import { ERROR_MESSAGES, SUCCESS_MESSAGES } from 'src/constants/swagger-messages';
 import { get_all_board_members_swagger } from './board.swagger';
 import { OptionalJwtGuard } from 'src/auth/guards/optional-jwt.guard';
+import { ResponseMessage } from 'src/decorators/response-message.decorator';
 
 @ApiTags('board')
 @Controller('board')
@@ -26,6 +27,7 @@ export class BoardController {
   @ApiOperation(get_all_board_members_swagger.operation)
   @ApiOkResponse(get_all_board_members_swagger.responses.success)
   @ApiInternalServerError(ERROR_MESSAGES.INTERNAL_SERVER_ERROR)
+  @ResponseMessage(SUCCESS_MESSAGES.BOARD_MEMBERS_RETRIEVED)
   findAll() {
     return this.boardService.findAll();
   }

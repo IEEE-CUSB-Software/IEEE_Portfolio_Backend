@@ -125,16 +125,21 @@ export const SUCCESS_MESSAGES = {
     'Event registration status updated successfully',
 
   // board
+  BOARD_MEMBERS_RETRIEVED: 'Board members retrieved successfully',
   BOARD_MEMBER_CREATED: 'Board member created successfully',
   BOARD_MEMBER_UPDATED: 'Board member updated successfully',
   BOARD_MEMBER_DELETED: 'Board member deleted successfully',
 
   // categories
+  CATEGORIES_RETRIEVED: 'Categories retrieved successfully',
   CATEGORY_CREATED: 'Category created successfully',
   CATEGORY_UPDATED: 'Category updated successfully',
   CATEGORY_DELETED: 'Category deleted successfully',
 
   // committees
+  COMMITTEES_RETRIEVED: 'Committees retrieved successfully',
+  COMMITTEE_RETRIEVED: 'Committee retrieved successfully',
+  COMMITTEE_MEMBERS_RETRIEVED: 'Committee members retrieved successfully',
   COMMITTEE_CREATED: 'Committee created successfully',
   COMMITTEE_UPDATED: 'Committee updated successfully',
   COMMITTEE_DELETED: 'Committee deleted successfully',

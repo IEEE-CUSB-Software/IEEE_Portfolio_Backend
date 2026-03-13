@@ -21,7 +21,7 @@ export class CreateCommitteeMemberDto {
 
   @ApiProperty({
     description: 'Committee member name',
-    example: 'Jane Smith',
+    example: 'Mario Raafat',
   })
   @IsString()
   @IsNotEmpty()
@@ -30,7 +30,7 @@ export class CreateCommitteeMemberDto {
 
   @ApiProperty({
     description: 'Committee member email',
-    example: 'jane.smith@ieee.org',
+    example: 'mario.raafat@ieee.org',
   })
   @IsEmail()
   @IsNotEmpty()
@@ -47,7 +47,7 @@ export class CreateCommitteeMemberDto {
 
   @ApiProperty({
     description: 'Committee member image URL',
-    example: 'https://example.com/images/jane-smith.jpg',
+    example: 'https://example.com/images/mario-raafat.jpg',
   })
   @IsString()
   @IsNotEmpty()
