@@ -464,11 +464,14 @@ export class AuthService {
   async validateGoogleOAuth(googleOAuthDto: GoogleOAuthDto) {
     const { google_id, email, name, avatar_url } = googleOAuthDto;
 
-    // Check if user with this google_id exists
+    // Check if user with this email exists
     let user = await this.user_repository.findByEmail(email);
 
-    if (user && user.google_id === google_id) {
-      // User exists with same google_id, return user with tokens
+    if (user) {
+      if (!user.google_id) {
+        await this.user_repository.update(user.id, { google_id });
+      }
+      //login
       const { access_token, refresh_token } = await this.generateTokens(
         user.id,
       );
@@ -480,11 +483,6 @@ export class AuthService {
       };
     }
 
-    // Check if email exists with different provider
-    if (user) {
-      throw new BadRequestException(ERROR_MESSAGES.EMAIL_ALREADY_EXISTS);
-    }
-
     // Create new user with Google OAuth info
     const visitorRole = await this.roles_service.findByName(RoleName.VISITOR);
 
@@ -492,7 +490,6 @@ export class AuthService {
       email,
       name,
       google_id,
-      oauth_provider: 'google',
       avatar_url: avatar_url || undefined,
       role_id: visitorRole.id,
       verified_email: true, // Google emails are already verified
@@ -525,10 +522,14 @@ export class AuthService {
       );
     }
 
-    // Check if user with this github_id exists
+    // Check if user with this email exists
     let user = await this.user_repository.findByEmail(email);
 
-    if (user && user.github_id === github_id) {
+    if (user) {
+      if (!user.github_id) {
+        await this.user_repository.update(user.id, { github_id });
+      }
+      //login
       const { access_token, refresh_token } = await this.generateTokens(
         user.id,
       );
@@ -540,18 +541,12 @@ export class AuthService {
       };
     }
 
-    // Check if email exists with different provider
-    if (user) {
-      throw new BadRequestException(ERROR_MESSAGES.EMAIL_ALREADY_EXISTS);
-    }
-
     const visitorRole = await this.roles_service.findByName(RoleName.VISITOR);
 
     const newUser = await this.user_repository.create({
       email,
       name,
       github_id,
-      oauth_provider: 'github',
       avatar_url: avatar_url || undefined,
       role_id: visitorRole.id,
       verified_email: true,
