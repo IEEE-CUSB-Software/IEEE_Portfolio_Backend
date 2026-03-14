@@ -60,6 +60,9 @@ export const ERROR_MESSAGES = {
   COMMITTEE_NOT_FOUND: 'Committee not found',
   COMMITTEE_MEMBER_NOT_FOUND: 'Committee member not found',
 
+  // awards
+  AWARD_NOT_FOUND: 'Award not found',
+
   // communication
   FAILED_TO_SEND_OTP_EMAIL: 'Failed to send OTP email',
   OTP_REQUEST_WAIT: 'Please wait a minute before requesting a new code',
@@ -146,4 +149,11 @@ export const SUCCESS_MESSAGES = {
   COMMITTEE_MEMBER_CREATED: 'Committee member created successfully',
   COMMITTEE_MEMBER_UPDATED: 'Committee member updated successfully',
   COMMITTEE_MEMBER_DELETED: 'Committee member deleted successfully',
+
+  // awards
+  AWARDS_RETRIEVED: 'Awards retrieved successfully',
+  AWARD_RETRIEVED: 'Award retrieved successfully',
+  AWARD_CREATED: 'Award created successfully',
+  AWARD_UPDATED: 'Award updated successfully',
+  AWARD_DELETED: 'Award deleted successfully',
 } as const;

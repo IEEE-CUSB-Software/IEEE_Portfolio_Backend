@@ -12,6 +12,7 @@ import { EventsModule } from './events/events.module';
 import { BoardModule } from './board/board.module';
 import { CategoriesModule } from './categories/categories.module';
 import { CommitteesModule } from './committees/committees.module';
+import { AwardsModule } from './awards/awards.module';
 import { AdminModule } from './admin/admin.module';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { PhoneNumberInterceptor } from './interceptor/phone-number.interceptor';
@@ -32,6 +33,7 @@ import { PhoneNumberInterceptor } from './interceptor/phone-number.interceptor';
     BoardModule,
     CategoriesModule,
     CommitteesModule,
+    AwardsModule,
     AdminModule,
   ],
   controllers: [AppController],
