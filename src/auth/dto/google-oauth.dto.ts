@@ -2,15 +2,15 @@ import { IsEmail, IsOptional, IsString } from 'class-validator';
 
 export class GoogleOAuthDto {
   @IsEmail()
-  email: string;
+  email!: string;
 
   @IsString()
-  name: string;
+  name!: string;
 
   @IsOptional()
   @IsString()
-  avatar_url?: string;
+  image_url?: string;
 
   @IsString()
-  google_id: string;
+  google_id!: string;
 }

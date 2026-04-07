@@ -3,7 +3,7 @@ const user_example = {
   name: 'Ali Said',
   email: 'asaszizg1@gmail.com',
   phone: '+201001234567',
-  avatar_url: 'https://example.com/avatars/AliSaid.jpg',
+  image_url: 'https://example.com/images/AliSaid.jpg',
   bio: 'Computer Science student interested in AI and web development',
   faculty: 'Faculty of Engineering',
   university: 'Cairo University',
@@ -59,29 +59,29 @@ export const update_user_swagger = {
   },
 };
 
-export const upload_user_avatar_swagger = {
+export const upload_user_image_swagger = {
   body: {
     schema: {
       type: 'object',
-      required: ['avatar'],
+      required: ['image'],
       properties: {
-        avatar: { type: 'string', format: 'binary' },
+        image: { type: 'string', format: 'binary' },
       },
     },
   },
   operation: {
-    summary: 'Upload user avatar',
-    description: 'Upload or replace user avatar. User can only upload own avatar.',
+    summary: 'Upload user image',
+    description: 'Upload or replace user image. User can only upload own image.',
   },
   responses: {
     success: {
-      description: 'User avatar uploaded successfully',
+      description: 'User image uploaded successfully',
       schema: {
         example: {
           data: {
             ...user_example,
-            avatar_url: 'https://example.com/avatars/AliSaid.jpg',
-            avatar_public_id: 'users/avatars/ali-said',
+            image_url: 'https://example.com/images/AliSaid.jpg',
+            image_public_id: 'users/images/ali-said',
           },
           count: 1,
           message: 'Image uploaded successfully',
@@ -91,20 +91,20 @@ export const upload_user_avatar_swagger = {
   },
 };
 
-export const delete_user_avatar_swagger = {
+export const delete_user_image_swagger = {
   operation: {
-    summary: 'Delete user avatar',
-    description: 'Delete user avatar only without deleting user account.',
+    summary: 'Delete user image',
+    description: 'Delete user image only without deleting user account.',
   },
   responses: {
     success: {
-      description: 'User avatar deleted successfully',
+      description: 'User image deleted successfully',
       schema: {
         example: {
           data: {
             ...user_example,
-            avatar_url: null,
-            avatar_public_id: null,
+            image_url: null,
+            image_public_id: null,
           },
           count: 1,
           message: 'Image deleted successfully',

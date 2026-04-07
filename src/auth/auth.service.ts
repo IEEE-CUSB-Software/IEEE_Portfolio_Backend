@@ -462,7 +462,7 @@ export class AuthService {
   }
 
   async validateGoogleOAuth(googleOAuthDto: GoogleOAuthDto) {
-    const { google_id, email, name, avatar_url } = googleOAuthDto;
+    const { google_id, email, name, image_url } = googleOAuthDto;
 
     // Check if user with this email exists
     let user = await this.user_repository.findByEmail(email);
@@ -490,7 +490,7 @@ export class AuthService {
       email,
       name,
       google_id,
-      avatar_url: avatar_url || undefined,
+      image_url: image_url || undefined,
       role_id: visitorRole.id,
       verified_email: true, // Google emails are already verified
       // Set defaults for required fields that will be completed later
@@ -514,7 +514,7 @@ export class AuthService {
   }
 
   async validateGithubOAuth(githubOAuthDto: GithubOAuthDto) {
-    const { github_id, email, name, avatar_url } = githubOAuthDto;
+    const { github_id, email, name, image_url } = githubOAuthDto;
 
     if (!email) {
       throw new BadRequestException(
@@ -547,7 +547,7 @@ export class AuthService {
       email,
       name,
       github_id,
-      avatar_url: avatar_url || undefined,
+      image_url: image_url || undefined,
       role_id: visitorRole.id,
       verified_email: true,
       username: `user_${github_id.substring(0, 8)}`,

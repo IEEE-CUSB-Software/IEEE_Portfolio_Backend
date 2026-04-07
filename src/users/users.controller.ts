@@ -36,8 +36,8 @@ import {
 import {
   get_user_by_id_swagger,
   update_user_swagger,
-  upload_user_avatar_swagger,
-  delete_user_avatar_swagger,
+  upload_user_image_swagger,
+  delete_user_image_swagger,
 } from './users.swagger';
 import { ResponseMessage } from 'src/decorators/response-message.decorator';
 import { SkipPhoneNumberCheck } from 'src/decorators/skip-phone-number-check.decorator';
@@ -88,37 +88,37 @@ export class UsersController {
 
   @UseGuards(AuthGuard('jwt'))
   @Patch('me/image')
-  @UseInterceptors(FileInterceptor('avatar'))
+  @UseInterceptors(FileInterceptor('image'))
   @ApiConsumes('multipart/form-data')
-  @ApiBody(upload_user_avatar_swagger.body)
+  @ApiBody(upload_user_image_swagger.body)
   @ApiBearerAuth()
-  @ApiOperation(upload_user_avatar_swagger.operation)
-  @ApiOkResponse(upload_user_avatar_swagger.responses.success)
+  @ApiOperation(upload_user_image_swagger.operation)
+  @ApiOkResponse(upload_user_image_swagger.responses.success)
   @ApiUnauthorizedErrorResponse(ERROR_MESSAGES.INVALID_OR_EXPIRED_TOKEN)
   @ApiForbiddenErrorResponse(ERROR_MESSAGES.FORBIDDEN_ACTION)
   @ApiNotFoundErrorResponse(ERROR_MESSAGES.USER_NOT_FOUND)
   @ApiInternalServerError(ERROR_MESSAGES.INTERNAL_SERVER_ERROR)
   @ResponseMessage(SUCCESS_MESSAGES.IMAGE_UPLOADED)
-  uploadAvatar(
+  uploadImage(
     @Req() req: Request & { user: User },
-    @UploadedFile() avatar: any,
+    @UploadedFile() image: any,
   ) {
-    return this.usersService.uploadAvatar(req.user.id, avatar, req.user);
+    return this.usersService.uploadImage(req.user.id, image, req.user);
   }
 
   @UseGuards(AuthGuard('jwt'))
   @Delete('me/image')
   @ApiBearerAuth()
-  @ApiOperation(delete_user_avatar_swagger.operation)
-  @ApiOkResponse(delete_user_avatar_swagger.responses.success)
+  @ApiOperation(delete_user_image_swagger.operation)
+  @ApiOkResponse(delete_user_image_swagger.responses.success)
   @ApiUnauthorizedErrorResponse(ERROR_MESSAGES.INVALID_OR_EXPIRED_TOKEN)
   @ApiForbiddenErrorResponse(ERROR_MESSAGES.FORBIDDEN_ACTION)
   @ApiNotFoundErrorResponse(ERROR_MESSAGES.USER_NOT_FOUND)
   @ApiInternalServerError(ERROR_MESSAGES.INTERNAL_SERVER_ERROR)
   @ResponseMessage(SUCCESS_MESSAGES.IMAGE_DELETED)
-  removeAvatar(
+  removeImage(
     @Req() req: Request & { user: User },
   ) {
-    return this.usersService.removeAvatar(req.user.id, req.user);
+    return this.usersService.removeImage(req.user.id, req.user);
   }
 }

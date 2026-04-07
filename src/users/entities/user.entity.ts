@@ -40,10 +40,10 @@ export class User {
   role!: Role;
 
   @Column({ type: 'varchar', nullable: true })
-  avatar_url!: string | null;
+  image_url!: string | null;
 
   @Column({ type: 'varchar', nullable: true })
-  avatar_public_id!: string | null;
+  image_public_id!: string | null;
 
   @Column({ type: 'text', nullable: true })
   bio!: string | null;

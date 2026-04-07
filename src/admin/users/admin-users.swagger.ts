@@ -3,7 +3,7 @@ const user_example = {
   name: 'Ali Said',
   email: 'asaszizg1@gmail.com',
   phone: '+201001234567',
-  avatar_url: 'https://example.com/avatars/AliSaid.jpg',
+  image_url: 'https://example.com/images/AliSaid.jpg',
   bio: 'Computer Science student interested in AI and web development',
   faculty: 'Faculty of Engineering',
   university: 'Cairo University',

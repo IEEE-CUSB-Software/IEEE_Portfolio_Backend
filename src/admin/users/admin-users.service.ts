@@ -25,8 +25,8 @@ export class AdminUsersService {
 
     await this.usersRepository.remove(user);
 
-    if (user.avatar_public_id) {
-      await this.mediaService.deleteImage(user.avatar_public_id);
+    if (user.image_public_id) {
+      await this.mediaService.deleteImage(user.image_public_id);
     }
 
     return { 

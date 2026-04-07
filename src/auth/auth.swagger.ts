@@ -11,7 +11,7 @@ const user_example = {
   phone_number: '+201204878505',
   github_id: null,
   google_id: null,
-  avatar_url: null,
+  image_url: null,
 };
 
 export const get_current_user_swagger = {

@@ -2,15 +2,15 @@ import { IsEmail, IsOptional, IsString } from 'class-validator';
 
 export class GithubOAuthDto {
   @IsEmail()
-  email: string;
+  email!: string;
 
   @IsString()
-  name: string;
+  name!: string;
 
   @IsOptional()
   @IsString()
-  avatar_url?: string;
+  image_url?: string;
 
   @IsString()
-  github_id: string;
+  github_id!: string;
 }

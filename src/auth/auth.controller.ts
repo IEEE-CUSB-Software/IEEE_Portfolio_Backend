@@ -308,7 +308,7 @@ export class AuthController {
       google_id: user.google_id,
       email: user.email,
       name: user.name,
-      avatar_url: user.avatar_url,
+      image_url: user.image_url,
     });
 
     this.redirectWithTokens(
@@ -350,7 +350,7 @@ export class AuthController {
       github_id: user.github_id,
       email: user.email,
       name: user.name,
-      avatar_url: user.avatar_url,
+      image_url: user.image_url,
     });
 
     this.redirectWithTokens(

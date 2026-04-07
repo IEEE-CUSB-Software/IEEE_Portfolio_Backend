@@ -15,8 +15,8 @@ describe('UsersController', () => {
           useValue: {
             findOne: jest.fn(),
             update: jest.fn(),
-            uploadAvatar: jest.fn(),
-            removeAvatar: jest.fn(),
+            uploadImage: jest.fn(),
+            removeImage: jest.fn(),
           },
         },
       ],

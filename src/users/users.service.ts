@@ -55,7 +55,7 @@ export class UsersService {
     return this.usersRepository.save(user);
   }
 
-  async uploadAvatar(id: string, image: any, currentUser: User) {
+  async uploadImage(id: string, image: any, currentUser: User) {
     if (currentUser.id !== id) {
       throw new ForbiddenException(ERROR_MESSAGES.FORBIDDEN_ACTION);
     }
@@ -70,11 +70,11 @@ export class UsersService {
       throw new BadRequestException(ERROR_MESSAGES.IMAGE_IS_REQUIRED);
     }
 
-    const previousPublicId = user.avatar_public_id;
+    const previousPublicId = user.image_public_id;
     const uploadedImage = await this.mediaService.uploadImage(image, USERS_MEDIA_FOLDER);
 
-    user.avatar_url = uploadedImage.url;
-    user.avatar_public_id = uploadedImage.public_id;
+    user.image_url = uploadedImage.url;
+    user.image_public_id = uploadedImage.public_id;
 
     const savedUser = await this.usersRepository.save(user);
 
@@ -85,7 +85,7 @@ export class UsersService {
     return savedUser;
   }
 
-  async removeAvatar(id: string, currentUser: User) {
+  async removeImage(id: string, currentUser: User) {
     if (currentUser.id !== id) {
       throw new ForbiddenException(ERROR_MESSAGES.FORBIDDEN_ACTION);
     }
@@ -96,13 +96,13 @@ export class UsersService {
       throw new NotFoundException(ERROR_MESSAGES.USER_NOT_FOUND);
     }
 
-    if (!user.avatar_public_id) {
+    if (!user.image_public_id) {
       throw new NotFoundException(ERROR_MESSAGES.IMAGE_NOT_FOUND);
     }
 
-    const publicId = user.avatar_public_id;
-    user.avatar_url = null;
-    user.avatar_public_id = null;
+    const publicId = user.image_public_id;
+    user.image_url = null;
+    user.image_public_id = null;
 
     await this.usersRepository.save(user);
     await this.mediaService.deleteImage(publicId);
