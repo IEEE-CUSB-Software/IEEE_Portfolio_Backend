@@ -65,3 +65,59 @@ export const admin_delete_board_member_swagger = {
     },
   },
 };
+
+export const admin_upload_board_member_image_swagger = {
+  body: {
+    schema: {
+      type: 'object',
+      required: ['image'],
+      properties: {
+        image: { type: 'string', format: 'binary' },
+      },
+    },
+  },
+  operation: {
+    summary: 'Upload board member image',
+    description:
+      'Upload or replace board member image by board member id. Admin only.',
+  },
+  responses: {
+    success: {
+      description: 'Board member image uploaded successfully',
+      schema: {
+        example: {
+          data: {
+            ...board_member_example,
+            image_url: 'https://example.com/images/john-doe.jpg',
+          },
+          count: 1,
+          message: 'Image uploaded successfully',
+        },
+      },
+    },
+  },
+};
+
+export const admin_delete_board_member_image_swagger = {
+  operation: {
+    summary: 'Delete board member image',
+    description:
+      'Delete board member image only without deleting the board member. Admin only.',
+  },
+  responses: {
+    success: {
+      description: 'Board member image deleted successfully',
+      schema: {
+        example: {
+          data: {
+            ...board_member_example,
+            image_url: null,
+            image_public_id: null,
+          },
+          count: 1,
+          message: 'Image deleted successfully',
+        },
+      },
+    },
+  },
+};
