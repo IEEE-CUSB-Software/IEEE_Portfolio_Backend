@@ -3,6 +3,8 @@ const award_example = {
   image_url: 'https://example.com/images/ieee-award.jpg',
   title: 'Best Technical Chapter',
   description: 'Awarded for outstanding chapter performance and activities.',
+  year: 2025,
+  source: 'GLOBAL',
   won_count: 3,
   created_at: '2026-03-15T10:00:00Z',
   updated_at: '2026-03-15T10:00:00Z',

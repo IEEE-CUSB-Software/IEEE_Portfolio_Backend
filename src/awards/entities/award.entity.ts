@@ -5,6 +5,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { AwardSource } from '../enums/award-source.enum';
 
 @Entity('awards')
 export class Award {
@@ -22,6 +23,12 @@ export class Award {
 
   @Column({ type: 'text' })
   description!: string;
+
+  @Column({ type: 'int' })
+  year!: number;
+
+  @Column({ type: 'enum', enum: AwardSource, default: AwardSource.GLOBAL })
+  source!: AwardSource;
 
   @Column({ type: 'int' })
   won_count!: number;
