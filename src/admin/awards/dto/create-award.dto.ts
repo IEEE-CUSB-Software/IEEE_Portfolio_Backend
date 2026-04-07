@@ -2,7 +2,6 @@ import {
   IsInt,
   IsNotEmpty,
   IsString,
-  IsUrl,
   MaxLength,
   Min,
 } from 'class-validator';
@@ -11,22 +10,13 @@ import { STRING_MAX_LENGTH } from 'src/constants/variables';
 
 export class CreateAwardDto {
   @ApiProperty({
-    description: 'Award image URL',
-    example: 'https://example.com/images/ieee-award.jpg',
-  })
-  @IsString()
-  @IsNotEmpty()
-  @IsUrl()
-  image_url: string;
-
-  @ApiProperty({
     description: 'Award title',
     example: 'Best Technical Chapter',
   })
   @IsString()
   @IsNotEmpty()
   @MaxLength(STRING_MAX_LENGTH)
-  title: string;
+  title!: string;
 
   @ApiProperty({
     description: 'Award description',
@@ -35,7 +25,7 @@ export class CreateAwardDto {
   @IsString()
   @IsNotEmpty()
   @MaxLength(1000)
-  description: string;
+  description!: string;
 
   @ApiProperty({
     description: 'How many times this award was won',
@@ -43,5 +33,5 @@ export class CreateAwardDto {
   })
   @IsInt()
   @Min(0)
-  won_count: number;
+  won_count!: number;
 }
