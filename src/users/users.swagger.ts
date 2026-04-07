@@ -1,5 +1,3 @@
-import { SUCCESS_MESSAGES } from '../constants/swagger-messages';
-
 const user_example = {
   id: 'd102dadc-0b17-4e83-812b-00103b606a1f',
   name: 'Ali Said',
@@ -55,6 +53,61 @@ export const update_user_swagger = {
           },
           count: 1,
           message: 'User updated successfully',
+        },
+      },
+    },
+  },
+};
+
+export const upload_user_avatar_swagger = {
+  body: {
+    schema: {
+      type: 'object',
+      required: ['avatar'],
+      properties: {
+        avatar: { type: 'string', format: 'binary' },
+      },
+    },
+  },
+  operation: {
+    summary: 'Upload user avatar',
+    description: 'Upload or replace user avatar. User can only upload own avatar.',
+  },
+  responses: {
+    success: {
+      description: 'User avatar uploaded successfully',
+      schema: {
+        example: {
+          data: {
+            ...user_example,
+            avatar_url: 'https://example.com/avatars/AliSaid.jpg',
+            avatar_public_id: 'users/avatars/ali-said',
+          },
+          count: 1,
+          message: 'Image uploaded successfully',
+        },
+      },
+    },
+  },
+};
+
+export const delete_user_avatar_swagger = {
+  operation: {
+    summary: 'Delete user avatar',
+    description: 'Delete user avatar only without deleting user account.',
+  },
+  responses: {
+    success: {
+      description: 'User avatar deleted successfully',
+      schema: {
+        example: {
+          data: {
+            ...user_example,
+            avatar_url: null,
+            avatar_public_id: null,
+          },
+          count: 1,
+          message: 'Image deleted successfully',
         },
       },
     },
