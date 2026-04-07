@@ -8,6 +8,8 @@ import { ERROR_MESSAGES } from 'src/constants/swagger-messages';
 import { MediaService } from 'src/media/media.service';
 import { resolveMediaFolder } from 'src/media/media.utils';
 
+const BOARD_MEDIA_FOLDER = resolveMediaFolder('BOARD_MEMBERS_IMAGES_FILE_NAME', 'board-members');
+
 @Injectable()
 export class AdminBoardService {
   constructor(
@@ -50,8 +52,7 @@ export class AdminBoardService {
     }
 
     const previousPublicId = member.image_public_id;
-    const folder = resolveMediaFolder('BOARD_MEMBERS_IMAGES_FILE_NAME', 'board_members');
-    const uploadedImage = await this.mediaService.uploadImage(image, folder);
+    const uploadedImage = await this.mediaService.uploadImage(image, BOARD_MEDIA_FOLDER);
 
     member.image_url = uploadedImage.url;
     member.image_public_id = uploadedImage.public_id;

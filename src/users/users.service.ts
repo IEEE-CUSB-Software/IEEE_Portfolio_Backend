@@ -12,6 +12,9 @@ import { RolesService } from 'src/roles/roles.service';
 import { ERROR_MESSAGES } from 'src/constants/swagger-messages';
 import { MediaService } from 'src/media/media.service';
 import { resolveMediaFolder } from 'src/media/media.utils';
+
+const USERS_MEDIA_FOLDER = resolveMediaFolder('USERS_IMAGES_FILE_NAME', 'users');
+
 @Injectable()
 export class UsersService {
   constructor(
@@ -68,8 +71,7 @@ export class UsersService {
     }
 
     const previousPublicId = user.avatar_public_id;
-    const folder = resolveMediaFolder('USERS_AVATAR_FILE_NAME', 'avatars');
-    const uploadedImage = await this.mediaService.uploadImage(image, folder);
+    const uploadedImage = await this.mediaService.uploadImage(image, USERS_MEDIA_FOLDER);
 
     user.avatar_url = uploadedImage.url;
     user.avatar_public_id = uploadedImage.public_id;

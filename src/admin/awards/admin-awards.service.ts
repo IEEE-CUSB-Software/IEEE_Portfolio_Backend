@@ -8,6 +8,8 @@ import { ERROR_MESSAGES } from 'src/constants/swagger-messages';
 import { MediaService } from 'src/media/media.service';
 import { resolveMediaFolder } from 'src/media/media.utils';
 
+const AWARDS_MEDIA_FOLDER = resolveMediaFolder('AWARDS_IMAGES_FILE_NAME', 'awards');
+
 @Injectable()
 export class AdminAwardsService {
   constructor(
@@ -50,8 +52,7 @@ export class AdminAwardsService {
     }
 
     const previousPublicId = award.image_public_id;
-    const folder = resolveMediaFolder('AWARDS_IMAGES_FILE_NAME', 'awards');
-    const uploadedImage = await this.mediaService.uploadImage(image, folder);
+    const uploadedImage = await this.mediaService.uploadImage(image, AWARDS_MEDIA_FOLDER);
 
     award.image_url = uploadedImage.url;
     award.image_public_id = uploadedImage.public_id;

@@ -18,6 +18,9 @@ import { UpdateEventDto } from 'src/admin/events/dto/update-event.dto';
 import { MediaService } from 'src/media/media.service';
 import { resolveMediaFolder } from 'src/media/media.utils';
 
+const EVENTS_PRIMARY_MEDIA_FOLDER = resolveMediaFolder('EVENTS_PRIMARY_IMAGES_FILE_NAME', 'events-primary');
+const EVENTS_GALLERY_MEDIA_FOLDER = resolveMediaFolder('EVENTS_IMAGES_FILE_NAME', 'events');
+
 @Injectable()
 export class AdminEventsService {
   constructor(
@@ -116,8 +119,7 @@ export class AdminEventsService {
     }
 
     const previousPublicId = event.image_public_id;
-    const folder = resolveMediaFolder('EVENTS_PRIMARY_IMAGES_FILE_NAME', 'events-primary');
-    const uploadedImage = await this.mediaService.uploadImage(image, folder);
+    const uploadedImage = await this.mediaService.uploadImage(image, EVENTS_PRIMARY_MEDIA_FOLDER);
 
     event.image_url = uploadedImage.url;
     event.image_public_id = uploadedImage.public_id;
@@ -197,10 +199,10 @@ export class AdminEventsService {
     const existingCount = await this.eventImagesRepository.count({
       where: { event_id: eventId },
     });
-    const folder = resolveMediaFolder('EVENTS_IMAGES_FILE_NAME', 'events');
-
     const uploadedImages = await Promise.all(
-      files.map((file) => this.mediaService.uploadImage(file, folder)),
+      files.map((file) =>
+        this.mediaService.uploadImage(file, EVENTS_GALLERY_MEDIA_FOLDER),
+      ),
     );
 
     const images = uploadedImages.map((uploadedImage, index) =>
