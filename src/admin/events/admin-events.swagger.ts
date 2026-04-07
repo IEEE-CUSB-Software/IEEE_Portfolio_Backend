@@ -13,6 +13,16 @@ const event_example = {
   updated_at: '2026-02-04T10:00:00Z',
 };
 
+const event_image_example = {
+  id: '42f7f383-f8bb-4ef9-908c-197b667b4f80',
+  event_id: '550e8400-e29b-41d4-a716-446655440000',
+  image_url: 'https://example.com/images/event-cover.jpg',
+  image_public_id: 'events/sample-public-id',
+  sort_order: 0,
+  created_at: '2026-02-04T10:00:00Z',
+  updated_at: '2026-02-04T10:00:00Z',
+};
+
 const registration_example = {
   id: 'b6a7b810-9dad-4c92-91a1-98e32ccaa999',
   user_id: '3f0f3f98-7c7b-49b3-b17b-0d7b0d27f9e1',
@@ -78,6 +88,113 @@ export const admin_delete_event_swagger = {
           data: {},
           count: 1,
           message: 'Event deleted successfully',
+        },
+      },
+    },
+  },
+};
+
+export const admin_upload_primary_event_image_swagger = {
+  body: {
+    schema: {
+      type: 'object',
+      required: ['image'],
+      properties: {
+        image: { type: 'string', format: 'binary' },
+      },
+    },
+  },
+  operation: {
+    summary: 'Upload primary event image',
+    description: 'Upload or replace the primary image of an event. Admin only.',
+  },
+  responses: {
+    success: {
+      description: 'Event image uploaded successfully',
+      schema: {
+        example: {
+          data: {
+            ...event_example,
+            image_url: 'https://example.com/images/event-cover.jpg',
+            image_public_id: 'events/primary-public-id',
+          },
+          count: 1,
+          message: 'Image uploaded successfully',
+        },
+      },
+    },
+  },
+};
+
+export const admin_delete_primary_event_image_swagger = {
+  operation: {
+    summary: 'Delete primary event image',
+    description: 'Delete only the primary image of an event. Admin only.',
+  },
+  responses: {
+    success: {
+      description: 'Event image deleted successfully',
+      schema: {
+        example: {
+          data: {
+            ...event_example,
+            image_url: null,
+            image_public_id: null,
+          },
+          count: 1,
+          message: 'Image deleted successfully',
+        },
+      },
+    },
+  },
+};
+
+export const admin_upload_event_images_swagger = {
+  body: {
+    schema: {
+      type: 'object',
+      required: ['images'],
+      properties: {
+        images: {
+          type: 'array',
+          items: { type: 'string', format: 'binary' },
+        },
+      },
+    },
+  },
+  operation: {
+    summary: 'Upload event gallery images',
+    description: 'Upload one or more event gallery images. Admin only.',
+  },
+  responses: {
+    success: {
+      description: 'Event images uploaded successfully',
+      schema: {
+        example: {
+          data: [event_image_example],
+          count: 1,
+          message: 'Images uploaded successfully',
+        },
+      },
+    },
+  },
+};
+
+export const admin_delete_event_image_swagger = {
+  operation: {
+    summary: 'Delete event gallery image',
+    description: 'Delete one event gallery image by image id. Admin only.',
+  },
+  responses: {
+    success: {
+      description: 'Event image deleted successfully',
+      schema: {
+        example: {
+          data: {
+            ...event_image_example,
+          },
+          count: 1,
+          message: 'Image deleted successfully',
         },
       },
     },

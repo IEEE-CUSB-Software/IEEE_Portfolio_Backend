@@ -19,7 +19,7 @@ export class CreateEventDto {
   @IsString()
   @IsNotEmpty()
   @MaxLength(STRING_MAX_LENGTH)
-  title: string;
+  title!: string;
 
   @ApiProperty({
     description: 'Event description',
@@ -28,7 +28,7 @@ export class CreateEventDto {
   @IsString()
   @IsNotEmpty()
   @MaxLength(1000)
-  description: string;
+  description!: string;
 
   @ApiProperty({
     description: 'Event category',
@@ -37,7 +37,7 @@ export class CreateEventDto {
   })
   @IsEnum(EventCategory)
   @IsNotEmpty()
-  category: EventCategory;
+  category!: EventCategory;
 
   @ApiProperty({
     description: 'Event location',
@@ -46,21 +46,21 @@ export class CreateEventDto {
   @IsString()
   @IsNotEmpty()
   @MaxLength(STRING_MAX_LENGTH)
-  location: string;
+  location!: string;
 
   @ApiProperty({
     description: 'Event start time (ISO 8601)',
     example: '2026-03-15T10:00:00Z',
   })
   @IsDateString()
-  start_time: string;
+  start_time!: string;
 
   @ApiProperty({
     description: 'Event end time (ISO 8601)',
     example: '2026-03-15T12:00:00Z',
   })
   @IsDateString()
-  end_time: string;
+  end_time!: string;
 
   @ApiProperty({
     description: 'Maximum number of attendees',
@@ -69,12 +69,12 @@ export class CreateEventDto {
   })
   @IsInt()
   @Min(1)
-  capacity: number;
+  capacity!: number;
 
   @ApiProperty({
     description: 'Registration deadline (ISO 8601)',
     example: '2026-03-10T23:59:59Z',
   })
   @IsDateString()
-  registration_deadline: string;
+  registration_deadline!: string;
 }
