@@ -17,7 +17,7 @@ export class CreateCommitteeMemberDto {
   })
   @IsUUID()
   @IsNotEmpty()
-  committee_id: string;
+  committee_id!: string;
 
   @ApiProperty({
     description: 'Committee member name',
@@ -26,7 +26,7 @@ export class CreateCommitteeMemberDto {
   @IsString()
   @IsNotEmpty()
   @MaxLength(STRING_MAX_LENGTH)
-  name: string;
+  name!: string;
 
   @ApiProperty({
     description: 'Committee member email',
@@ -34,7 +34,7 @@ export class CreateCommitteeMemberDto {
   })
   @IsEmail()
   @IsNotEmpty()
-  email: string;
+  email!: string;
 
   @ApiProperty({
     description: 'Committee member role',
@@ -43,13 +43,6 @@ export class CreateCommitteeMemberDto {
   })
   @IsEnum(CommitteeMemberRole)
   @IsNotEmpty()
-  role: CommitteeMemberRole;
+  role!: CommitteeMemberRole;
 
-  @ApiProperty({
-    description: 'Committee member image URL',
-    example: 'https://example.com/images/mario-raafat.jpg',
-  })
-  @IsString()
-  @IsNotEmpty()
-  image_url: string;
 }
