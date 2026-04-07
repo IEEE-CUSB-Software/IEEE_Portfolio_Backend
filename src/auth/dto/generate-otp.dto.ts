@@ -10,5 +10,5 @@ export class GenerateOtpDTO {
   @IsEmail()
   @IsNotEmpty()
   @MaxLength(STRING_MAX_LENGTH)
-  email: string;
+  email!: string;
 }

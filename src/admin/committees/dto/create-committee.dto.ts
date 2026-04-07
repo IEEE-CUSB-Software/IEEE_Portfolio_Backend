@@ -15,7 +15,7 @@ export class CreateCommitteeDto {
   @IsString()
   @IsNotEmpty()
   @MaxLength(STRING_MAX_LENGTH)
-  name: string;
+  name!: string;
 
   @ApiProperty({
     description: 'About section describing the committee',
@@ -25,7 +25,7 @@ export class CreateCommitteeDto {
   @IsString()
   @IsNotEmpty()
   @MaxLength(2000)
-  about: string;
+  about!: string;
 
   @ApiProperty({
     description: 'Category ID',
@@ -33,5 +33,5 @@ export class CreateCommitteeDto {
   })
   @IsUUID()
   @IsNotEmpty()
-  category_id: string;
+  category_id!: string;
 }

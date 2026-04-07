@@ -11,7 +11,7 @@ export class LoginDTO {
     @IsString()
     @IsNotEmpty()
     @MaxLength(STRING_MAX_LENGTH)
-    identifier: string;
+    identifier!: string;
 
     @ApiProperty({
         description:
@@ -21,5 +21,5 @@ export class LoginDTO {
     })
     @IsNotEmpty()
     @MaxLength(STRING_MAX_LENGTH)
-    password: string;
+    password!: string;
 }

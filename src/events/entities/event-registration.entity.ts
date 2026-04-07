@@ -22,10 +22,10 @@ export enum EventRegistrationStatus {
 @Unique('UQ_event_registration_unique', ['event_id', 'user_id'])
 export class EventRegistration {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id!: string;
 
   @Column('uuid')
-  user_id: string;
+  user_id!: string;
 
   @ManyToOne(() => User, {
     nullable: false,
@@ -33,10 +33,10 @@ export class EventRegistration {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'user_id' })
-  user: User;
+  user!: User;
 
   @Column('uuid')
-  event_id: string;
+  event_id!: string;
 
   @ManyToOne(() => Event, (event) => event.registrations, {
     nullable: false,
@@ -44,18 +44,18 @@ export class EventRegistration {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'event_id' })
-  event: Event;
+  event!: Event;
 
   @Column({
     type: 'enum',
     enum: EventRegistrationStatus,
     default: EventRegistrationStatus.REGISTERED,
   })
-  status: EventRegistrationStatus;
+  status!: EventRegistrationStatus;
 
   @CreateDateColumn()
-  created_at: Date;
+  created_at!: Date;
 
   @UpdateDateColumn()
-  updated_at: Date;
+  updated_at!: Date;
 }

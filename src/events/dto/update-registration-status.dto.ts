@@ -9,5 +9,5 @@ export class UpdateRegistrationStatusDto {
     example: EventRegistrationStatus.ATTENDED,
   })
   @IsEnum(EventRegistrationStatus)
-  status: EventRegistrationStatus;
+  status!: EventRegistrationStatus;
 }

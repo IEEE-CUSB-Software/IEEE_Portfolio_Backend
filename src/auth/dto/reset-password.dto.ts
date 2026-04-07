@@ -17,7 +17,7 @@ export class ResetPasswordDTO {
   @IsEmail()
   @IsNotEmpty()
   @MaxLength(STRING_MAX_LENGTH)
-  email: string;
+  email!: string;
 
   @ApiProperty({
     description: 'OTP code (6 digits)',
@@ -25,7 +25,7 @@ export class ResetPasswordDTO {
   })
   @IsNotEmpty()
   @Length(6, 6)
-  otp: string;
+  otp!: string;
 
   @ApiProperty({
     description: 'New password',
@@ -39,7 +39,7 @@ export class ResetPasswordDTO {
     message:
       'Password must contain lowercase, uppercase, number, and special character',
   })
-  password: string;
+  password!: string;
 
   @ApiProperty({
     description: 'Confirm new password',
@@ -53,5 +53,5 @@ export class ResetPasswordDTO {
     message:
       'Password must contain lowercase, uppercase, number, and special character',
   })
-  confirmPassword: string;
+  confirmPassword!: string;
 }

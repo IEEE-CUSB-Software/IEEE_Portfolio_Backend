@@ -8,5 +8,5 @@ export class VerifyOtpDTO {
   })
   @IsNotEmpty()
   @Length(6, 6)
-  otp: string;
+  otp!: string;
 }
