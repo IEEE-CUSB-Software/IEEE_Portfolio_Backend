@@ -9,23 +9,26 @@ import {
 @Entity('awards')
 export class Award {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id!: string;
+
+  @Column({ type: 'varchar', nullable: true })
+  image_url!: string | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  image_public_id!: string | null;
 
   @Column()
-  image_url: string;
-
-  @Column()
-  title: string;
+  title!: string;
 
   @Column({ type: 'text' })
-  description: string;
+  description!: string;
 
   @Column({ type: 'int' })
-  won_count: number;
+  won_count!: number;
 
   @CreateDateColumn()
-  created_at: Date;
+  created_at!: Date;
 
   @UpdateDateColumn()
-  updated_at: Date;
+  updated_at!: Date;
 }

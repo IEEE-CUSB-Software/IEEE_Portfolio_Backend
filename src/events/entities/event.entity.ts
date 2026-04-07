@@ -10,6 +10,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { EventRegistration } from './event-registration.entity';
+import { EventImage } from './event-image.entity';
 
 export enum EventCategory {
   TECHNICAL = 'Technical',
@@ -20,34 +21,40 @@ export enum EventCategory {
 @Entity('events')
 export class Event {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id!: string;
 
   @Column()
-  title: string;
+  title!: string;
+
+  @Column({ type: 'varchar', nullable: true })
+  image_url!: string | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  image_public_id!: string | null;
 
   @Column({ type: 'text' })
-  description: string;
+  description!: string;
 
   @Column({ type: 'enum', enum: EventCategory })
-  category: EventCategory;
+  category!: EventCategory;
 
   @Column()
-  location: string;
+  location!: string;
 
   @Column({ type: 'timestamp' })
-  start_time: Date;
+  start_time!: Date;
 
   @Column({ type: 'timestamp' })
-  end_time: Date;
+  end_time!: Date;
 
   @Column({ type: 'int' })
-  capacity: number;
+  capacity!: number;
 
   @Column({ type: 'timestamp' })
-  registration_deadline: Date;
+  registration_deadline!: Date;
 
   @Column('uuid')
-  created_by: string;
+  created_by!: string;
 
   @ManyToOne(() => User, {
     nullable: false,
@@ -55,14 +62,17 @@ export class Event {
     onDelete: 'RESTRICT',
   })
   @JoinColumn({ name: 'created_by' })
-  createdBy: User;
+  createdBy!: User;
 
   @OneToMany(() => EventRegistration, (registration) => registration.event)
-  registrations: EventRegistration[];
+  registrations!: EventRegistration[];
+
+  @OneToMany(() => EventImage, (image) => image.event)
+  images!: EventImage[];
 
   @CreateDateColumn()
-  created_at: Date;
+  created_at!: Date;
 
   @UpdateDateColumn()
-  updated_at: Date;
+  updated_at!: Date;
 }

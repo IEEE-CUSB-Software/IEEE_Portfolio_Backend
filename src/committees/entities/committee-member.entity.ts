@@ -18,10 +18,10 @@ export enum CommitteeMemberRole {
 @Entity('committee_members')
 export class CommitteeMember {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id!: string;
 
   @Column('uuid')
-  committee_id: string;
+  committee_id!: string;
 
   @ManyToOne(() => Committee, (committee) => committee.members, {
     nullable: false,
@@ -29,23 +29,26 @@ export class CommitteeMember {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'committee_id' })
-  committee: Committee;
+  committee!: Committee;
 
   @Column()
-  name: string;
+  name!: string;
 
   @Column()
-  email: string;
+  email!: string;
 
   @Column({ type: 'enum', enum: CommitteeMemberRole })
-  role: CommitteeMemberRole;
+  role!: CommitteeMemberRole;
 
-  @Column()
-  image_url: string;
+  @Column({ type: 'varchar', nullable: true })
+  image_url!: string | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  image_public_id!: string | null;
 
   @CreateDateColumn()
-  created_at: Date;
+  created_at!: Date;
 
   @UpdateDateColumn()
-  updated_at: Date;
+  updated_at!: Date;
 }

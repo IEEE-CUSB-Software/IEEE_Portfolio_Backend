@@ -13,23 +13,23 @@ import {
 @Entity('users')
 export class User {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id!: string;
 
   @Column()
-  name: string;
+  name!: string;
 
   @Column({ unique: true })
-  username: string;
+  username!: string;
 
   @Column({ unique: true })
-  email: string;
+  email!: string;
 
   @Column({ nullable: true, select: false }) // could be null for OAuth users
   @Exclude()
-  password: string;
+  password!: string;
 
   @Column('uuid')
-  role_id: string;
+  role_id!: string;
 
   @ManyToOne(() => Role, (role) => role.users, {
     nullable: false,
@@ -37,44 +37,47 @@ export class User {
     onDelete: 'RESTRICT',
   })
   @JoinColumn({ name: 'role_id' })
-  role: Role;
+  role!: Role;
 
-  @Column({ nullable: true })
-  avatar_url: string;
+  @Column({ type: 'varchar', nullable: true })
+  avatar_url!: string | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  avatar_public_id!: string | null;
 
   @Column({ type: 'text', nullable: true })
-  bio: string;
+  bio!: string | null;
 
-  @Column({ nullable: true })
-  phone: string;
-
-  @Column()
-  faculty: string;
+  @Column({ type: 'varchar', nullable: true })
+  phone!: string | null;
 
   @Column()
-  university: string;
+  faculty!: string;
+
+  @Column()
+  university!: string;
 
   @Column({ type: 'int', width: 1 })
-  academic_year: number;
+  academic_year!: number;
 
   @Column({ default: 'General' })
-  major: string;
+  major!: string;
 
   @CreateDateColumn()
-  created_at: Date;
+  created_at!: Date;
 
   @UpdateDateColumn()
-  updated_at: Date;
+  updated_at!: Date;
 
   @Column({ default: false })
-  verified_email: boolean;
+  verified_email!: boolean;
 
   @Column({ default: true })
-  is_active: boolean;
+  is_active!: boolean;
 
-  @Column({ nullable: true, unique: true })
-  github_id: string;
+  @Column({ type: 'varchar', nullable: true, unique: true })
+  github_id!: string | null;
 
-  @Column({ nullable: true, unique: true })
-  google_id: string;
+  @Column({ type: 'varchar', nullable: true, unique: true })
+  google_id!: string | null;
 }
