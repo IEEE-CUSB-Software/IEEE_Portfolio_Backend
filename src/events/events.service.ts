@@ -7,20 +7,26 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In } from 'typeorm';
 import { Event } from './entities/event.entity';
+import { EventImage } from './entities/event-image.entity';
 import {
   EventRegistration,
   EventRegistrationStatus,
 } from './entities/event-registration.entity';
 import { User } from 'src/users/entities/user.entity';
 import { ERROR_MESSAGES } from 'src/constants/swagger-messages';
+import { MediaService } from 'src/media/media.service';
+import { resolveMediaFolder } from 'src/media/media.utils';
 
 @Injectable()
 export class EventsService {
   constructor(
     @InjectRepository(Event)
     private readonly eventsRepository: Repository<Event>,
+    @InjectRepository(EventImage)
+    private readonly eventImagesRepository: Repository<EventImage>,
     @InjectRepository(EventRegistration)
     private readonly registrationsRepository: Repository<EventRegistration>,
+    private readonly mediaService: MediaService,
   ) {}
 
   // is_full / remainingSpots / is_registered / registration_id
@@ -90,6 +96,7 @@ export class EventsService {
       skip,
       take: limit,
       order: { start_time: 'ASC' },
+      relations: ['images'],
     });
 
     // Enrich events with capacity and registration details
@@ -109,6 +116,7 @@ export class EventsService {
   async findOne(id: string, currentUser?: User) {
     const event = await this.eventsRepository.findOne({
       where: { id },
+      relations: ['images'],
     });
 
     if (!event) {

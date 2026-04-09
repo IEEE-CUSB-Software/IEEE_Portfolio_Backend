@@ -19,5 +19,5 @@ export class ChangePasswordDTO extends OmitType(ResetPasswordDTO, [
     message:
       'Password must contain lowercase, uppercase, number, and special character',
   })
-  currentPassword: string;
+  currentPassword!: string;
 }

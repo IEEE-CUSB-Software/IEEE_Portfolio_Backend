@@ -29,6 +29,7 @@ const base_config: any = {
     'src/users/entities/user.entity.ts',
     'src/roles/entities/role.entity.ts',
     'src/events/entities/event.entity.ts',
+    'src/events/entities/event-image.entity.ts',
     'src/events/entities/event-registration.entity.ts',
     'src/board/entities/board-member.entity.ts',
     'src/awards/entities/award.entity.ts',

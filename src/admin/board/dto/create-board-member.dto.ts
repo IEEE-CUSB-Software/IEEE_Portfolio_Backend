@@ -17,7 +17,7 @@ export class CreateBoardMemberDto {
   @IsString()
   @IsNotEmpty()
   @MaxLength(STRING_MAX_LENGTH)
-  name: string;
+  name!: string;
 
   @ApiProperty({
     description: 'Board member email',
@@ -25,7 +25,7 @@ export class CreateBoardMemberDto {
   })
   @IsEmail()
   @IsNotEmpty()
-  email: string;
+  email!: string;
 
   @ApiProperty({
     description: 'Board member role',
@@ -34,15 +34,7 @@ export class CreateBoardMemberDto {
   @IsString()
   @IsNotEmpty()
   @MaxLength(STRING_MAX_LENGTH)
-  role: string;
-
-  @ApiProperty({
-    description: 'Board member image URL',
-    example: 'https://example.com/images/mario-raafat.jpg',
-  })
-  @IsString()
-  @IsNotEmpty()
-  image_url: string;
+  role!: string;
 
   @ApiProperty({
     description: 'Display order (optional)',

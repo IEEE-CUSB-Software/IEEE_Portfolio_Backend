@@ -18,20 +18,20 @@ export enum RoleName {
 @Entity('roles')
 export class Role {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id!: string;
 
   @Column({ unique: true, type: 'enum', enum: RoleName })
-  name: RoleName;
+  name!: RoleName;
 
   @Column({ nullable: true })
-  description: string;
+  description!: string;
 
   @OneToMany(() => User, (user) => user.role)
-  users: User[];
+  users!: User[];
 
   @CreateDateColumn()
-  created_at: Date;
+  created_at!: Date;
 
   @UpdateDateColumn()
-  updated_at: Date;
+  updated_at!: Date;
 }

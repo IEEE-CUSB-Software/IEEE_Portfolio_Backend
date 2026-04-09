@@ -9,14 +9,20 @@ import {
   Query,
   Req,
   ParseUUIDPipe,
+  UploadedFile,
+  UploadedFiles,
+  UseInterceptors,
 } from '@nestjs/common';
 import {
+  ApiBody,
+  ApiConsumes,
   ApiCreatedResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
   ApiBearerAuth,
 } from '@nestjs/swagger';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import type { Request } from 'express';
 import { AdminEventsService } from './admin-events.service';
 import { CreateEventDto } from 'src/admin/events/dto/create-event.dto';
@@ -39,6 +45,10 @@ import {
   admin_create_event_swagger,
   admin_update_event_swagger,
   admin_delete_event_swagger,
+  admin_upload_primary_event_image_swagger,
+  admin_delete_primary_event_image_swagger,
+  admin_upload_event_images_swagger,
+  admin_delete_event_image_swagger,
   admin_get_event_registrations_swagger,
   admin_update_registration_status_swagger,
   admin_bulk_register_swagger,
@@ -84,6 +94,36 @@ export class AdminEventsController {
     return this.adminEventsService.update(id, updateEventDto);
   }
 
+  @Post(':id/image')
+  @UseInterceptors(FileInterceptor('image'))
+  @ApiConsumes('multipart/form-data')
+  @ApiBody(admin_upload_primary_event_image_swagger.body)
+  @ApiOperation(admin_upload_primary_event_image_swagger.operation)
+  @ApiCreatedResponse(admin_upload_primary_event_image_swagger.responses.success)
+  @ApiUnauthorizedErrorResponse(ERROR_MESSAGES.INVALID_OR_EXPIRED_TOKEN)
+  @ApiForbiddenErrorResponse(ERROR_MESSAGES.FORBIDDEN_ACTION)
+  @ApiNotFoundErrorResponse(ERROR_MESSAGES.EVENT_NOT_FOUND)
+  @ApiInternalServerError(ERROR_MESSAGES.INTERNAL_SERVER_ERROR)
+  @ResponseMessage(SUCCESS_MESSAGES.IMAGE_UPLOADED)
+  uploadPrimaryImage(
+    @Param('id', ParseUUIDPipe) id: string,
+    @UploadedFile() image: any,
+  ) {
+    return this.adminEventsService.uploadPrimaryImage(id, image);
+  }
+
+  @Delete(':id/image')
+  @ApiOperation(admin_delete_primary_event_image_swagger.operation)
+  @ApiOkResponse(admin_delete_primary_event_image_swagger.responses.success)
+  @ApiUnauthorizedErrorResponse(ERROR_MESSAGES.INVALID_OR_EXPIRED_TOKEN)
+  @ApiForbiddenErrorResponse(ERROR_MESSAGES.FORBIDDEN_ACTION)
+  @ApiNotFoundErrorResponse(ERROR_MESSAGES.EVENT_NOT_FOUND)
+  @ApiInternalServerError(ERROR_MESSAGES.INTERNAL_SERVER_ERROR)
+  @ResponseMessage(SUCCESS_MESSAGES.IMAGE_DELETED)
+  deletePrimaryImage(@Param('id', ParseUUIDPipe) id: string) {
+    return this.adminEventsService.removePrimaryImage(id);
+  }
+
   @Delete(':id')
   @ApiOperation(admin_delete_event_swagger.operation)
   @ApiOkResponse(admin_delete_event_swagger.responses.success)
@@ -96,6 +136,39 @@ export class AdminEventsController {
     @Param('id', ParseUUIDPipe) id: string,
   ) {
     return this.adminEventsService.remove(id);
+  }
+
+  @Post(':id/images')
+  @UseInterceptors(FilesInterceptor('images', 10))
+  @ApiConsumes('multipart/form-data')
+  @ApiBody(admin_upload_event_images_swagger.body)
+  @ApiOperation(admin_upload_event_images_swagger.operation)
+  @ApiCreatedResponse(admin_upload_event_images_swagger.responses.success)
+  @ApiUnauthorizedErrorResponse(ERROR_MESSAGES.INVALID_OR_EXPIRED_TOKEN)
+  @ApiForbiddenErrorResponse(ERROR_MESSAGES.FORBIDDEN_ACTION)
+  @ApiNotFoundErrorResponse(ERROR_MESSAGES.EVENT_NOT_FOUND)
+  @ApiInternalServerError(ERROR_MESSAGES.INTERNAL_SERVER_ERROR)
+  @ResponseMessage(SUCCESS_MESSAGES.IMAGES_UPLOADED)
+  uploadImages(
+    @Param('id', ParseUUIDPipe) id: string,
+    @UploadedFiles() images: any[],
+  ) {
+    return this.adminEventsService.addImages(id, images || []);
+  }
+
+  @Delete(':id/images/:imageId')
+  @ApiOperation(admin_delete_event_image_swagger.operation)
+  @ApiOkResponse(admin_delete_event_image_swagger.responses.success)
+  @ApiUnauthorizedErrorResponse(ERROR_MESSAGES.INVALID_OR_EXPIRED_TOKEN)
+  @ApiForbiddenErrorResponse(ERROR_MESSAGES.FORBIDDEN_ACTION)
+  @ApiNotFoundErrorResponse(ERROR_MESSAGES.EVENT_NOT_FOUND)
+  @ApiInternalServerError(ERROR_MESSAGES.INTERNAL_SERVER_ERROR)
+  @ResponseMessage(SUCCESS_MESSAGES.IMAGE_DELETED)
+  deleteImage(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Param('imageId', ParseUUIDPipe) imageId: string,
+  ) {
+    return this.adminEventsService.removeImage(id, imageId);
   }
 
   @Get(':id/registrations')

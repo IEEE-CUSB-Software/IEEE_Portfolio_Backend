@@ -18,19 +18,19 @@ export class RegisterDTO {
   @IsEmail()
   @IsNotEmpty()
   @MaxLength(STRING_MAX_LENGTH)
-  email: string;
+  email!: string;
 
   @ApiProperty({ description: 'Username', example: 'AhmedWaGiiH' })
   @IsString()
   @IsNotEmpty()
   @MaxLength(STRING_MAX_LENGTH)
-  username: string;
+  username!: string;
 
   @ApiProperty({ description: 'Full name', example: 'Ahmed Wagih' })
   @IsString()
   @IsNotEmpty()
   @MaxLength(STRING_MAX_LENGTH)
-  name: string;
+  name!: string;
 
   @ApiProperty({
     description: 'Phone number',
@@ -39,19 +39,19 @@ export class RegisterDTO {
   @IsString()
   @IsNotEmpty()
   @IsPhoneNumber(undefined, { message: 'Phone number must be valid' })
-  phone: string;
+  phone!: string;
 
   @ApiProperty({ description: 'Faculty', example: 'Engineering' })
   @IsString()
   @IsNotEmpty()
   @MaxLength(STRING_MAX_LENGTH)
-  faculty: string;
+  faculty!: string;
 
   @ApiProperty({ description: 'University', example: 'Cairo University' })
   @IsString()
   @IsNotEmpty()
   @MaxLength(STRING_MAX_LENGTH)
-  university: string;
+  university!: string;
 
   @ApiProperty({
     description: 'Academic year',
@@ -62,7 +62,7 @@ export class RegisterDTO {
   @IsInt()
   @Min(1)
   @Max(10)
-  academic_year: number;
+  academic_year!: number;
 
   @ApiProperty({
     description: 'Password',
@@ -76,7 +76,7 @@ export class RegisterDTO {
     message:
       'Password must contain lowercase, uppercase, number, and special character',
   })
-  password: string;
+  password!: string;
 
   @ApiProperty({
     description: 'Confirm password',
@@ -90,5 +90,5 @@ export class RegisterDTO {
     message:
       'Password must contain lowercase, uppercase, number, and special character',
   })
-  confirmPassword: string;
+  confirmPassword!: string;
 }

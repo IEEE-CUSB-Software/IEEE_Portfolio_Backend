@@ -19,7 +19,7 @@ export class CreateRoleDto {
     message: `Role name must be one of the following: ${Object.values(RoleName).join(', ')}`,
   })
   @IsNotEmpty()
-  name: RoleName;
+  name!: RoleName;
 
   @ApiProperty({
     description: 'Description of the role and its permissions',
@@ -31,5 +31,5 @@ export class CreateRoleDto {
   @IsString()
   @MinLength(5)
   @MaxLength(STRING_MAX_LENGTH)
-  description: string;
+  description!: string;
 }

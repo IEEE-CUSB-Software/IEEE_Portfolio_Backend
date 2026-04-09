@@ -86,7 +86,7 @@ export class GithubStrategy extends PassportStrategy(Strategy, 'github') {
       github_id: profile.id,
       email,
       name,
-      avatar_url: profile.photos?.[0]?.value,
+      image_url: profile.photos?.[0]?.value,
       accessToken,
       refreshToken,
     };

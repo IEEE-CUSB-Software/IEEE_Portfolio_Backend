@@ -26,7 +26,7 @@ export class CreateUserDto {
   @IsString()
   @MinLength(2)
   @MaxLength(STRING_MAX_LENGTH)
-  name: string;
+  name!: string;
 
   @ApiProperty({
     description: 'Email address of the user',
@@ -36,7 +36,7 @@ export class CreateUserDto {
   @IsEmail()
   @IsNotEmpty()
   @MaxLength(STRING_MAX_LENGTH)
-  email: string;
+  email!: string;
 
   @ApiProperty({
     description:
@@ -57,7 +57,7 @@ export class CreateUserDto {
         'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character (@$!%*?&)',
     },
   )
-  password: string;
+  password!: string;
 
   @ApiProperty({
     description: 'Name of the user role',
@@ -68,16 +68,7 @@ export class CreateUserDto {
     message: `Role must be one of the following: ${Object.values(RoleName).join(', ')}`,
   })
   @IsNotEmpty()
-  role: RoleName;
-
-  @ApiProperty({
-    description: 'URL to user avatar image',
-    example: 'https://example.com/avatars/AliSaid.jpg',
-    required: false,
-  })
-  @IsString()
-  @IsOptional()
-  avatar_url?: string;
+  role!: RoleName;
 
   @ApiProperty({
     description: 'Short biography of the user',
@@ -96,7 +87,7 @@ export class CreateUserDto {
   @IsString()
   @IsNotEmpty()
   @IsPhoneNumber(undefined, { message: 'Phone number must be valid' })
-  phone: string;
+  phone!: string;
 
   @ApiProperty({
     description: 'Faculty or school name',
@@ -104,7 +95,7 @@ export class CreateUserDto {
   })
   @IsString()
   @IsNotEmpty()
-  faculty: string;
+  faculty!: string;
 
   @ApiProperty({
     description: 'University name',
@@ -112,7 +103,7 @@ export class CreateUserDto {
   })
   @IsString()
   @IsNotEmpty()
-  university: string;
+  university!: string;
 
   @ApiProperty({
     description: 'Academic year (1-5)',
@@ -124,7 +115,7 @@ export class CreateUserDto {
   @Min(1)
   @Max(5)
   @IsNotEmpty()
-  academic_year: number;
+  academic_year!: number;
 
   @ApiProperty({
     description: 'Major or specialization',

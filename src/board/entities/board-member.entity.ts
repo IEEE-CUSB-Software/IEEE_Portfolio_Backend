@@ -9,26 +9,29 @@ import {
 @Entity('board')
 export class BoardMember {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id!: string;
 
   @Column()
-  name: string;
+  name!: string;
 
   @Column()
-  email: string;
+  email!: string;
 
   @Column()
-  role: string;
+  role!: string;
 
-  @Column()
-  image_url: string;
+  @Column({ type: 'varchar', nullable: true })
+  image_url!: string | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  image_public_id!: string | null;
 
   @Column({ type: 'int', nullable: true })
-  display_order: number;
+  display_order!: number;
 
   @CreateDateColumn()
-  created_at: Date;
+  created_at!: Date;
 
   @UpdateDateColumn()
-  updated_at: Date;
+  updated_at!: Date;
 }

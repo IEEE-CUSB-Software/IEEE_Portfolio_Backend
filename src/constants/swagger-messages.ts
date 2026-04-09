@@ -81,6 +81,13 @@ export const ERROR_MESSAGES = {
   // server
   INTERNAL_SERVER_ERROR: 'Internal server error',
 
+  // media
+  FAILED_TO_UPLOAD_IMAGE: 'Failed to upload image',
+  FAILED_TO_DELETE_IMAGE: 'Failed to delete image',
+  IMAGE_NOT_FOUND: 'Image not found',
+  IMAGE_IS_REQUIRED: 'Image file is required',
+  AT_LEAST_ONE_IMAGE_IS_REQUIRED: 'At least one image file is required',
+
   // request interception
   PHONE_NUMBER_REQUIRED: 'Phone number is required. Please update your profile with a valid phone number.'
 } as const;
@@ -156,4 +163,9 @@ export const SUCCESS_MESSAGES = {
   AWARD_CREATED: 'Award created successfully',
   AWARD_UPDATED: 'Award updated successfully',
   AWARD_DELETED: 'Award deleted successfully',
+
+  // media
+  IMAGE_UPLOADED: 'Image uploaded successfully',
+  IMAGE_DELETED: 'Image deleted successfully',
+  IMAGES_UPLOADED: 'Images uploaded successfully',
 } as const;

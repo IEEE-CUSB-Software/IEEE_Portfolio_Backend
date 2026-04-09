@@ -14,16 +14,16 @@ import { CommitteeMember } from './committee-member.entity';
 @Entity('committees')
 export class Committee {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id!: string;
 
   @Column()
-  name: string;
+  name!: string;
 
   @Column({ type: 'text' })
-  about: string;
+  about!: string;
 
   @Column('uuid')
-  category_id: string;
+  category_id!: string;
 
   @ManyToOne(() => Category, (category) => category.committees, {
     nullable: false,
@@ -31,14 +31,14 @@ export class Committee {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'category_id' })
-  category: Category;
+  category!: Category;
 
   @OneToMany(() => CommitteeMember, (member) => member.committee)
-  members: CommitteeMember[];
+  members!: CommitteeMember[];
 
   @CreateDateColumn()
-  created_at: Date;
+  created_at!: Date;
 
   @UpdateDateColumn()
-  updated_at: Date;
+  updated_at!: Date;
 }

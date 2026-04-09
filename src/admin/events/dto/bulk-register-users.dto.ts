@@ -13,5 +13,5 @@ export class BulkRegisterUsersDto {
   @IsArray()
   @ArrayMinSize(1)
   @IsUUID('4', { each: true })
-  user_ids: string[];
+  user_ids!: string[];
 }

@@ -65,3 +65,59 @@ export const admin_delete_committee_member_swagger = {
     },
   },
 };
+
+export const admin_upload_committee_member_image_swagger = {
+  body: {
+    schema: {
+      type: 'object',
+      required: ['image'],
+      properties: {
+        image: { type: 'string', format: 'binary' },
+      },
+    },
+  },
+  operation: {
+    summary: 'Upload committee member image',
+    description:
+      'Upload or replace committee member image by member id. Admin only.',
+  },
+  responses: {
+    success: {
+      description: 'Committee member image uploaded successfully',
+      schema: {
+        example: {
+          data: {
+            ...committee_member_example,
+            image_url: 'https://example.com/images/jane-smith.jpg',
+          },
+          count: 1,
+          message: 'Image uploaded successfully',
+        },
+      },
+    },
+  },
+};
+
+export const admin_delete_committee_member_image_swagger = {
+  operation: {
+    summary: 'Delete committee member image',
+    description:
+      'Delete committee member image only without deleting the member. Admin only.',
+  },
+  responses: {
+    success: {
+      description: 'Committee member image deleted successfully',
+      schema: {
+        example: {
+          data: {
+            ...committee_member_example,
+            image_url: null,
+            image_public_id: null,
+          },
+          count: 1,
+          message: 'Image deleted successfully',
+        },
+      },
+    },
+  },
+};

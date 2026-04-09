@@ -2,23 +2,16 @@ import {
   IsInt,
   IsNotEmpty,
   IsString,
-  IsUrl,
+  IsEnum,
   MaxLength,
   Min,
+  Max,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { STRING_MAX_LENGTH } from 'src/constants/variables';
+import { AwardSource } from 'src/awards/enums/award-source.enum';
 
 export class CreateAwardDto {
-  @ApiProperty({
-    description: 'Award image URL',
-    example: 'https://example.com/images/ieee-award.jpg',
-  })
-  @IsString()
-  @IsNotEmpty()
-  @IsUrl()
-  image_url: string;
-
   @ApiProperty({
     description: 'Award title',
     example: 'Best Technical Chapter',
@@ -26,7 +19,7 @@ export class CreateAwardDto {
   @IsString()
   @IsNotEmpty()
   @MaxLength(STRING_MAX_LENGTH)
-  title: string;
+  title!: string;
 
   @ApiProperty({
     description: 'Award description',
@@ -35,7 +28,25 @@ export class CreateAwardDto {
   @IsString()
   @IsNotEmpty()
   @MaxLength(1000)
-  description: string;
+  description!: string;
+
+  @ApiProperty({
+    description: 'Year the award was won',
+    example: 2025,
+  })
+  @IsInt()
+  @Min(1900)
+  @Max(new Date().getFullYear() + 1) // Allow up to next year
+  year!: number;
+
+  @ApiProperty({
+    description: 'Source of the award',
+    enum: AwardSource,
+    example: AwardSource.GLOBAL,
+  })
+  @IsEnum(AwardSource)
+  @IsNotEmpty()
+  source!: AwardSource;
 
   @ApiProperty({
     description: 'How many times this award was won',
@@ -43,5 +54,5 @@ export class CreateAwardDto {
   })
   @IsInt()
   @Min(0)
-  won_count: number;
+  won_count!: number;
 }

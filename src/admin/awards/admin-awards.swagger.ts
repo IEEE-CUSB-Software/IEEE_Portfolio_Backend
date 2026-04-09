@@ -3,6 +3,8 @@ const award_example = {
   image_url: 'https://example.com/images/ieee-award.jpg',
   title: 'Best Technical Chapter',
   description: 'Awarded for outstanding chapter performance and activities.',
+  year: 2025,
+  source: 'GLOBAL',
   won_count: 3,
   created_at: '2026-03-15T10:00:00Z',
   updated_at: '2026-03-15T10:00:00Z',
@@ -59,6 +61,60 @@ export const admin_delete_award_swagger = {
           data: { message: 'Award deleted successfully' },
           count: 1,
           message: 'Award deleted successfully',
+        },
+      },
+    },
+  },
+};
+
+export const admin_upload_award_image_swagger = {
+  body: {
+    schema: {
+      type: 'object',
+      required: ['image'],
+      properties: {
+        image: { type: 'string', format: 'binary' },
+      },
+    },
+  },
+  operation: {
+    summary: 'Upload award image',
+    description: 'Upload or replace award image by award id. Admin only.',
+  },
+  responses: {
+    success: {
+      description: 'Award image uploaded successfully',
+      schema: {
+        example: {
+          data: {
+            ...award_example,
+            image_url: 'https://example.com/images/ieee-award.jpg',
+          },
+          count: 1,
+          message: 'Image uploaded successfully',
+        },
+      },
+    },
+  },
+};
+
+export const admin_delete_award_image_swagger = {
+  operation: {
+    summary: 'Delete award image',
+    description: 'Delete award image only without deleting award. Admin only.',
+  },
+  responses: {
+    success: {
+      description: 'Award image deleted successfully',
+      schema: {
+        example: {
+          data: {
+            ...award_example,
+            image_url: null,
+            image_public_id: null,
+          },
+          count: 1,
+          message: 'Image deleted successfully',
         },
       },
     },

@@ -6,6 +6,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In } from 'typeorm';
 import { Event } from 'src/events/entities/event.entity';
+import { EventImage } from 'src/events/entities/event-image.entity';
 import {
   EventRegistration,
   EventRegistrationStatus,
@@ -14,16 +15,24 @@ import { User } from 'src/users/entities/user.entity';
 import { ERROR_MESSAGES } from 'src/constants/swagger-messages';
 import { CreateEventDto } from 'src/admin/events/dto/create-event.dto';
 import { UpdateEventDto } from 'src/admin/events/dto/update-event.dto';
+import { MediaService } from 'src/media/media.service';
+import { resolveMediaFolder } from 'src/media/media.utils';
+
+const EVENTS_PRIMARY_MEDIA_FOLDER = resolveMediaFolder('EVENTS_PRIMARY_IMAGES_FILE_NAME', 'events-primary');
+const EVENTS_GALLERY_MEDIA_FOLDER = resolveMediaFolder('EVENTS_IMAGES_FILE_NAME', 'events');
 
 @Injectable()
 export class AdminEventsService {
   constructor(
     @InjectRepository(Event)
     private readonly eventsRepository: Repository<Event>,
+    @InjectRepository(EventImage)
+    private readonly eventImagesRepository: Repository<EventImage>,
     @InjectRepository(EventRegistration)
     private readonly registrationsRepository: Repository<EventRegistration>,
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
+    private readonly mediaService: MediaService,
   ) {}
 
   private validateEventTimes(
@@ -51,6 +60,8 @@ export class AdminEventsService {
 
     const event = this.eventsRepository.create({
       ...createEventDto,
+      image_url: null,
+      image_public_id: null,
       start_time,
       end_time,
       registration_deadline,
@@ -79,6 +90,8 @@ export class AdminEventsService {
       throw new NotFoundException(ERROR_MESSAGES.EVENT_NOT_FOUND);
     }
 
+    Object.assign(event, updateEventDto);
+
     if (event.start_time && event.end_time && event.registration_deadline) {
       this.validateEventTimes(
         event.start_time,
@@ -87,19 +100,139 @@ export class AdminEventsService {
       );
     }
 
-    return this.eventsRepository.save(event);
+    const savedEvent = await this.eventsRepository.save(event);
+
+    return savedEvent;
+  }
+
+  // we have image for the event, in that case that is the primary image if the frontend wants to display only one
+  // we have also event images for the event, those are the additional images that can be displayed in a gallery or slider on the frontend
+  async uploadPrimaryImage(id: string, image: any) {
+    const event = await this.eventsRepository.findOne({ where: { id } });
+
+    if (!event) {
+      throw new NotFoundException(ERROR_MESSAGES.EVENT_NOT_FOUND);
+    }
+
+    if (!image) {
+      throw new BadRequestException(ERROR_MESSAGES.IMAGE_IS_REQUIRED);
+    }
+
+    const previousPublicId = event.image_public_id;
+    const uploadedImage = await this.mediaService.uploadImage(image, EVENTS_PRIMARY_MEDIA_FOLDER);
+
+    event.image_url = uploadedImage.url;
+    event.image_public_id = uploadedImage.public_id;
+
+    const savedEvent = await this.eventsRepository.save(event);
+
+    if (previousPublicId) {
+      await this.mediaService.deleteImage(previousPublicId);
+    }
+
+    return savedEvent;
+  }
+
+  async removePrimaryImage(id: string) {
+    const event = await this.eventsRepository.findOne({ where: { id } });
+
+    if (!event) {
+      throw new NotFoundException(ERROR_MESSAGES.EVENT_NOT_FOUND);
+    }
+
+    if (!event.image_public_id) {
+      throw new NotFoundException(ERROR_MESSAGES.IMAGE_NOT_FOUND);
+    }
+
+    const publicId = event.image_public_id;
+    event.image_url = null;
+    event.image_public_id = null;
+
+    await this.eventsRepository.save(event);
+    await this.mediaService.deleteImage(publicId);
+
+    return event;
   }
 
   async remove(id: string) {
-    const result = await this.eventsRepository.delete(id);
+    const event = await this.eventsRepository.findOne({
+      where: { id },
+      relations: ['images'],
+    });
 
-    if (result.affected === 0) {
+    if (!event) {
       throw new NotFoundException(ERROR_MESSAGES.EVENT_NOT_FOUND);
     }
+
+    const publicIdsToDelete = [
+      event.image_public_id,
+      ...((event.images || [])
+        .map((image) => image.image_public_id)
+        .filter(Boolean)),
+    ].filter(Boolean) as string[];
+
+    await this.eventsRepository.remove(event);
+
+    await Promise.all(
+      publicIdsToDelete.map((publicId) => this.mediaService.deleteImage(publicId)),
+    );
 
     return {
         success: true,
     };
+  }
+
+  // for event images
+  async addImages(eventId: string, files: any[]) {
+    const event = await this.eventsRepository.findOne({
+      where: { id: eventId },
+    });
+
+    if (!event) {
+      throw new NotFoundException(ERROR_MESSAGES.EVENT_NOT_FOUND);
+    }
+
+    if (!files.length) {
+      throw new BadRequestException(ERROR_MESSAGES.AT_LEAST_ONE_IMAGE_IS_REQUIRED);
+    }
+
+    const existingCount = await this.eventImagesRepository.count({
+      where: { event_id: eventId },
+    });
+    const uploadedImages = await Promise.all(
+      files.map((file) =>
+        this.mediaService.uploadImage(file, EVENTS_GALLERY_MEDIA_FOLDER),
+      ),
+    );
+
+    const images = uploadedImages.map((uploadedImage, index) =>
+      this.eventImagesRepository.create({
+        event_id: eventId,
+        image_url: uploadedImage.url,
+        image_public_id: uploadedImage.public_id,
+        sort_order: existingCount + index,
+      }),
+    );
+
+    return this.eventImagesRepository.save(images);
+  }
+
+  async removeImage(eventId: string, imageId: string) {
+    const image = await this.eventImagesRepository.findOne({
+      where: { id: imageId, event_id: eventId },
+    });
+
+    if (!image) {
+      throw new NotFoundException(ERROR_MESSAGES.IMAGE_NOT_FOUND);
+    }
+
+    if (image.image_public_id) {
+      await this.mediaService.deleteImage(image.image_public_id);
+    }
+
+    await this.eventImagesRepository.remove(image);
+
+    return { success: true };
   }
 
   async getEventRegistrations(

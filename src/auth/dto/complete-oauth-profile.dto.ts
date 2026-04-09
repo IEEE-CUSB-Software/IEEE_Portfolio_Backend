@@ -10,22 +10,22 @@ import {
 export class CompleteOAuthProfileDto {
   @IsNotEmpty()
   @IsString()
-  faculty: string;
+  faculty!: string;
 
   @IsNotEmpty()
   @IsString()
-  university: string;
-
+  university!: string;
+  
   @IsNotEmpty()
   @IsString()
   @IsPhoneNumber(undefined, { message: 'Phone number must be valid' })
-  phone: string;
+  phone!: string;
 
   @IsNotEmpty()
   @IsNumber()
   @Min(1)
   @Max(6)
-  academic_year: number;
+  academic_year!: number;
 
   @IsString()
   username?: string;
