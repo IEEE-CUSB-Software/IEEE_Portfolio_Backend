@@ -65,7 +65,7 @@ export class EventsService {
       });
 
       enrichedEvent.is_registered = !!userRegistration;
-      enrichedEvent.registration_id = userRegistration?.id || null;
+      enrichedEvent.registration = userRegistration || null;
     }
 
     return enrichedEvent;
