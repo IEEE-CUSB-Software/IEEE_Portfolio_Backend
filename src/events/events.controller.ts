@@ -46,6 +46,7 @@ export class EventsController {
 
   @Get()
   @UseGuards(OptionalJwtGuard)
+  @ApiBearerAuth()
   @ApiOperation(get_all_events_swagger.operation)
   @ApiOkResponse(get_all_events_swagger.responses.success)
   @ApiInternalServerError(ERROR_MESSAGES.INTERNAL_SERVER_ERROR)
@@ -63,6 +64,7 @@ export class EventsController {
 
   @Get(':id')
   @UseGuards(OptionalJwtGuard)
+  @ApiBearerAuth()
   @ApiOperation(get_event_by_id_swagger.operation)
   @ApiOkResponse(get_event_by_id_swagger.responses.success)
   @ApiNotFoundErrorResponse(ERROR_MESSAGES.EVENT_NOT_FOUND)

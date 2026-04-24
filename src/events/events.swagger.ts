@@ -1,22 +1,3 @@
-const event_example = {
-  id: '550e8400-e29b-41d4-a716-446655440000',
-  title: 'IEEE AI Workshop',
-  description: 'A hands-on workshop on AI fundamentals and applications.',
-  category: 'Technical',
-  location: 'Main Auditorium, Building B',
-  start_time: '2026-03-15T10:00:00Z',
-  end_time: '2026-03-15T12:00:00Z',
-  capacity: 100,
-  registration_deadline: '2026-03-10T23:59:59Z',
-  created_by: '3f0f3f98-7c7b-49b3-b17b-0d7b0d27f9e1',
-  created_at: '2026-02-04T10:00:00Z',
-  updated_at: '2026-02-04T10:00:00Z',
-  remainingSpots: 45,
-  is_full: false,
-  is_registered: true,
-  registration_id: 'b6a7b810-9dad-4c92-91a1-98e32ccaa999',
-};
-
 const registration_example = {
   id: 'b6a7b810-9dad-4c92-91a1-98e32ccaa999',
   user_id: '3f0f3f98-7c7b-49b3-b17b-0d7b0d27f9e1',
@@ -25,6 +6,29 @@ const registration_example = {
   created_at: '2026-02-04T10:05:00Z',
   updated_at: '2026-02-04T10:05:00Z',
 };
+
+const event_example = {
+  id: '550e8400-e29b-41d4-a716-446655440000',
+  title: 'IEEE AI Workshop',
+  image_url: "https://res.cloudinary.com/dgmdresu7/image/upload/v1777051798/events-primary/kcllgsm0imlbanhw5ska.png",
+  image_public_id: "events-primary/kcllgsm0imlbanhw5ska",
+  description: 'A hands-on workshop on AI fundamentals and applications.',
+  category: 'Technical',
+  location: 'Main Auditorium, Building B',
+  start_time: '2026-03-15T10:00:00Z',
+  end_time: '2026-03-15T12:00:00Z',
+  capacity: 100,
+  registration_deadline: '2026-03-10T23:59:59Z',
+  images: [],
+  created_by: '3f0f3f98-7c7b-49b3-b17b-0d7b0d27f9e1',
+  created_at: '2026-02-04T10:00:00Z',
+  updated_at: '2026-02-04T10:00:00Z',
+  remainingSpots: 45,
+  is_full: false,
+  is_registered: true,
+  registration: registration_example,
+};
+
 
 export const get_all_events_swagger = {
   operation: {
