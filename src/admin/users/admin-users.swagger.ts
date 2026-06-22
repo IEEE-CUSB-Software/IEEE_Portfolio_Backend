@@ -1,3 +1,5 @@
+// admin-users.swagger.ts
+
 const user_example = {
   id: 'd102dadc-0b17-4e83-812b-00103b606a1f',
   name: 'Ali Said',
@@ -19,7 +21,6 @@ export const admin_delete_user_swagger = {
     summary: 'Delete user',
     description: 'Admins can delete a user account and all associated data.',
   },
-
   responses: {
     success: {
       description: 'User deleted successfully',
@@ -30,6 +31,40 @@ export const admin_delete_user_swagger = {
           },
           count: 1,
           message: 'User deleted successfully',
+        },
+      },
+    },
+  },
+};
+
+export const admin_download_cv_swagger = {
+  operation: {
+    summary: 'Download user CV (Admin)',
+    description: "Admin endpoint to download a specific user's CV binary file directly by their user ID.",
+  },
+  responses: {
+    success: {
+      description: 'File downloaded successfully',
+      schema: {
+        type: 'string',
+        format: 'binary',
+      },
+      headers: {
+        'Content-Type': {
+          description: 'The MIME type of the file (e.g., application/pdf)',
+          schema: { type: 'string' },
+        },
+        'Content-Disposition': {
+          description: 'Standard header indicating an attachment with a file name',
+          schema: { type: 'string' },
+        },
+        'X-User-Name': {
+          description: 'The name of the user who owns the CV',
+          schema: { type: 'string' },
+        },
+        'X-User-Email': {
+          description: 'The email of the user who owns the CV',
+          schema: { type: 'string' },
         },
       },
     },

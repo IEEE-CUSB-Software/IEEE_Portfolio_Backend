@@ -19,7 +19,6 @@ export const get_user_by_id_swagger = {
     summary: 'Get user by ID',
     description: 'Retrieve a specific user by their unique ID.',
   },
-
   responses: {
     success: {
       description: 'User retrieved successfully',
@@ -41,7 +40,6 @@ export const update_user_swagger = {
     summary: 'Update user',
     description: 'Update user profile information and details.',
   },
-
   responses: {
     success: {
       description: 'User updated successfully',
@@ -108,6 +106,65 @@ export const delete_user_image_swagger = {
           },
           count: 1,
           message: 'Image deleted successfully',
+        },
+      },
+    },
+  },
+};
+
+export const upload_user_cv_swagger = {
+  body: {
+    schema: {
+      type: 'object',
+      properties: {
+        cv: {
+          type: 'string',
+          format: 'binary',
+          description: 'PDF file',
+        },
+      },
+      required: ['cv'],
+    },
+  },
+  operation: {
+    summary: 'Upload user CV',
+    description: 'Upload a PDF CV file to user profile',
+  },
+  responses: {
+    success: {
+      description: 'CV uploaded successfully',
+      schema: {
+        example: {
+          message: 'CV uploaded successfully',
+          fileKey: 'uuid-timestamp.pdf',
+          fileUrl: 'https://r2-endpoint/bucket/uuid-timestamp.pdf',
+          fileName: 'my-cv.pdf',
+        },
+      },
+    },
+  },
+};
+
+export const download_user_cv_swagger = {
+  operation: {
+    summary: 'Download user CV',
+    description: 'Download the CV file from user profile',
+  },
+  responses: {
+    success: {
+      description: 'File downloaded successfully',
+      schema: {
+        type: 'string',
+        format: 'binary',
+      },
+      headers: {
+        'Content-Type': {
+          description: 'The MIME type of the file (e.g., application/pdf)',
+          schema: { type: 'string' },
+        },
+        'Content-Disposition': {
+          description: 'Standard header indicating an attachment with a file name',
+          schema: { type: 'string' },
         },
       },
     },

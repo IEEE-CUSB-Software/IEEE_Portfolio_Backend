@@ -8,6 +8,8 @@ import {
   Res,
   UseGuards,
   BadRequestException,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import type { Request, Response } from 'express';
@@ -17,6 +19,7 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiTags,
+  ApiConsumes,
 } from '@nestjs/swagger';
 import {
   ApiBadRequestErrorResponse,
@@ -57,6 +60,7 @@ import { ResetPasswordDTO } from './dto/reset-password.dto';
 import { ChangePasswordDTO } from './dto/change-password.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { User } from 'src/users/entities/user.entity';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @ApiTags('Authentication')
 @Controller('auth')
@@ -128,9 +132,13 @@ export class AuthController {
   @ApiInternalServerError(ERROR_MESSAGES.INTERNAL_SERVER_ERROR)
   @ResponseMessage(SUCCESS_MESSAGES.USER_REGISTERED)
   @Post('register')
-  async register(@Body() register_dto: RegisterDTO) {
-    const user = await this.auth_service.register(register_dto);
-    return { user };
+  @UseInterceptors(FileInterceptor('cv'))
+  @ApiConsumes('multipart/form-data')
+  async register(
+    @Body() registerDto: RegisterDTO,
+    @UploadedFile() cv?: Express.Multer.File,
+  ) {
+    return this.auth_service.register(registerDto, cv);
   }
 
   @ApiOperation(logout_swagger.operation)

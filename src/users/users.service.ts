@@ -12,6 +12,7 @@ import { RolesService } from 'src/roles/roles.service';
 import { ERROR_MESSAGES } from 'src/constants/swagger-messages';
 import { MediaService } from 'src/media/media.service';
 import { resolveMediaFolder } from 'src/media/media.utils';
+import { StorageService } from 'src/storage/storage.service';
 
 const USERS_MEDIA_FOLDER = resolveMediaFolder('USERS_IMAGES_FILE_NAME', 'users');
 
@@ -22,6 +23,7 @@ export class UsersService {
     private readonly usersRepository: Repository<User>,
     private readonly rolesService: RolesService,
     private readonly mediaService: MediaService,
+    private readonly storageService: StorageService,
   ) {}
 
   async findOne(id: string, currentUser: User) {
@@ -108,5 +110,100 @@ export class UsersService {
     await this.mediaService.deleteImage(publicId);
 
     return user;
+  }
+
+  async uploadCV(id: string, cvFile: Express.Multer.File, currentUser: User) {
+    if (currentUser.id !== id) {
+      throw new ForbiddenException(ERROR_MESSAGES.FORBIDDEN_ACTION);
+    }
+
+    const user = await this.usersRepository.findOne({ where: { id } });
+
+    if (!user) {
+      throw new NotFoundException(ERROR_MESSAGES.USER_NOT_FOUND);
+    }
+
+    if (!cvFile) {
+      throw new BadRequestException('CV file is required');
+    }
+
+    if (cvFile.mimetype !== 'application/pdf') {
+      throw new BadRequestException('Only PDF files are allowed');
+    }
+
+    // Delete previous CV if it exists
+    if (user.cv_file_key) {
+      await this.storageService.deleteFile(user.cv_file_key);
+    }
+
+    // Upload new CV to R2
+    const uploadResponse = await this.storageService.uploadFile({
+      fileName: cvFile.originalname,
+      fileBuffer: cvFile.buffer,
+      contentType: 'application/pdf',
+      prefix: 'CV/',
+      metadata: {
+        userId: id,
+        uploadType: 'cv',
+        uploadedAt: new Date().toISOString(),
+      },
+    });
+
+    // Save file key to user
+    user.cv_file_key = uploadResponse.fileKey;
+    await this.usersRepository.save(user);
+
+    return {
+      message: 'CV uploaded successfully',
+      fileKey: uploadResponse.fileKey,
+      fileUrl: uploadResponse.fileUrl,
+      fileName: cvFile.originalname,
+    };
+  }
+
+  async downloadCV(id: string, currentUser: User) {
+    if (currentUser.id !== id) {
+      throw new ForbiddenException(ERROR_MESSAGES.FORBIDDEN_ACTION);
+    }
+
+    const user = await this.usersRepository.findOne({ where: { id } });
+
+    if (!user) {
+      throw new NotFoundException(ERROR_MESSAGES.USER_NOT_FOUND);
+    }
+
+    if (!user.cv_file_key) {
+      throw new NotFoundException('CV not found for this user');
+    }
+
+    const file = await this.storageService.getFile(user.cv_file_key);
+
+    return {
+      fileBuffer: file.fileBuffer,
+      contentType: file.contentType,
+      fileName: user.name.replace(/\s+/g, '_') + '.pdf',
+    };
+  }
+
+  async getAdminDownloadCV(userId: string) {
+    const user = await this.usersRepository.findOne({ where: { id: userId } });
+
+    if (!user) {
+      throw new NotFoundException(ERROR_MESSAGES.USER_NOT_FOUND);
+    }
+
+    if (!user.cv_file_key) {
+      throw new NotFoundException('CV not found for this user');
+    }
+
+    const file = await this.storageService.getFile(user.cv_file_key);
+
+    return {
+      fileBuffer: file.fileBuffer,
+      contentType: file.contentType,
+      fileName: user.name.replace(/\s+/g, '_') + '.pdf',
+      userName: user.name,
+      userEmail: user.email,
+    };
   }
 }

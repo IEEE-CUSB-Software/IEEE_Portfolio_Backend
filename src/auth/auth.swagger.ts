@@ -81,8 +81,39 @@ export const login_swagger = {
 export const register_swagger = {
   operation: {
     summary: 'User registration',
-    description:
-      'Register a new user with email, username, name, faculty, university, academic year, and password.',
+    description: 'Register a new user with email, username, name, faculty, university, academic year, password, and an optional CV document.',
+  },
+  body: {
+    schema: {
+      type: 'object',
+      properties: {
+        email: { type: 'string', example: 'student@eng.cu.edu.eg' },
+        username: { type: 'string', example: 'student_eng' },
+        password: { type: 'string', example: 'StrongPass123!' },
+        confirmPassword: { type: 'string', example: 'StrongPass123!' },
+        name: { type: 'string', example: 'Ali Said' },
+        phone: { type: 'string', example: '+201001234567' },
+        faculty: { type: 'string', example: 'Faculty of Engineering' },
+        university: { type: 'string', example: 'Cairo University' },
+        academic_year: { type: 'number', example: 3 },
+        cv: {
+          type: 'string',
+          format: 'binary',
+          description: 'Optional PDF or Word CV file',
+        },
+      },
+      required: [
+        'email',
+        'username',
+        'password',
+        'confirmPassword',
+        'name',
+        'phone',
+        'faculty',
+        'university',
+        'academic_year'
+      ],
+    },
   },
   responses: {
     success: {
@@ -90,9 +121,7 @@ export const register_swagger = {
       schema: {
         example: {
           data: {
-            user: {
-              ...user_example,
-            },
+            user: { ...user_example },
           },
           count: 1,
           message: SUCCESS_MESSAGES.USER_REGISTERED,

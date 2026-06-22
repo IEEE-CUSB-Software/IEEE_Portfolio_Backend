@@ -12,6 +12,7 @@ import { GoogleStrategy } from './strategies/google.strategy';
 import { GithubStrategy } from './strategies/github.strategy';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { MailModule } from 'src/mail/mail.module';
+import { StorageModule } from 'src/storage/storage.module';
 @Module({
   imports: [
     ConfigModule,
@@ -43,6 +44,7 @@ import { MailModule } from 'src/mail/mail.module';
     RedisModule,
     RolesModule,
     MailModule,
+    StorageModule,
   ],
   providers: [AuthService, GoogleStrategy, GithubStrategy, JwtStrategy],
   controllers: [AuthController],

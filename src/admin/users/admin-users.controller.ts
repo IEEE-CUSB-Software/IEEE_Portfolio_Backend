@@ -1,9 +1,13 @@
+// admin-users.controller.ts
+
 import {
   Controller,
   Delete,
   Param,
   ParseUUIDPipe,
   UseGuards,
+  Get,
+  Res,
 } from '@nestjs/common';
 import {
   ApiOkResponse,
@@ -24,8 +28,10 @@ import {
   SUCCESS_MESSAGES,
 } from 'src/constants/swagger-messages';
 import { ResponseMessage } from 'src/decorators/response-message.decorator';
+import type { Response } from 'express';
 import {
   admin_delete_user_swagger,
+  admin_download_cv_swagger,
 } from './admin-users.swagger';
 
 @ApiTags('admin/users')
@@ -46,5 +52,28 @@ export class AdminUsersController {
     @Param('id', ParseUUIDPipe) id: string,
   ) {
     return this.adminUsersService.remove(id);
+  }
+
+  @Get(':userId/cv/download')
+  @ApiOperation(admin_download_cv_swagger.operation)
+  @ApiOkResponse(admin_download_cv_swagger.responses.success)
+  @ApiUnauthorizedErrorResponse(ERROR_MESSAGES.INVALID_OR_EXPIRED_TOKEN)
+  @ApiForbiddenErrorResponse(ERROR_MESSAGES.FORBIDDEN_ACTION)
+  @ApiNotFoundErrorResponse(ERROR_MESSAGES.USER_NOT_FOUND)
+  @ApiInternalServerError(ERROR_MESSAGES.INTERNAL_SERVER_ERROR)
+  async downloadUserCV(
+    @Param('userId', ParseUUIDPipe) userId: string,
+    @Res() res: Response,
+  ) {
+    const file = await this.adminUsersService.downloadUserCV(userId);
+
+    res.set({
+      'Content-Type': file.contentType,
+      'Content-Disposition': `attachment; filename="${file.fileName}"`,
+      'X-User-Name': file.userName,
+      'X-User-Email': file.userEmail,
+    });
+
+    return res.send(file.fileBuffer);
   }
 }

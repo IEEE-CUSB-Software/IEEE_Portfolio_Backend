@@ -10,7 +10,7 @@ import {
   Min,
   Matches,
 } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { STRING_MAX_LENGTH } from 'src/constants/variables';
 
 export class RegisterDTO {
@@ -63,6 +63,13 @@ export class RegisterDTO {
   @Min(1)
   @Max(10)
   academic_year!: number;
+
+  @ApiPropertyOptional({
+    type: 'string',
+    format: 'binary',
+    description: 'Optional PDF CV file',
+  })
+  cv?: any;
 
   @ApiProperty({
     description: 'Password',
