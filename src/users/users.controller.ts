@@ -42,6 +42,7 @@ import {
   delete_user_image_swagger,
   upload_user_cv_swagger,
   download_user_cv_swagger,
+  delete_user_cv_swagger,
 } from './users.swagger';
 import { ResponseMessage } from 'src/decorators/response-message.decorator';
 import { SkipPhoneNumberCheck } from 'src/decorators/skip-phone-number-check.decorator';
@@ -169,5 +170,22 @@ export class UsersController {
     });
 
     res.send(file.fileBuffer);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Delete('me/cv/')
+  @ApiBearerAuth()
+  @ApiOperation(delete_user_cv_swagger.operation)
+  @ApiOkResponse(delete_user_cv_swagger.responses.success)
+  @ApiUnauthorizedErrorResponse(ERROR_MESSAGES.INVALID_OR_EXPIRED_TOKEN)
+  @ApiForbiddenErrorResponse(ERROR_MESSAGES.FORBIDDEN_ACTION)
+  @ApiNotFoundErrorResponse(ERROR_MESSAGES.USER_NOT_FOUND)
+  @ApiInternalServerError(ERROR_MESSAGES.INTERNAL_SERVER_ERROR)
+  @SkipPhoneNumberCheck()
+  async deleteCV(
+    @Req() req: Request & { user: User },
+    @Res() res: Response,
+  ) {
+    return this.usersService.deleteCV(req.user.id, req.user);
   }
 }

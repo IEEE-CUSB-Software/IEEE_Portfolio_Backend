@@ -209,4 +209,28 @@ export class UsersService {
       userEmail: user.email,
     };
   }
+
+  async deleteCV(id: string, currentUser: Express.User & User) {
+    if (currentUser.id !== id) {
+      throw new ForbiddenException(ERROR_MESSAGES.FORBIDDEN_ACTION);
+    }
+
+    const user = await this.usersRepository.findOne({ where: { id } });
+
+    if (!user) {
+      throw new NotFoundException(ERROR_MESSAGES.USER_NOT_FOUND);
+    }
+
+    if (!user.cv_file_key) {
+      throw new NotFoundException('CV not found for this user');
+    }
+
+    const fileKey = user.cv_file_key;
+    user.cv_file_key = null;
+
+    await this.usersRepository.save(user);
+    await this.storageService.deleteFile(fileKey);
+
+    return user;
+  }
 }

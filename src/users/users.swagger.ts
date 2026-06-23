@@ -170,3 +170,26 @@ export const download_user_cv_swagger = {
     },
   },
 };
+
+export const delete_user_cv_swagger = {
+  operation: {
+    summary: 'Delete user CV',
+    description: 'Delete user CV only without deleting user account.',
+  },
+  responses: {
+    success: {
+      description: 'User CV deleted successfully',
+      schema: {
+        example: {
+          data: {
+            ...user_example,
+            cv_url: null,
+            cv_public_id: null,
+          },
+          count: 1,
+          message: 'CV deleted successfully',
+        },
+      },
+    },
+  },
+};
