@@ -80,4 +80,7 @@ export class User {
 
   @Column({ type: 'varchar', nullable: true, unique: true })
   google_id!: string | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  cv_file_key!: string | null;
 }

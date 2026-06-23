@@ -1,15 +1,23 @@
+// admin-users.controller.ts
+
 import {
   Controller,
   Delete,
   Param,
   ParseUUIDPipe,
   UseGuards,
+  Get,
+  Res,
+  Query,
+  DefaultValuePipe,
+  ParseIntPipe,
 } from '@nestjs/common';
 import {
   ApiOkResponse,
   ApiOperation,
   ApiTags,
   ApiBearerAuth,
+  ApiQuery,
 } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { AdminUsersService } from './admin-users.service';
@@ -24,8 +32,12 @@ import {
   SUCCESS_MESSAGES,
 } from 'src/constants/swagger-messages';
 import { ResponseMessage } from 'src/decorators/response-message.decorator';
+import type { Response } from 'express';
 import {
   admin_delete_user_swagger,
+  admin_download_cv_swagger,
+  admin_get_all_users_swagger,
+  admin_get_user_swagger,
 } from './admin-users.swagger';
 
 @ApiTags('admin/users')
@@ -33,6 +45,34 @@ import {
 @ApiBearerAuth()
 export class AdminUsersController {
   constructor(private readonly adminUsersService: AdminUsersService) {}
+
+  @Get()
+  @ApiOperation(admin_get_all_users_swagger.operation)
+  @ApiOkResponse(admin_get_all_users_swagger.responses.success)
+  @ApiUnauthorizedErrorResponse(ERROR_MESSAGES.INVALID_OR_EXPIRED_TOKEN)
+  @ApiForbiddenErrorResponse(ERROR_MESSAGES.FORBIDDEN_ACTION)
+  @ApiInternalServerError(ERROR_MESSAGES.INTERNAL_SERVER_ERROR)
+  @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
+  @ApiQuery({ name: 'limit', required: false, type: Number, example: 10 })
+  @ResponseMessage('Users retrieved successfully')
+  findAll(
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
+  ) {
+    return this.adminUsersService.findAll(page, limit);
+  }
+
+  @Get(':id')
+  @ApiOperation(admin_get_user_swagger.operation)
+  @ApiOkResponse(admin_get_user_swagger.responses.success)
+  @ApiUnauthorizedErrorResponse(ERROR_MESSAGES.INVALID_OR_EXPIRED_TOKEN)
+  @ApiForbiddenErrorResponse(ERROR_MESSAGES.FORBIDDEN_ACTION)
+  @ApiNotFoundErrorResponse(ERROR_MESSAGES.USER_NOT_FOUND)
+  @ApiInternalServerError(ERROR_MESSAGES.INTERNAL_SERVER_ERROR)
+  @ResponseMessage('User retrieved successfully')
+  findOne(@Param('id', ParseUUIDPipe) id: string) {
+    return this.adminUsersService.findOne(id);
+  }
 
   @Delete(':id')
   @ApiOperation(admin_delete_user_swagger.operation)
@@ -46,5 +86,28 @@ export class AdminUsersController {
     @Param('id', ParseUUIDPipe) id: string,
   ) {
     return this.adminUsersService.remove(id);
+  }
+
+  @Get(':userId/cv/download')
+  @ApiOperation(admin_download_cv_swagger.operation)
+  @ApiOkResponse(admin_download_cv_swagger.responses.success)
+  @ApiUnauthorizedErrorResponse(ERROR_MESSAGES.INVALID_OR_EXPIRED_TOKEN)
+  @ApiForbiddenErrorResponse(ERROR_MESSAGES.FORBIDDEN_ACTION)
+  @ApiNotFoundErrorResponse(ERROR_MESSAGES.USER_NOT_FOUND)
+  @ApiInternalServerError(ERROR_MESSAGES.INTERNAL_SERVER_ERROR)
+  async downloadUserCV(
+    @Param('userId', ParseUUIDPipe) userId: string,
+    @Res() res: Response,
+  ) {
+    const file = await this.adminUsersService.downloadUserCV(userId);
+
+    res.set({
+      'Content-Type': file.contentType,
+      'Content-Disposition': `attachment; filename="${file.fileName}"`,
+      'X-User-Name': file.userName,
+      'X-User-Email': file.userEmail,
+    });
+
+    res.send(file.fileBuffer);
   }
 }

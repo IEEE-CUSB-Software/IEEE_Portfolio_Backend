@@ -20,6 +20,8 @@ import { RedisKeyPrefix } from 'src/redis/redis.constants';
 import { RolesService } from 'src/roles/roles.service';
 import { RoleName } from 'src/roles/entities/role.entity';
 import { MailService } from 'src/mail/mail.service';
+import { StorageService } from 'src/storage/storage.service';
+import { ALLOWED_CV_TYPES, ALLOWED_MAX_CV_SIZE } from 'src/storage/storage.constants';
 
 enum AuthOtpPurpose {
   EmailVerification = 'emailVerification',
@@ -49,6 +51,7 @@ export class AuthService {
     private readonly redisService: RedisService,
     private readonly roles_service: RolesService,
     private readonly mailerService: MailService,
+    private readonly storageService: StorageService,
   ) {}
 
   // Private Helper Method to generate OTP
@@ -179,7 +182,7 @@ export class AuthService {
     };
   }
 
-  async register(register_dto: RegisterDTO): Promise<User> {
+  async register(register_dto: RegisterDTO, cvFile?: Express.Multer.File): Promise<User> {
     const {
       email,
       username,
@@ -213,7 +216,7 @@ export class AuthService {
 
     const visitorRole = await this.roles_service.findByName(RoleName.VISITOR);
 
-    const newUser = await this.user_repository.create({
+    let newUser = await this.user_repository.create({
       email,
       username,
       name,
@@ -226,7 +229,25 @@ export class AuthService {
       verified_email: false,
       // Add other required fields with defaults as needed
     });
+    if (cvFile) {
+      try {
+        const uploadResult = await this.storageService.uploadFile({
+          fileName: cvFile.originalname,
+          fileBuffer: cvFile.buffer,
+          contentType: cvFile.mimetype,
+          metadata: { userId: newUser.id },
+          prefix: 'CV/',
+          allowedTypes: ALLOWED_CV_TYPES,
+          maxSize: ALLOWED_MAX_CV_SIZE,
+        });
 
+        newUser = await this.user_repository.update(newUser.id, {
+          cv_file_key: uploadResult.fileKey,
+        });
+      } catch (error) {
+        console.error(`Failed to upload CV during registration for user ${newUser.id}:`, error);
+      }
+    }
     return newUser;
   }
 

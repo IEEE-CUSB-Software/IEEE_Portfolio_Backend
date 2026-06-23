@@ -37,7 +37,7 @@ export class AdminModule implements NestModule {
     consumer
       .apply(JwtAuthMiddleware, AdminMiddleware)
       .forRoutes(
-        { path: 'admin/*', method: RequestMethod.ALL },
+        { path: 'admin/*path', method: RequestMethod.ALL },
       );
   }
 }
