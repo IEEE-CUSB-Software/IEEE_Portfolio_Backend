@@ -12,6 +12,7 @@ import {
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { STRING_MAX_LENGTH } from 'src/constants/variables';
+import { Type } from 'class-transformer';
 
 export class RegisterDTO {
   @ApiProperty({ description: 'User email', example: 'wagih123@gmail.com' })
@@ -59,6 +60,7 @@ export class RegisterDTO {
     minimum: 1,
     maximum: 10,
   })
+  @Type(() => Number)
   @IsInt()
   @Min(1)
   @Max(10)

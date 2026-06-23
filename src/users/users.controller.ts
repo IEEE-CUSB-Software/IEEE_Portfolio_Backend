@@ -168,6 +168,6 @@ export class UsersController {
       'Content-Disposition': `attachment; filename="${file.fileName}"`,
     });
 
-    return res.send(file.fileBuffer);
+    res.send(file.fileBuffer);
   }
 }
