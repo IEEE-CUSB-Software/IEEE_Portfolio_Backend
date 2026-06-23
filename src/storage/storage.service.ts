@@ -4,6 +4,7 @@ import {
   Logger,
   BadRequestException,
   NotFoundException,
+  HttpException,
 } from '@nestjs/common';
 import {
   S3Client,
@@ -27,6 +28,7 @@ import {
 } from './storage.types';
 import { getR2Config } from './storage.config';
 import { v4 as uuidv4 } from 'uuid';
+import { fileTypeFromBuffer } from 'file-type';
 
 @Injectable()
 export class StorageService {
@@ -81,17 +83,22 @@ export class StorageService {
     if (!fileName || !fileBuffer) {
       throw new BadRequestException('File name and buffer are required');
     }
+    const detectedType = await fileTypeFromBuffer(fileBuffer);
+    if (!detectedType) {
+        throw new BadRequestException('Invalid or unreadable file content. Could not verify file type.');
+      }
+
+    if (allowedTypes.length > 0 && !allowedTypes.includes(detectedType.ext)) {
+      throw new BadRequestException(`File type .${detectedType.ext} (${detectedType.mime}) is not allowed.`);
+    }
+
 
     try {
       // Generate a unique file key to avoid collisions
-      const fileExtension = fileName.split('.').pop() || '';
-      if (allowedTypes.length > 0 && !allowedTypes.includes(fileExtension)) {
-        throw new BadRequestException(`File type .${fileExtension} is not allowed`);
-      }
       if (maxSize > 0 && fileBuffer.length > maxSize) {
         throw new BadRequestException(`File size exceeds the maximum allowed size of ${maxSize} bytes`);
       }
-      const baseFileKey = `${uuidv4()}-${Date.now()}.${fileExtension}`;
+      const baseFileKey = `${uuidv4()}-${Date.now()}.${detectedType.ext}`;
       const fileKey = prefix ? `${prefix}${baseFileKey}` : baseFileKey;
 
       const command = new PutObjectCommand({
@@ -117,6 +124,9 @@ export class StorageService {
         uploadedAt: new Date(),
       };
     } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
       this.logger.error(`Failed to upload file: ${error.message}`, error.stack);
       throw new InternalServerErrorException(`Failed to upload file: ${error.message}`);
     }

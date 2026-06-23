@@ -43,6 +43,7 @@
     "class-validator": "^0.14.3",
     "cloudinary": "^2.9.0",
     "cookie-parser": "^1.4.7",
+    "file-type": "^22.0.1",
     "ioredis": "^5.9.2",
     "nodemailer": "^7.0.13",
     "passport": "^0.7.0",

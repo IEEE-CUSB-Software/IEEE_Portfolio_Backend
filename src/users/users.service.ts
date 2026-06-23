@@ -128,10 +128,6 @@ export class UsersService {
       throw new BadRequestException('CV file is required');
     }
 
-    if (cvFile.mimetype !== 'application/pdf') {
-      throw new BadRequestException('Only PDF files are allowed');
-    }
-
     // Delete previous CV if it exists
     if (user.cv_file_key) {
       await this.storageService.deleteFile(user.cv_file_key);
