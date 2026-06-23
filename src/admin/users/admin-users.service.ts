@@ -18,6 +18,39 @@ export class AdminUsersService {
     private readonly storageService: StorageService,
   ) {}
 
+  async findAll(page: number, limit: number) {
+    const [users, total] = await this.usersRepository.findAndCount({
+      skip: (page - 1) * limit,
+      take: limit,
+      order: {
+        created_at: 'DESC',
+      },
+    });
+
+    return {
+      data: users,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
+  }
+
+  async findOne(id: string) {
+    const user = await this.usersRepository.findOne({
+      where: { id },
+      relations: ['role'],
+    });
+
+    if (!user) {
+      throw new NotFoundException(ERROR_MESSAGES.USER_NOT_FOUND);
+    }
+
+    return user;
+  }
+
   async remove(id: string) {
     const user = await this.usersRepository.findOne({ where: { id } });
 
@@ -29,6 +62,9 @@ export class AdminUsersService {
 
     if (user.image_public_id) {
       await this.mediaService.deleteImage(user.image_public_id);
+    }
+    if (user.cv_file_key) {
+      await this.storageService.deleteFile(user.cv_file_key);
     }
 
     return { 

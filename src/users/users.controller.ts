@@ -184,7 +184,6 @@ export class UsersController {
   @SkipPhoneNumberCheck()
   async deleteCV(
     @Req() req: Request & { user: User },
-    @Res() res: Response,
   ) {
     return this.usersService.deleteCV(req.user.id, req.user);
   }

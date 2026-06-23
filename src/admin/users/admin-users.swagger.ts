@@ -70,3 +70,54 @@ export const admin_download_cv_swagger = {
     },
   },
 };
+
+
+export const admin_get_all_users_swagger = {
+  operation: {
+    summary: 'Get all users (Paginated)',
+    description: 'Admins can retrieve a paginated list of all registered users.',
+  },
+  responses: {
+    success: {
+      description: 'Users retrieved successfully',
+      schema: {
+        example: {
+          data: [
+            user_example,
+          ],
+          meta: {
+            total: 50,
+            page: 1,
+            limit: 10,
+            totalPages: 5,
+          },
+          message: 'Users retrieved successfully',
+        },
+      },
+    },
+  },
+};
+
+export const admin_get_user_swagger = {
+  operation: {
+    summary: 'Get specific user details',
+    description: 'Admins can retrieve a specific user by ID along with all their related data (foreign keys loaded).',
+  },
+  responses: {
+    success: {
+      description: 'User retrieved successfully',
+      schema: {
+        example: {
+          data: {
+            ...user_example,
+            role: {
+              id: '550e8400-e29b-41d4-a716-446655440000',
+              name: 'Visitor',
+            },
+          },
+          message: 'User retrieved successfully',
+        },
+      },
+    },
+  },
+};
