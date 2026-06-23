@@ -21,6 +21,7 @@ import { RolesService } from 'src/roles/roles.service';
 import { RoleName } from 'src/roles/entities/role.entity';
 import { MailService } from 'src/mail/mail.service';
 import { StorageService } from 'src/storage/storage.service';
+import { ALLOWED_CV_TYPES, ALLOWED_MAX_CV_SIZE } from 'src/storage/storage.constants';
 
 enum AuthOtpPurpose {
   EmailVerification = 'emailVerification',
@@ -235,6 +236,9 @@ export class AuthService {
           fileBuffer: cvFile.buffer,
           contentType: cvFile.mimetype,
           metadata: { userId: newUser.id },
+          prefix: 'CV/',
+          allowedTypes: ALLOWED_CV_TYPES,
+          maxSize: ALLOWED_MAX_CV_SIZE,
         });
 
         newUser = await this.user_repository.update(newUser.id, {

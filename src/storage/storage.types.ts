@@ -4,6 +4,8 @@ export interface UploadFileOptions {
   contentType?: string;
   metadata?: Record<string, string>;
   prefix?: string; // e.g., 'CV/', 'images/', 'documents/'
+  allowedTypes?: string[];
+  maxSize?: number;
 }
 
 export interface UploadFileResponse {

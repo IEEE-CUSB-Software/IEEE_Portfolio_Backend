@@ -76,7 +76,7 @@ export class StorageService {
    * @returns Upload response with file URL and details
    */
   async uploadFile(options: UploadFileOptions): Promise<UploadFileResponse> {
-    const { fileName, fileBuffer, contentType = 'application/octet-stream', metadata = {}, prefix = '' } = options;
+    const { fileName, fileBuffer, contentType = 'application/octet-stream', metadata = {}, prefix = '', allowedTypes = [], maxSize = 0 } = options;
 
     if (!fileName || !fileBuffer) {
       throw new BadRequestException('File name and buffer are required');
@@ -85,6 +85,12 @@ export class StorageService {
     try {
       // Generate a unique file key to avoid collisions
       const fileExtension = fileName.split('.').pop() || '';
+      if (allowedTypes.length > 0 && !allowedTypes.includes(fileExtension)) {
+        throw new BadRequestException(`File type .${fileExtension} is not allowed`);
+      }
+      if (maxSize > 0 && fileBuffer.length > maxSize) {
+        throw new BadRequestException(`File size exceeds the maximum allowed size of ${maxSize} bytes`);
+      }
       const baseFileKey = `${uuidv4()}-${Date.now()}.${fileExtension}`;
       const fileKey = prefix ? `${prefix}${baseFileKey}` : baseFileKey;
 

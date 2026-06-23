@@ -13,6 +13,7 @@ import { ERROR_MESSAGES } from 'src/constants/swagger-messages';
 import { MediaService } from 'src/media/media.service';
 import { resolveMediaFolder } from 'src/media/media.utils';
 import { StorageService } from 'src/storage/storage.service';
+import { ALLOWED_CV_TYPES, ALLOWED_MAX_CV_SIZE } from 'src/storage/storage.constants';
 
 const USERS_MEDIA_FOLDER = resolveMediaFolder('USERS_IMAGES_FILE_NAME', 'users');
 
@@ -147,6 +148,8 @@ export class UsersService {
         uploadType: 'cv',
         uploadedAt: new Date().toISOString(),
       },
+      allowedTypes: ALLOWED_CV_TYPES,
+      maxSize: ALLOWED_MAX_CV_SIZE,
     });
 
     // Save file key to user
