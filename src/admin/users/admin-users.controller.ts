@@ -74,6 +74,6 @@ export class AdminUsersController {
       'X-User-Email': file.userEmail,
     });
 
-    return res.send(file.fileBuffer);
+    res.send(file.fileBuffer);
   }
 }
