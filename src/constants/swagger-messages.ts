@@ -47,6 +47,15 @@ export const ERROR_MESSAGES = {
   EVENT_FULL: 'Event capacity is full',
   EVENT_INVALID_TIME_RANGE: 'Invalid event time range',
 
+  // workshops & instructors
+  WORKSHOP_NOT_FOUND: 'Workshop not found',
+  INSTRUCTOR_NOT_FOUND: 'Instructor not found',
+  WORKSHOP_REGISTRATION_NOT_FOUND: 'Workshop registration not found',
+  WORKSHOP_REGISTRATION_CLOSED: 'Workshop registration deadline has passed',
+  WORKSHOP_ALREADY_REGISTERED: 'You are already registered for this workshop',
+  WORKSHOP_FULL: 'Workshop capacity is full',
+  WORKSHOP_INVALID_TIME_RANGE: 'Invalid workshop time range',
+
   // board
   BOARD_MEMBER_NOT_FOUND: 'Board member not found',
 
@@ -133,6 +142,18 @@ export const SUCCESS_MESSAGES = {
   EVENT_REGISTRATION_CANCELLED: 'Event registration cancelled successfully',
   EVENT_REGISTRATION_STATUS_UPDATED:
     'Event registration status updated successfully',
+
+  // workshops & instructors
+  WORKSHOP_CREATED: 'Workshop created successfully',
+  WORKSHOP_UPDATED: 'Workshop updated successfully',
+  WORKSHOP_DELETED: 'Workshop deleted successfully',
+  WORKSHOP_REGISTERED: 'Workshop registration created successfully',
+  WORKSHOP_REGISTRATION_CANCELLED: 'Workshop registration cancelled successfully',
+  WORKSHOP_REGISTRATION_STATUS_UPDATED:
+    'Workshop registration status updated successfully',
+  INSTRUCTOR_CREATED: 'Instructor created successfully',
+  INSTRUCTOR_UPDATED: 'Instructor updated successfully',
+  INSTRUCTOR_DELETED: 'Instructor deleted successfully',
 
   // board
   BOARD_MEMBERS_RETRIEVED: 'Board members retrieved successfully',
