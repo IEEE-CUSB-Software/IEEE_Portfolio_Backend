@@ -5,6 +5,9 @@ import { Instructor } from 'src/workshops/entities/instructor.entity';
 import { WorkshopRegistration } from 'src/workshops/entities/workshop-registration.entity';
 import { WorkshopImage } from 'src/workshops/entities/workshop-image.entity';
 import { User } from 'src/users/entities/user.entity';
+import { MediaModule } from 'src/media/media.module';
+import { AdminInstructorsController } from './admin-instructors.controller';
+import { AdminInstructorsService } from './admin-instructors.service';
 
 @Module({
   imports: [
@@ -15,9 +18,10 @@ import { User } from 'src/users/entities/user.entity';
       WorkshopImage,
       User,
     ]),
+    MediaModule,
   ],
-  controllers: [],
-  providers: [],
-  exports: [],
+  controllers: [AdminInstructorsController],
+  providers: [AdminInstructorsService],
+  exports: [AdminInstructorsService],
 })
 export class AdminWorkshopsModule {}
