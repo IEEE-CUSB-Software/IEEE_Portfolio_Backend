@@ -36,6 +36,8 @@ const base_config: any = {
     'src/categories/entities/category.entity.ts',
     'src/committees/entities/committee.entity.ts',
     'src/committees/entities/committee-member.entity.ts',
+    'src/recruitment/entities/vacancy.entity.ts',
+    'src/recruitment/entities/application.entity.ts',
   ],
 
   migrations: ['src/migrations/*{.ts,.js}'],
