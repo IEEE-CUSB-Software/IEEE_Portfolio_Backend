@@ -8,6 +8,8 @@ import { User } from 'src/users/entities/user.entity';
 import { MediaModule } from 'src/media/media.module';
 import { AdminInstructorsController } from './admin-instructors.controller';
 import { AdminInstructorsService } from './admin-instructors.service';
+import { AdminWorkshopsController } from './admin-workshops.controller';
+import { AdminWorkshopsService } from './admin-workshops.service';
 
 @Module({
   imports: [
@@ -20,8 +22,8 @@ import { AdminInstructorsService } from './admin-instructors.service';
     ]),
     MediaModule,
   ],
-  controllers: [AdminInstructorsController],
-  providers: [AdminInstructorsService],
-  exports: [AdminInstructorsService],
+  controllers: [AdminInstructorsController, AdminWorkshopsController],
+  providers: [AdminInstructorsService, AdminWorkshopsService],
+  exports: [AdminInstructorsService, AdminWorkshopsService],
 })
 export class AdminWorkshopsModule {}

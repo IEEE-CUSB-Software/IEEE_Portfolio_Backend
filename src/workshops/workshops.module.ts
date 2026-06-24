@@ -6,6 +6,8 @@ import { WorkshopRegistration } from './entities/workshop-registration.entity';
 import { WorkshopImage } from './entities/workshop-image.entity';
 import { InstructorsController } from './instructors.controller';
 import { InstructorsService } from './instructors.service';
+import { WorkshopsController } from './workshops.controller';
+import { WorkshopsService } from './workshops.service';
 
 @Module({
   imports: [
@@ -16,8 +18,8 @@ import { InstructorsService } from './instructors.service';
       WorkshopImage,
     ]),
   ],
-  controllers: [InstructorsController],
-  providers: [InstructorsService],
-  exports: [InstructorsService],
+  controllers: [InstructorsController, WorkshopsController],
+  providers: [InstructorsService, WorkshopsService],
+  exports: [InstructorsService, WorkshopsService],
 })
 export class WorkshopsModule {}
