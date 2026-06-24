@@ -22,6 +22,7 @@ import { WorkshopsService } from './workshops.service';
 import {
   ApiBadRequestErrorResponse,
   ApiConflictErrorResponse,
+  ApiForbiddenErrorResponse,
   ApiInternalServerError,
   ApiNotFoundErrorResponse,
   ApiUnauthorizedErrorResponse,
@@ -29,6 +30,7 @@ import {
 import { ERROR_MESSAGES, SUCCESS_MESSAGES } from 'src/constants/swagger-messages';
 import { User } from 'src/users/entities/user.entity';
 import { OptionalJwtGuard } from 'src/auth/guards/optional-jwt.guard';
+import { CvUploadedGuard } from 'src/auth/guards/cv-uploaded.guard';
 import { ResponseMessage } from 'src/decorators/response-message.decorator';
 import {
   get_all_workshops_swagger,
@@ -72,12 +74,13 @@ export class WorkshopsController {
     return this.workshopsService.findOne(id, req.user);
   }
 
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'), CvUploadedGuard)
   @Post(':id/register')
   @ApiBearerAuth()
   @ApiOperation(register_workshop_swagger.operation)
   @ApiCreatedResponse(register_workshop_swagger.responses.success)
   @ApiUnauthorizedErrorResponse(ERROR_MESSAGES.INVALID_OR_EXPIRED_TOKEN)
+  @ApiForbiddenErrorResponse(ERROR_MESSAGES.CV_REQUIRED)
   @ApiBadRequestErrorResponse(ERROR_MESSAGES.WORKSHOP_REGISTRATION_CLOSED)
   @ApiConflictErrorResponse(ERROR_MESSAGES.WORKSHOP_ALREADY_REGISTERED)
   @ApiNotFoundErrorResponse(ERROR_MESSAGES.WORKSHOP_NOT_FOUND)

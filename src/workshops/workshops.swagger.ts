@@ -104,7 +104,7 @@ export const get_workshop_by_id_swagger = {
 export const register_workshop_swagger = {
   operation: {
     summary: 'Register for a workshop (request to join)',
-    description: 'Users can register for a workshop. All registrations are placed in a PENDING state and must be accepted by an admin.',
+    description: 'Users can register for a workshop. All registrations are placed in a PENDING state and must be accepted by an admin. Note that only users who have uploaded their CV (cv_file_key is not null) can register.',
   },
   responses: {
     success: {

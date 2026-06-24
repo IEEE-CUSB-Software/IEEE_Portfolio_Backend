@@ -55,6 +55,7 @@ export const ERROR_MESSAGES = {
   WORKSHOP_ALREADY_REGISTERED: 'You are already registered for this workshop',
   WORKSHOP_FULL: 'Workshop capacity is full',
   WORKSHOP_INVALID_TIME_RANGE: 'Invalid workshop time range',
+  CV_REQUIRED: 'You must upload your CV before registering for a workshop',
 
   // board
   BOARD_MEMBER_NOT_FOUND: 'Board member not found',
