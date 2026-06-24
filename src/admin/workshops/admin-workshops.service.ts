@@ -8,7 +8,7 @@ import { Repository, In } from 'typeorm';
 import { Workshop } from 'src/workshops/entities/workshop.entity';
 import { Instructor } from 'src/workshops/entities/instructor.entity';
 import { WorkshopImage } from 'src/workshops/entities/workshop-image.entity';
-import { WorkshopRegistration } from 'src/workshops/entities/workshop-registration.entity';
+import { WorkshopRegistration, WorkshopRegistrationStatus } from 'src/workshops/entities/workshop-registration.entity';
 import { User } from 'src/users/entities/user.entity';
 import { ERROR_MESSAGES } from 'src/constants/swagger-messages';
 import { CreateWorkshopDto } from './dto/create-workshop.dto';
@@ -239,5 +239,140 @@ export class AdminWorkshopsService {
     await this.workshopImagesRepository.remove(image);
 
     return { success: true };
+  }
+
+  async getWorkshopRegistrations(
+    workshopId: string,
+    page: number = 1,
+    limit: number = 10,
+  ) {
+    const workshop = await this.workshopsRepository.findOne({
+      where: { id: workshopId },
+    });
+
+    if (!workshop) {
+      throw new NotFoundException(ERROR_MESSAGES.WORKSHOP_NOT_FOUND);
+    }
+
+    const skip = (page - 1) * limit;
+
+    const [registrations, total] = await this.registrationsRepository.findAndCount({
+      where: { workshop_id: workshopId },
+      relations: ['user'],
+      skip,
+      take: limit,
+      order: { created_at: 'DESC' },
+    });
+
+    return {
+      data: registrations,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
+  }
+
+  async updateRegistrationStatus(
+    workshopId: string,
+    registrationId: string,
+    status: WorkshopRegistrationStatus,
+  ) {
+    const workshop = await this.workshopsRepository.findOne({
+      where: { id: workshopId },
+    });
+
+    if (!workshop) {
+      throw new NotFoundException(ERROR_MESSAGES.WORKSHOP_NOT_FOUND);
+    }
+
+    const registration = await this.registrationsRepository.findOne({
+      where: { id: registrationId, workshop_id: workshopId },
+    });
+
+    if (!registration) {
+      throw new NotFoundException(ERROR_MESSAGES.WORKSHOP_REGISTRATION_NOT_FOUND);
+    }
+
+    // Capacity validation if updating status to ACCEPTED
+    if (
+      status === WorkshopRegistrationStatus.ACCEPTED &&
+      registration.status !== WorkshopRegistrationStatus.ACCEPTED
+    ) {
+      const acceptedCount = await this.registrationsRepository.count({
+        where: {
+          workshop_id: workshopId,
+          status: In([
+            WorkshopRegistrationStatus.ACCEPTED,
+            WorkshopRegistrationStatus.ATTENDED,
+          ]),
+        },
+      });
+
+      if (acceptedCount >= workshop.capacity) {
+        throw new BadRequestException(ERROR_MESSAGES.WORKSHOP_FULL);
+      }
+    }
+
+    registration.status = status;
+    return this.registrationsRepository.save(registration);
+  }
+
+  async bulkRegisterUsers(
+    workshopId: string,
+    userIds: string[],
+  ): Promise<WorkshopRegistration[]> {
+    const workshop = await this.workshopsRepository.findOne({
+      where: { id: workshopId },
+    });
+
+    if (!workshop) {
+      throw new NotFoundException(ERROR_MESSAGES.WORKSHOP_NOT_FOUND);
+    }
+
+    const users = await this.usersRepository.find({
+      where: { id: In(userIds) },
+    });
+    if (users.length !== userIds.length) {
+      throw new BadRequestException(ERROR_MESSAGES.USER_OR_MORE_USERS_NOT_FOUND);
+    }
+
+    const existingRegistrations = await this.registrationsRepository.find({
+      where: {
+        workshop_id: workshopId,
+        user_id: In(userIds),
+      },
+    });
+
+    const newRegistrations: WorkshopRegistration[] = [];
+    const updatedRegistrations: WorkshopRegistration[] = [];
+
+    for (const userId of userIds) {
+      const existingReg = existingRegistrations.find(
+        (reg) => reg.user_id === userId,
+      );
+
+      if (existingReg) {
+        if (existingReg.status !== WorkshopRegistrationStatus.ACCEPTED &&
+            existingReg.status !== WorkshopRegistrationStatus.ATTENDED) {
+          existingReg.status = WorkshopRegistrationStatus.ACCEPTED;
+          updatedRegistrations.push(existingReg);
+        }
+      } else {
+        const registration = this.registrationsRepository.create({
+          workshop_id: workshopId,
+          user_id: userId,
+          status: WorkshopRegistrationStatus.ACCEPTED,
+        });
+        newRegistrations.push(registration);
+      }
+    }
+
+    const saved = await this.registrationsRepository.save([
+      ...newRegistrations,
+      ...updatedRegistrations,
+    ]);
+
+    return saved;
   }
 }

@@ -1,4 +1,6 @@
 import {
+  BadRequestException,
+  ConflictException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -93,5 +95,61 @@ export class WorkshopsService {
     }
 
     return this.enrichWorkshopWithDetails(workshop, currentUser);
+  }
+
+  async register(workshopId: string, currentUser: User) {
+    const workshop = await this.workshopsRepository.findOne({
+      where: { id: workshopId },
+    });
+
+    if (!workshop) {
+      throw new NotFoundException(ERROR_MESSAGES.WORKSHOP_NOT_FOUND);
+    }
+
+    if (new Date() > workshop.registration_deadline) {
+      throw new BadRequestException(ERROR_MESSAGES.WORKSHOP_REGISTRATION_CLOSED);
+    }
+
+    const existingRegistration = await this.registrationsRepository.findOne({
+      where: { workshop_id: workshopId, user_id: currentUser.id },
+    });
+
+    if (
+      existingRegistration &&
+      existingRegistration.status !== WorkshopRegistrationStatus.CANCELLED &&
+      existingRegistration.status !== WorkshopRegistrationStatus.REJECTED
+    ) {
+      throw new ConflictException(ERROR_MESSAGES.WORKSHOP_ALREADY_REGISTERED);
+    }
+
+    if (existingRegistration) {
+      existingRegistration.status = WorkshopRegistrationStatus.PENDING;
+      return this.registrationsRepository.save(existingRegistration);
+    }
+
+    const registration = this.registrationsRepository.create({
+      workshop_id: workshopId,
+      user_id: currentUser.id,
+      status: WorkshopRegistrationStatus.PENDING,
+    });
+
+    return this.registrationsRepository.save(registration);
+  }
+
+  async cancelRegistration(workshopId: string, currentUser: User) {
+    const registration = await this.registrationsRepository.findOne({
+      where: { workshop_id: workshopId, user_id: currentUser.id },
+    });
+
+    if (!registration) {
+      throw new NotFoundException(ERROR_MESSAGES.WORKSHOP_REGISTRATION_NOT_FOUND);
+    }
+
+    if (registration.status !== WorkshopRegistrationStatus.CANCELLED) {
+      registration.status = WorkshopRegistrationStatus.CANCELLED;
+      await this.registrationsRepository.save(registration);
+    }
+
+    return registration;
   }
 }

@@ -304,3 +304,84 @@ export const admin_delete_workshop_image_swagger = {
     },
   },
 };
+
+export const workshop_registration_example = {
+  id: 'b6a7b810-9dad-4c92-91a1-98e32ccaa999',
+  user_id: '3f0f3f98-7c7b-49b3-b17b-0d7b0d27f9e1',
+  workshop_id: '550e8400-e29b-41d4-a716-446655440000',
+  status: 'pending',
+  created_at: '2026-06-24T12:00:00Z',
+  updated_at: '2026-06-24T12:00:00Z',
+  user: {
+    id: '3f0f3f98-7c7b-49b3-b17b-0d7b0d27f9e1',
+    name: 'Visitor Name',
+    email: 'visitor@ieee.org',
+  },
+};
+
+export const admin_get_workshop_registrations_swagger = {
+  operation: {
+    summary: 'Get workshop registrations',
+    description: 'Admins can view all registrations (pending, accepted, rejected, cancelled, attended) for a specific workshop.',
+  },
+  responses: {
+    success: {
+      description: 'Workshop registrations retrieved successfully',
+      schema: {
+        example: {
+          data: [workshop_registration_example],
+          total: 1,
+          page: 1,
+          limit: 10,
+          totalPages: 1,
+        },
+      },
+    },
+  },
+};
+
+export const admin_update_workshop_registration_status_swagger = {
+  operation: {
+    summary: 'Update workshop registration status',
+    description: 'Admins can approve (accept) or reject a registration request. Capacity constraints are validated when status changes to accepted.',
+  },
+  responses: {
+    success: {
+      description: 'Registration status updated successfully',
+      schema: {
+        example: {
+          data: {
+            ...workshop_registration_example,
+            status: 'accepted',
+          },
+          count: 1,
+          message: 'Workshop registration status updated successfully',
+        },
+      },
+    },
+  },
+};
+
+export const admin_bulk_register_workshop_swagger = {
+  operation: {
+    summary: 'Bulk register users to workshop',
+    description: 'Admins can register multiple users to a workshop. Registered users will have their status set to ACCEPTED automatically.',
+  },
+  responses: {
+    success: {
+      description: 'Users registered successfully',
+      schema: {
+        example: {
+          data: [
+            {
+              ...workshop_registration_example,
+              status: 'accepted',
+            },
+          ],
+          count: 1,
+          message: 'Users registered successfully',
+        },
+      },
+    },
+  },
+};

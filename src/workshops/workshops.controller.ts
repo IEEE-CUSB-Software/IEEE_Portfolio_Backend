@@ -1,6 +1,8 @@
 import {
   Controller,
   Get,
+  Post,
+  Patch,
   Param,
   ParseUUIDPipe,
   Query,
@@ -8,22 +10,31 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import {
+  ApiBearerAuth,
+  ApiCreatedResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
+import { AuthGuard } from '@nestjs/passport';
 import type { Request } from 'express';
 import { WorkshopsService } from './workshops.service';
 import {
+  ApiBadRequestErrorResponse,
+  ApiConflictErrorResponse,
   ApiInternalServerError,
   ApiNotFoundErrorResponse,
+  ApiUnauthorizedErrorResponse,
 } from 'src/decorators/swagger-error-responses.decorator';
-import { ERROR_MESSAGES } from 'src/constants/swagger-messages';
+import { ERROR_MESSAGES, SUCCESS_MESSAGES } from 'src/constants/swagger-messages';
 import { User } from 'src/users/entities/user.entity';
 import { OptionalJwtGuard } from 'src/auth/guards/optional-jwt.guard';
+import { ResponseMessage } from 'src/decorators/response-message.decorator';
 import {
   get_all_workshops_swagger,
   get_workshop_by_id_swagger,
+  register_workshop_swagger,
+  cancel_workshop_registration_swagger,
 } from './workshops.swagger';
 
 @ApiTags('workshops')
@@ -59,5 +70,39 @@ export class WorkshopsController {
     @Req() req: Request & { user?: User },
   ) {
     return this.workshopsService.findOne(id, req.user);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Post(':id/register')
+  @ApiBearerAuth()
+  @ApiOperation(register_workshop_swagger.operation)
+  @ApiCreatedResponse(register_workshop_swagger.responses.success)
+  @ApiUnauthorizedErrorResponse(ERROR_MESSAGES.INVALID_OR_EXPIRED_TOKEN)
+  @ApiBadRequestErrorResponse(ERROR_MESSAGES.WORKSHOP_REGISTRATION_CLOSED)
+  @ApiConflictErrorResponse(ERROR_MESSAGES.WORKSHOP_ALREADY_REGISTERED)
+  @ApiNotFoundErrorResponse(ERROR_MESSAGES.WORKSHOP_NOT_FOUND)
+  @ApiInternalServerError(ERROR_MESSAGES.INTERNAL_SERVER_ERROR)
+  @ResponseMessage(SUCCESS_MESSAGES.WORKSHOP_REGISTERED)
+  register(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Req() req: Request & { user: User },
+  ) {
+    return this.workshopsService.register(id, req.user);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Patch(':id/cancel')
+  @ApiBearerAuth()
+  @ApiOperation(cancel_workshop_registration_swagger.operation)
+  @ApiOkResponse(cancel_workshop_registration_swagger.responses.success)
+  @ApiUnauthorizedErrorResponse(ERROR_MESSAGES.INVALID_OR_EXPIRED_TOKEN)
+  @ApiNotFoundErrorResponse(ERROR_MESSAGES.WORKSHOP_REGISTRATION_NOT_FOUND)
+  @ApiInternalServerError(ERROR_MESSAGES.INTERNAL_SERVER_ERROR)
+  @ResponseMessage(SUCCESS_MESSAGES.WORKSHOP_REGISTRATION_CANCELLED)
+  cancelRegistration(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Req() req: Request & { user: User },
+  ) {
+    return this.workshopsService.cancelRegistration(id, req.user);
   }
 }
