@@ -7,6 +7,7 @@ import { AdminCategoriesModule } from './categories/admin-categories.module';
 import { AdminCommitteesModule } from './committees/admin-committees.module';
 import { AdminAwardsModule } from './awards/admin-awards.module';
 import { AdminRecruitmentModule } from './recruitment/admin-recruitment.module';
+import { AdminWorkshopsModule } from './workshops/admin-workshops.module';
 import { AdminMiddleware } from 'src/middleware/admin.middleware';
 import { JwtAuthMiddleware } from 'src/middleware/jwt-auth.middleware';
 import { JwtModule } from '@nestjs/jwt';
@@ -31,6 +32,7 @@ import { StringValue } from 'ms';
     AdminCommitteesModule,
     AdminAwardsModule,
     AdminRecruitmentModule,
+    AdminWorkshopsModule,
   ],
   providers: [JwtStrategy, JwtAuthMiddleware, AdminMiddleware],
 })

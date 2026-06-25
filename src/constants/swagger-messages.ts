@@ -47,6 +47,19 @@ export const ERROR_MESSAGES = {
   EVENT_FULL: 'Event capacity is full',
   EVENT_INVALID_TIME_RANGE: 'Invalid event time range',
 
+  // workshops & instructors
+  WORKSHOP_NOT_FOUND: 'Workshop not found',
+  INSTRUCTOR_NOT_FOUND: 'Instructor not found',
+  WORKSHOP_REGISTRATION_NOT_FOUND: 'Workshop registration not found',
+  WORKSHOP_REGISTRATION_CLOSED: 'Workshop registration deadline has passed',
+  WORKSHOP_ALREADY_REGISTERED: 'You are already registered for this workshop',
+  WORKSHOP_REGISTRATION_CANNOT_BE_CANCELLED:
+    'Only pending or accepted workshop registrations can be cancelled',
+  WORKSHOP_FULL: 'Workshop capacity is full',
+  WORKSHOP_INVALID_TIME_RANGE: 'Invalid workshop time range',
+  WORKSHOP_END_TIME_IN_PAST: 'Workshop end time cannot be in the past',
+  CV_REQUIRED: 'You must upload your CV before registering for a workshop',
+
   // board
   BOARD_MEMBER_NOT_FOUND: 'Board member not found',
 
@@ -140,6 +153,18 @@ export const SUCCESS_MESSAGES = {
   EVENT_REGISTRATION_CANCELLED: 'Event registration cancelled successfully',
   EVENT_REGISTRATION_STATUS_UPDATED:
     'Event registration status updated successfully',
+
+  // workshops & instructors
+  WORKSHOP_CREATED: 'Workshop created successfully',
+  WORKSHOP_UPDATED: 'Workshop updated successfully',
+  WORKSHOP_DELETED: 'Workshop deleted successfully',
+  WORKSHOP_REGISTERED: 'Workshop registration created successfully',
+  WORKSHOP_REGISTRATION_CANCELLED: 'Workshop registration cancelled successfully',
+  WORKSHOP_REGISTRATION_STATUS_UPDATED:
+    'Workshop registration status updated successfully',
+  INSTRUCTOR_CREATED: 'Instructor created successfully',
+  INSTRUCTOR_UPDATED: 'Instructor updated successfully',
+  INSTRUCTOR_DELETED: 'Instructor deleted successfully',
 
   // board
   BOARD_MEMBERS_RETRIEVED: 'Board members retrieved successfully',
