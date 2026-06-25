@@ -99,6 +99,9 @@ export class WorkshopsController {
   @ApiOperation(cancel_workshop_registration_swagger.operation)
   @ApiOkResponse(cancel_workshop_registration_swagger.responses.success)
   @ApiUnauthorizedErrorResponse(ERROR_MESSAGES.INVALID_OR_EXPIRED_TOKEN)
+  @ApiBadRequestErrorResponse(
+    ERROR_MESSAGES.WORKSHOP_REGISTRATION_CANNOT_BE_CANCELLED,
+  )
   @ApiNotFoundErrorResponse(ERROR_MESSAGES.WORKSHOP_REGISTRATION_NOT_FOUND)
   @ApiInternalServerError(ERROR_MESSAGES.INTERNAL_SERVER_ERROR)
   @ResponseMessage(SUCCESS_MESSAGES.WORKSHOP_REGISTRATION_CANCELLED)

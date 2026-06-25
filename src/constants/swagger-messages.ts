@@ -53,8 +53,11 @@ export const ERROR_MESSAGES = {
   WORKSHOP_REGISTRATION_NOT_FOUND: 'Workshop registration not found',
   WORKSHOP_REGISTRATION_CLOSED: 'Workshop registration deadline has passed',
   WORKSHOP_ALREADY_REGISTERED: 'You are already registered for this workshop',
+  WORKSHOP_REGISTRATION_CANNOT_BE_CANCELLED:
+    'Only pending or accepted workshop registrations can be cancelled',
   WORKSHOP_FULL: 'Workshop capacity is full',
   WORKSHOP_INVALID_TIME_RANGE: 'Invalid workshop time range',
+  WORKSHOP_END_TIME_IN_PAST: 'Workshop end time cannot be in the past',
   CV_REQUIRED: 'You must upload your CV before registering for a workshop',
 
   // board

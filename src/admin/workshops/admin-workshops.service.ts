@@ -35,11 +35,20 @@ export class AdminWorkshopsService {
     private readonly mediaService: MediaService,
   ) {}
 
+  private getMissingIds(requestedIds: string[], foundIds: string[]) {
+    const foundIdSet = new Set(foundIds);
+    return requestedIds.filter((id) => !foundIdSet.has(id));
+  }
+
   private validateWorkshopTimes(
     start_time: Date,
     end_time: Date,
     registration_deadline: Date,
   ) {
+    if (end_time < new Date()) {
+      throw new BadRequestException(ERROR_MESSAGES.WORKSHOP_END_TIME_IN_PAST);
+    }
+
     if (start_time >= end_time) {
       throw new BadRequestException(ERROR_MESSAGES.WORKSHOP_INVALID_TIME_RANGE);
     }
@@ -61,8 +70,15 @@ export class AdminWorkshopsService {
       instructors = await this.instructorsRepository.find({
         where: { id: In(createWorkshopDto.instructor_ids) },
       });
-      if (instructors.length !== createWorkshopDto.instructor_ids.length) {
-        throw new BadRequestException(ERROR_MESSAGES.INSTRUCTOR_NOT_FOUND);
+      const missingInstructorIds = this.getMissingIds(
+        createWorkshopDto.instructor_ids,
+        instructors.map((instructor) => instructor.id),
+      );
+
+      if (missingInstructorIds.length > 0) {
+        throw new BadRequestException(
+          `Instructor(s) not found: ${missingInstructorIds.join(', ')}`,
+        );
       }
     }
 
@@ -95,8 +111,15 @@ export class AdminWorkshopsService {
       const instructors = await this.instructorsRepository.find({
         where: { id: In(updateWorkshopDto.instructor_ids) },
       });
-      if (instructors.length !== updateWorkshopDto.instructor_ids.length) {
-        throw new BadRequestException(ERROR_MESSAGES.INSTRUCTOR_NOT_FOUND);
+      const missingInstructorIds = this.getMissingIds(
+        updateWorkshopDto.instructor_ids,
+        instructors.map((instructor) => instructor.id),
+      );
+
+      if (missingInstructorIds.length > 0) {
+        throw new BadRequestException(
+          `Instructor(s) not found: ${missingInstructorIds.join(', ')}`,
+        );
       }
       workshop.instructors = instructors;
     }
@@ -333,8 +356,15 @@ export class AdminWorkshopsService {
     const users = await this.usersRepository.find({
       where: { id: In(userIds) },
     });
-    if (users.length !== userIds.length) {
-      throw new BadRequestException(ERROR_MESSAGES.USER_OR_MORE_USERS_NOT_FOUND);
+    const missingUserIds = this.getMissingIds(
+      userIds,
+      users.map((user) => user.id),
+    );
+
+    if (missingUserIds.length > 0) {
+      throw new BadRequestException(
+        `User(s) not found: ${missingUserIds.join(', ')}`,
+      );
     }
 
     const existingRegistrations = await this.registrationsRepository.find({

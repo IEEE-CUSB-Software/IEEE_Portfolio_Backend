@@ -35,6 +35,11 @@ export class AdminEventsService {
     private readonly mediaService: MediaService,
   ) {}
 
+  private getMissingIds(requestedIds: string[], foundIds: string[]) {
+    const foundIdSet = new Set(foundIds);
+    return requestedIds.filter((id) => !foundIdSet.has(id));
+  }
+
   private validateEventTimes(
     start_time: Date,
     end_time: Date,
@@ -300,8 +305,15 @@ export class AdminEventsService {
     const users = await this.usersRepository.find({
       where: { id: In(userIds) },
     });
-    if (users.length !== userIds.length) {
-      throw new BadRequestException(ERROR_MESSAGES.USER_OR_MORE_USERS_NOT_FOUND);
+    const missingUserIds = this.getMissingIds(
+      userIds,
+      users.map((user) => user.id),
+    );
+
+    if (missingUserIds.length > 0) {
+      throw new BadRequestException(
+        `User(s) not found: ${missingUserIds.join(', ')}`,
+      );
     }
 
     const existingRegistrations = await this.registrationsRepository.find({

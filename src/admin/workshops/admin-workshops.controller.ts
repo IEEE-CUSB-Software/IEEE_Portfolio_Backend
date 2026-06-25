@@ -209,7 +209,7 @@ export class AdminWorkshopsController {
   @ApiCreatedResponse(admin_bulk_register_workshop_swagger.responses.success)
   @ApiUnauthorizedErrorResponse(ERROR_MESSAGES.INVALID_OR_EXPIRED_TOKEN)
   @ApiForbiddenErrorResponse(ERROR_MESSAGES.FORBIDDEN_ACTION)
-  @ApiBadRequestErrorResponse('One or more users not found')
+  @ApiBadRequestErrorResponse('User(s) not found: <id1, id2>')
   @ApiNotFoundErrorResponse(ERROR_MESSAGES.WORKSHOP_NOT_FOUND)
   @ApiInternalServerError(ERROR_MESSAGES.INTERNAL_SERVER_ERROR)
   @ResponseMessage('Users registered successfully')

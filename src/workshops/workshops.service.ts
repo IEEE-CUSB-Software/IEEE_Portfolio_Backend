@@ -31,12 +31,10 @@ export class WorkshopsService {
       },
     });
 
-    const remainingSpots = workshop.capacity - acceptedCount;
-    const is_full = remainingSpots <= 0;
+    const is_full = workshop.capacity - acceptedCount <= 0;
 
     const enrichedWorkshop: any = {
       ...workshop,
-      remainingSpots,
       is_full,
     };
 
@@ -145,10 +143,17 @@ export class WorkshopsService {
       throw new NotFoundException(ERROR_MESSAGES.WORKSHOP_REGISTRATION_NOT_FOUND);
     }
 
-    if (registration.status !== WorkshopRegistrationStatus.CANCELLED) {
-      registration.status = WorkshopRegistrationStatus.CANCELLED;
-      await this.registrationsRepository.save(registration);
+    if (
+      registration.status !== WorkshopRegistrationStatus.PENDING &&
+      registration.status !== WorkshopRegistrationStatus.ACCEPTED
+    ) {
+      throw new BadRequestException(
+        ERROR_MESSAGES.WORKSHOP_REGISTRATION_CANNOT_BE_CANCELLED,
+      );
     }
+
+    registration.status = WorkshopRegistrationStatus.CANCELLED;
+    await this.registrationsRepository.save(registration);
 
     return registration;
   }

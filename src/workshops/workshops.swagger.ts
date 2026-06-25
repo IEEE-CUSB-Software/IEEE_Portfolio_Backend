@@ -44,7 +44,7 @@ export const get_instructor_by_id_swagger = {
 export const get_all_workshops_swagger = {
   operation: {
     summary: 'Get all workshops',
-    description: 'Retrieve a paginated list of all workshops. Includes capacity information (remainingSpots, is_full). If authenticated, also includes user registration status (is_registered, registration_id, registration_status).',
+    description: 'Retrieve a paginated list of all workshops. Includes capacity information (is_full). If authenticated, also includes user registration status (is_registered, registration_id, registration_status).',
   },
   responses: {
     success: {
@@ -54,7 +54,6 @@ export const get_all_workshops_swagger = {
           data: [
             {
               ...workshop_example,
-              remainingSpots: 45,
               is_full: false,
               is_registered: false,
               registration_id: null,
@@ -76,7 +75,7 @@ export const get_all_workshops_swagger = {
 export const get_workshop_by_id_swagger = {
   operation: {
     summary: 'Get workshop by ID',
-    description: 'Retrieve details of a specific workshop by ID. Includes capacity information (remainingSpots, is_full). If authenticated, also includes user registration status (is_registered, registration_id, registration_status).',
+    description: 'Retrieve details of a specific workshop by ID. Includes capacity information (is_full). If authenticated, also includes user registration status (is_registered, registration_id, registration_status).',
   },
   responses: {
     success: {
@@ -85,7 +84,6 @@ export const get_workshop_by_id_swagger = {
         example: {
           data: {
             ...workshop_example,
-            remainingSpots: 45,
             is_full: false,
             is_registered: false,
             registration_id: null,
@@ -130,7 +128,7 @@ export const register_workshop_swagger = {
 export const cancel_workshop_registration_swagger = {
   operation: {
     summary: 'Cancel workshop registration request',
-    description: 'Users can cancel their workshop registration request.',
+    description: 'Users can cancel their workshop registration request only while it is pending or accepted. Attended, rejected, or already cancelled registrations cannot be cancelled.',
   },
   responses: {
     success: {

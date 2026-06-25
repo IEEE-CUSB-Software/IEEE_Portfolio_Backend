@@ -365,7 +365,7 @@ export const admin_update_workshop_registration_status_swagger = {
 export const admin_bulk_register_workshop_swagger = {
   operation: {
     summary: 'Bulk register users to workshop',
-    description: 'Admins can register multiple users to a workshop. Registered users will have their status set to ACCEPTED automatically.',
+    description: 'Admins can register multiple users to a workshop. Registered users will have their status set to ACCEPTED automatically. This bulk flow does not re-check workshop capacity, so it may accept users even when the workshop is already full.',
   },
   responses: {
     success: {
