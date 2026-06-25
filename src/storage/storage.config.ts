@@ -3,6 +3,7 @@ export interface R2Config {
   accessKeyId: string;
   accessKeySecret: string;
   bucketName: string;
+  region: string;
 }
 
 export const getR2Config = (): R2Config => {
@@ -11,5 +12,6 @@ export const getR2Config = (): R2Config => {
     accessKeyId: process.env.BB_ACCESS_KEY_ID || '',
     accessKeySecret: process.env.BB_SECRET_ACCESS_KEY || '',
     bucketName: process.env.BB_BUCKET_NAME || '',
+    region: process.env.BB_REGION || '',
   };
 };

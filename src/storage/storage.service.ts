@@ -55,12 +55,9 @@ export class StorageService {
     }
   }
 
-  /**
-   * Initializes the S3 client configured for Cloudflare R2
-   */
   private initializeS3Client(): void {
     this.s3Client = new S3Client({
-      region: 'auto',
+      region: this.config.region,
       credentials: {
         accessKeyId: this.config.accessKeyId,
         secretAccessKey: this.config.accessKeySecret,
@@ -69,7 +66,7 @@ export class StorageService {
       forcePathStyle: true,
     });
 
-    this.logger.log(`S3 client initialized for R2 bucket: ${this.config.bucketName}`);
+    this.logger.log(`S3 client initialized for bucket: ${this.config.bucketName} in region ${this.config.region}`);
   }
 
   /**
