@@ -10,16 +10,26 @@ export class CompleteProfileMiddleware implements NestMiddleware {
       throw new ForbiddenException('User is not authenticated');
     }
 
-    const isProfileComplete = 
-      !!user.phone && 
-      !!user.faculty && 
-      !!user.university && 
-      !!user.academic_year && 
-      !!user.major && 
-      !!user.cv_file_key;
+    const requiredFields = [
+      { key: 'phone', label: 'Phone Number' },
+      { key: 'faculty', label: 'Faculty' },
+      { key: 'university', label: 'University' },
+      { key: 'academic_year', label: 'Academic Year' },
+      { key: 'major', label: 'Major' },
+      { key: 'cv_file_key', label: 'CV File' }
+    ];
 
-    if (!isProfileComplete) {
-      throw new ForbiddenException('Please complete your profile including uploading your CV before applying.');
+    const missingFields = requiredFields
+      .filter(field => !user[field.key])
+      .map(field => field.label);
+
+    if (missingFields.length > 0) {
+      throw new ForbiddenException({
+        statusCode: 403,
+        error: 'Forbidden',
+        message: `Please complete your profile before applying. Missing fields: ${missingFields.join(', ')}.`,
+        missingFields: missingFields,
+      });
     }
 
     next();

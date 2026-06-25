@@ -33,7 +33,8 @@ export class RecruitmentModule implements NestModule {
       .forRoutes(
         { path: 'recruitment/vacancies', method: RequestMethod.GET },
         { path: 'recruitment/vacancies/:id/apply', method: RequestMethod.POST },
-        { path: 'recruitment/my-applications', method: RequestMethod.GET }
+        { path: 'recruitment/my-applications', method: RequestMethod.GET },
+        { path: 'recruitment/applications/:id', method: RequestMethod.DELETE }
       )
       .apply(CompleteProfileMiddleware)
       .forRoutes(
