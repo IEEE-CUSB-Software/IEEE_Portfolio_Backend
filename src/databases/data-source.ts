@@ -36,6 +36,8 @@ const base_config: any = {
     'src/categories/entities/category.entity.ts',
     'src/committees/entities/committee.entity.ts',
     'src/committees/entities/committee-member.entity.ts',
+    'src/recruitment/entities/vacancy.entity.ts',
+    'src/recruitment/entities/application.entity.ts',
     'src/workshops/entities/workshop.entity.ts',
     'src/workshops/entities/instructor.entity.ts',
     'src/workshops/entities/workshop-registration.entity.ts',

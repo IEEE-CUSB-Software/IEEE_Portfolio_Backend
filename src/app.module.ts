@@ -19,6 +19,7 @@ import { PhoneNumberInterceptor } from './interceptor/phone-number.interceptor';
 import { MediaModule } from './media/media.module';
 import { WorkshopsModule } from './workshops/workshops.module';
 import { StorageModule } from './storage/storage.module';
+import { RecruitmentModule } from './recruitment/recruitment.module';
   
 
 @Module({
@@ -41,6 +42,7 @@ import { StorageModule } from './storage/storage.module';
     MediaModule,
     AdminModule,
     StorageModule,
+    RecruitmentModule,
     WorkshopsModule,
   ],
   controllers: [AppController],

@@ -76,6 +76,13 @@ export const ERROR_MESSAGES = {
   // awards
   AWARD_NOT_FOUND: 'Award not found',
 
+  // recruitment
+  VACANCY_NOT_FOUND: 'Vacancy not found',
+  APPLICATION_NOT_FOUND: 'Application not found',
+  VACANCY_CLOSED: 'This vacancy is currently closed for applications',
+  ALREADY_APPLIED: 'You have already applied to this vacancy',
+  ALREADY_APPLIED_OR_CLOSED: 'Already applied to this vacancy, or vacancy is closed',
+
   // communication
   FAILED_TO_SEND_OTP_EMAIL: 'Failed to send OTP email',
   OTP_REQUEST_WAIT: 'Please wait a minute before requesting a new code',
@@ -188,6 +195,16 @@ export const SUCCESS_MESSAGES = {
   AWARD_CREATED: 'Award created successfully',
   AWARD_UPDATED: 'Award updated successfully',
   AWARD_DELETED: 'Award deleted successfully',
+
+  // recruitment
+  VACANCY_CREATED: 'Vacancy created successfully',
+  VACANCY_UPDATED: 'Vacancy updated successfully',
+  VACANCY_DELETED: 'Vacancy deleted successfully',
+  VACANCIES_RETRIEVED: 'Vacancies retrieved successfully',
+  APPLICATIONS_RETRIEVED: 'Applications retrieved successfully',
+  APPLICATION_STATUS_UPDATED: 'Application status updated successfully',
+  APPLICATION_CREATED: 'Successfully applied to the vacancy',
+  APPLICATION_DELETED: 'Application deleted successfully',
 
   // media
   IMAGE_UPLOADED: 'Image uploaded successfully',
