@@ -15,6 +15,11 @@ import { Instructor } from './instructor.entity';
 import { WorkshopRegistration } from './workshop-registration.entity';
 import { WorkshopImage } from './workshop-image.entity';
 
+export interface WorkshopContent {
+  sectionTitle: string;
+  subSection: string[];
+}
+
 @Entity('workshops')
 export class Workshop {
   @PrimaryGeneratedColumn('uuid')
@@ -26,8 +31,8 @@ export class Workshop {
   @Column({ type: 'text' })
   description!: string;
 
-  @Column({ type: 'text' })
-  content!: string;
+  @Column({ type: 'jsonb' })
+  content!: WorkshopContent[];
 
   @Column({ type: 'varchar', nullable: true })
   image_url!: string | null;

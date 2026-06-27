@@ -8,9 +8,23 @@ import {
   IsUUID,
   MaxLength,
   Min,
+  ValidateNested,
 } from 'class-validator';
+import { Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 import { STRING_MAX_LENGTH } from 'src/constants/variables';
+
+export class WorkshopContentDto {
+  @ApiProperty({ description: 'Section title', example: 'Introduction' })
+  @IsString()
+  @IsNotEmpty()
+  sectionTitle!: string;
+
+  @ApiProperty({ description: 'Subsections', example: ['HTML Basics', 'CSS Basics'] })
+  @IsArray()
+  @IsString({ each: true })
+  subSection!: string[];
+}
 
 export class CreateWorkshopDto {
   @ApiProperty({
@@ -33,11 +47,18 @@ export class CreateWorkshopDto {
 
   @ApiProperty({
     description: 'Detailed workshop content / syllabus outlining what they will learn',
-    example: 'HTML, CSS, JavaScript, React, Node.js, Express, and Database basics.',
+    type: [WorkshopContentDto],
+    example: [
+      {
+        sectionTitle: 'Introduction',
+        subSection: ['HTML Basics', 'CSS Basics'],
+      },
+    ],
   })
-  @IsString()
-  @IsNotEmpty()
-  content!: string;
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => WorkshopContentDto)
+  content!: WorkshopContentDto[];
 
   @ApiProperty({
     description: 'Workshop location',

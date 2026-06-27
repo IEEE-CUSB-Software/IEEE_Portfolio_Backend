@@ -12,7 +12,12 @@ export const workshop_example = {
   id: '550e8400-e29b-41d4-a716-446655440000',
   title: 'IEEE Web Development Workshop',
   description: 'A comprehensive crash course on modern web development.',
-  content: 'HTML, CSS, JavaScript, React, Node.js, Express, and Database basics.',
+  content: [
+    {
+      sectionTitle: 'Introduction',
+      subSection: ['HTML Basics', 'CSS Basics'],
+    },
+  ],
   location: 'Lab 3, Building C',
   start_time: '2026-04-10T10:00:00Z',
   end_time: '2026-04-10T14:00:00Z',
