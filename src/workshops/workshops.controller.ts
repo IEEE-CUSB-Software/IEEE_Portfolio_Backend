@@ -14,6 +14,7 @@ import {
   ApiCreatedResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
@@ -49,15 +50,23 @@ export class WorkshopsController {
   @ApiOperation(get_all_workshops_swagger.operation)
   @ApiOkResponse(get_all_workshops_swagger.responses.success)
   @ApiInternalServerError(ERROR_MESSAGES.INTERNAL_SERVER_ERROR)
+  @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
+  @ApiQuery({ name: 'limit', required: false, type: Number, example: 10 })
+  @ApiQuery({ name: 'search', required: false, type: String, description: 'Search by title or description' })
+  @ApiQuery({ name: 'location', required: false, type: String, description: 'Filter by location' })
   findAll(
+    @Req() req: Request & { user?: User },
     @Query('page') page: string = '1',
     @Query('limit') limit: string = '10',
-    @Req() req: Request & { user?: User },
+    @Query('search') search?: string,
+    @Query('location') location?: string,
   ) {
     return this.workshopsService.findAll(
       parseInt(page),
       parseInt(limit),
       req.user,
+      search,
+      location,
     );
   }
 

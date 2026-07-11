@@ -59,15 +59,29 @@ export class WorkshopsService {
     return enrichedWorkshop;
   }
 
-  async findAll(page: number = 1, limit: number = 10, currentUser?: User) {
+  async findAll(page: number = 1, limit: number = 10, currentUser?: User, search?: string, location?: string) {
     const skip = (page - 1) * limit;
 
-    const [workshops, total] = await this.workshopsRepository.findAndCount({
-      skip,
-      take: limit,
-      order: { start_time: 'ASC' },
-      relations: ['images', 'instructors'],
-    });
+    const qb = this.workshopsRepository
+      .createQueryBuilder('workshop')
+      .leftJoinAndSelect('workshop.images', 'images')
+      .leftJoinAndSelect('workshop.instructors', 'instructors')
+      .orderBy('workshop.start_time', 'ASC')
+      .skip(skip)
+      .take(limit);
+
+    if (search) {
+      qb.andWhere(
+        '(workshop.title ILIKE :search OR workshop.description ILIKE :search)',
+        { search: `%${search}%` },
+      );
+    }
+
+    if (location) {
+      qb.andWhere('workshop.location ILIKE :location', { location: `%${location}%` });
+    }
+
+    const [workshops, total] = await qb.getManyAndCount();
 
     const enrichedWorkshops = await Promise.all(
       workshops.map((workshop) => this.enrichWorkshopWithDetails(workshop, currentUser)),

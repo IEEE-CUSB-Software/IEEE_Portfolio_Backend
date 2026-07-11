@@ -14,7 +14,7 @@ export class CommitteesService {
     private readonly committeeRepository: Repository<Committee>,
   ) {}
 
-  async findAll(categoryId?: string) {
+  async findAll(categoryId?: string, search?: string) {
     const queryBuilder = this.committeeRepository
       .createQueryBuilder('committee')
       .leftJoinAndSelect('committee.category', 'category')
@@ -22,6 +22,13 @@ export class CommitteesService {
 
     if (categoryId) {
       queryBuilder.where('committee.category_id = :categoryId', { categoryId });
+    }
+
+    if (search) {
+      queryBuilder.andWhere(
+        '(committee.name ILIKE :search OR committee.about ILIKE :search)',
+        { search: `%${search}%` },
+      );
     }
 
     const committees = await queryBuilder.getMany();

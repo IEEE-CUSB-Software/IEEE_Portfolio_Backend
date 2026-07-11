@@ -12,13 +12,24 @@ export class BoardService {
     private readonly boardRepository: Repository<BoardMember>,
   ) {}
 
-  async findAll() {
-    const members = await this.boardRepository.find({
-      order: {
-        display_order: 'ASC',
-        name: 'ASC',
-      },
-    });
+  async findAll(search?: string, role?: string) {
+    const qb = this.boardRepository
+      .createQueryBuilder('board')
+      .orderBy('board.display_order', 'ASC')
+      .addOrderBy('board.name', 'ASC');
+
+    if (search) {
+      qb.andWhere(
+        '(board.name ILIKE :search)',
+        { search: `%${search}%` },
+      );
+    }
+
+    if (role) {
+      qb.andWhere('board.role ILIKE :role', { role: `%${role}%` });
+    }
+
+    const members = await qb.getMany();
 
     return {
       members,

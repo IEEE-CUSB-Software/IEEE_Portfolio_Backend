@@ -32,8 +32,19 @@ export class AdminRecruitmentService {
     return this.vacanciesRepository.save(vacancy);
   }
 
-  async getVacancies() {
-    return this.vacanciesRepository.find({ order: { created_at: 'DESC' } });
+  async getVacancies(search?: string) {
+    const qb = this.vacanciesRepository
+      .createQueryBuilder('vacancy')
+      .orderBy('vacancy.created_at', 'DESC');
+
+    if (search) {
+      qb.andWhere(
+        '(vacancy.title ILIKE :search OR vacancy.description ILIKE :search)',
+        { search: `%${search}%` },
+      );
+    }
+
+    return qb.getMany();
   }
 
   private getApplicationsDateFilter(startDate?: string, endDate?: string) {

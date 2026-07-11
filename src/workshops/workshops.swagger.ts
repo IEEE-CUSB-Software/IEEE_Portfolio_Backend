@@ -44,7 +44,7 @@ export const get_instructor_by_id_swagger = {
 export const get_all_workshops_swagger = {
   operation: {
     summary: 'Get all workshops',
-    description: 'Retrieve a paginated list of all workshops. Includes capacity information (is_full). If authenticated, also includes user registration status (is_registered, registration_id, registration_status).',
+    description: 'Retrieve a paginated list of all workshops. Supports search by title/description and filtering by location. Includes capacity information (is_full). If authenticated, also includes user registration status (is_registered, registration_id, registration_status).',
   },
   responses: {
     success: {

@@ -63,9 +63,10 @@ export class AdminRecruitmentController {
   @ApiUnauthorizedErrorResponse(ERROR_MESSAGES.INVALID_OR_EXPIRED_TOKEN)
   @ApiForbiddenErrorResponse(ERROR_MESSAGES.FORBIDDEN_ACTION)
   @ApiInternalServerError(ERROR_MESSAGES.INTERNAL_SERVER_ERROR)
+  @ApiQuery({ name: 'search', required: false, type: String, description: 'Search by vacancy title or description' })
   @ResponseMessage(SUCCESS_MESSAGES.VACANCIES_RETRIEVED)
-  getVacancies() {
-    return this.adminRecruitmentService.getVacancies();
+  getVacancies(@Query('search') search?: string) {
+    return this.adminRecruitmentService.getVacancies(search);
   }
 
   @Get('vacancies/:id/applications')

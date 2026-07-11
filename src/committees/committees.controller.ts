@@ -39,11 +39,15 @@ export class CommitteesController {
     description: 'Filter by category ID',
     type: String,
   })
+  @ApiQuery({ name: 'search', required: false, type: String, description: 'Search by name or about' })
   @ApiOkResponse(get_all_committees_swagger.responses.success)
   @ApiInternalServerError(ERROR_MESSAGES.INTERNAL_SERVER_ERROR)
   @ResponseMessage(SUCCESS_MESSAGES.COMMITTEES_RETRIEVED)
-  findAll(@Query('category_id') categoryId?: string) {
-    return this.committeesService.findAll(categoryId);
+  findAll(
+    @Query('category_id', new ParseUUIDPipe({ optional: true })) categoryId?: string,
+    @Query('search') search?: string,
+  ) {
+    return this.committeesService.findAll(categoryId, search);
   }
 
   @Get(':id')

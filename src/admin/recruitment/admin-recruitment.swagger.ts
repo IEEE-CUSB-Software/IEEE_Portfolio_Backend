@@ -60,7 +60,7 @@ export const admin_update_vacancy_swagger = {
 export const admin_get_vacancies_swagger = {
   operation: { 
     summary: 'Get all vacancies',
-    description: 'Admins can get all vacancies, both open and closed.',
+    description: 'Admins can get all vacancies, both open and closed. Supports search by title or description.',
   },
   responses: {
     success: { 

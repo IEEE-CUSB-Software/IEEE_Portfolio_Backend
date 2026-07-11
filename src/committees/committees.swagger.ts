@@ -33,7 +33,7 @@ export const get_all_committees_swagger = {
   operation: {
     summary: 'Get all committees',
     description:
-      'Retrieve all committees with their category. Optionally filter by category_id query parameter.',
+      'Retrieve all committees with their category. Supports search by name/about and filtering by category_id query parameter.',
   },
   responses: {
     success: {

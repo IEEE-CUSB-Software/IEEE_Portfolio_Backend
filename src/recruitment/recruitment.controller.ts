@@ -1,5 +1,5 @@
-import { Controller, Get, Post, Body, Param, ParseUUIDPipe, Req, UseInterceptors, ClassSerializerInterceptor, Delete, Res } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiOkResponse, ApiBearerAuth, ApiCreatedResponse } from '@nestjs/swagger';
+import { Controller, Get, Post, Body, Param, ParseUUIDPipe, Req, UseInterceptors, ClassSerializerInterceptor, Delete, Res, Query } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiOkResponse, ApiBearerAuth, ApiCreatedResponse, ApiQuery } from '@nestjs/swagger';
 import {
   ApiForbiddenErrorResponse,
   ApiInternalServerError,
@@ -27,9 +27,10 @@ export class RecruitmentController {
   @ApiUnauthorizedErrorResponse(ERROR_MESSAGES.INVALID_OR_EXPIRED_TOKEN)
   @ApiForbiddenErrorResponse(ERROR_MESSAGES.FORBIDDEN_ACTION)
   @ApiInternalServerError(ERROR_MESSAGES.INTERNAL_SERVER_ERROR)
+  @ApiQuery({ name: 'search', required: false, type: String, description: 'Search by vacancy title or description' })
   @ResponseMessage(SUCCESS_MESSAGES.VACANCIES_RETRIEVED)
-  getOpenVacancies() {
-    return this.recruitmentService.getOpenVacancies();
+  getOpenVacancies(@Query('search') search?: string) {
+    return this.recruitmentService.getOpenVacancies(search);
   }
 
   @Post('vacancies/:id/apply')

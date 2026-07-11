@@ -75,7 +75,7 @@ export const admin_download_cv_swagger = {
 export const admin_get_all_users_swagger = {
   operation: {
     summary: 'Get all users (Paginated)',
-    description: 'Admins can retrieve a paginated list of all registered users.',
+    description: 'Admins can retrieve a paginated list of all registered users. Supports search by name, and filtering by email or username.',
   },
   responses: {
     success: {

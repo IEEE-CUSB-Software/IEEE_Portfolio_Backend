@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, In } from 'typeorm';
+import { Repository, In, SelectQueryBuilder } from 'typeorm';
 import { Event } from './entities/event.entity';
 import { EventImage } from './entities/event-image.entity';
 import {
@@ -13,6 +13,7 @@ import {
   EventRegistrationStatus,
 } from './entities/event-registration.entity';
 import { User } from 'src/users/entities/user.entity';
+import { EventCategory } from './entities/event.entity';
 import { ERROR_MESSAGES } from 'src/constants/swagger-messages';
 import { MediaService } from 'src/media/media.service';
 import { resolveMediaFolder } from 'src/media/media.utils';
@@ -89,15 +90,39 @@ export class EventsService {
     }
   }
 
-  async findAll(page: number = 1, limit: number = 10, currentUser?: User) {
+  async findAll(
+    page: number = 1,
+    limit: number = 10,
+    currentUser?: User,
+    search?: string,
+    location?: string,
+    category?: EventCategory,
+  ) {
     const skip = (page - 1) * limit;
 
-    const [events, total] = await this.eventsRepository.findAndCount({
-      skip,
-      take: limit,
-      order: { start_time: 'ASC' },
-      relations: ['images'],
-    });
+    const qb = this.eventsRepository
+      .createQueryBuilder('event')
+      .leftJoinAndSelect('event.images', 'images')
+      .orderBy('event.start_time', 'ASC')
+      .skip(skip)
+      .take(limit);
+
+    if (search) {
+      qb.andWhere(
+        '(event.title ILIKE :search OR event.description ILIKE :search)',
+        { search: `%${search}%` },
+      );
+    }
+
+    if (location) {
+      qb.andWhere('event.location ILIKE :location', { location: `%${location}%` });
+    }
+
+    if (category) {
+      qb.andWhere('event.category = :category', { category });
+    }
+
+    const [events, total] = await qb.getManyAndCount();
 
     // Enrich events with capacity and registration details
     const enrichedEvents = await Promise.all(

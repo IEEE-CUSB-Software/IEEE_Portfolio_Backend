@@ -13,6 +13,7 @@ import {
   ApiBearerAuth,
   ApiOkResponse,
   ApiOperation,
+  ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
@@ -38,6 +39,7 @@ import {
 import { ResponseMessage } from 'src/decorators/response-message.decorator';
 import { User } from 'src/users/entities/user.entity';
 import { OptionalJwtGuard } from 'src/auth/guards/optional-jwt.guard';
+import { EventCategory } from './entities/event.entity';
 
 @ApiTags('events')
 @Controller('events')
@@ -50,15 +52,26 @@ export class EventsController {
   @ApiOperation(get_all_events_swagger.operation)
   @ApiOkResponse(get_all_events_swagger.responses.success)
   @ApiInternalServerError(ERROR_MESSAGES.INTERNAL_SERVER_ERROR)
+  @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
+  @ApiQuery({ name: 'limit', required: false, type: Number, example: 10 })
+  @ApiQuery({ name: 'search', required: false, type: String, description: 'Search by title or description' })
+  @ApiQuery({ name: 'location', required: false, type: String, description: 'Filter by location' })
+  @ApiQuery({ name: 'category', required: false, enum: EventCategory, description: 'Filter by event category' })
   findAll(
+    @Req() req: Request & { user?: User },
     @Query('page') page: string = '1',
     @Query('limit') limit: string = '10',
-    @Req() req: Request & { user?: User },
+    @Query('search') search?: string,
+    @Query('location') location?: string,
+    @Query('category') category?: EventCategory,
   ) {
     return this.eventsService.findAll(
       parseInt(page),
       parseInt(limit),
       req.user,
+      search,
+      location,
+      category,
     );
   }
 
