@@ -11,6 +11,10 @@ import {
   Query,
   DefaultValuePipe,
   ParseIntPipe,
+  Patch,
+  Body,
+  UseInterceptors,
+  ClassSerializerInterceptor,
 } from '@nestjs/common';
 import {
   ApiOkResponse,
@@ -18,6 +22,7 @@ import {
   ApiTags,
   ApiBearerAuth,
   ApiQuery,
+  ApiBody,
 } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { AdminUsersService } from './admin-users.service';
@@ -38,7 +43,10 @@ import {
   admin_download_cv_swagger,
   admin_get_all_users_swagger,
   admin_get_user_swagger,
+  admin_update_user_role_swagger,
 } from './admin-users.swagger';
+import { SuperAdminGuard } from 'src/auth/guards/super-admin.guard';
+import { UpdateUserRoleDto } from './dto/update-user-role.dto';
 
 @ApiTags('admin/users')
 @Controller('admin/users')
@@ -115,5 +123,23 @@ export class AdminUsersController {
     });
 
     res.send(file.fileBuffer);
+  }
+
+  @Patch(':id/role')
+  @UseGuards(SuperAdminGuard)
+  @UseInterceptors(ClassSerializerInterceptor)
+  @ApiOperation(admin_update_user_role_swagger.operation)
+  @ApiBody({ type: UpdateUserRoleDto })
+  @ApiOkResponse(admin_update_user_role_swagger.responses.success)
+  @ApiUnauthorizedErrorResponse(ERROR_MESSAGES.INVALID_OR_EXPIRED_TOKEN)
+  @ApiForbiddenErrorResponse(ERROR_MESSAGES.FORBIDDEN_ACTION)
+  @ApiNotFoundErrorResponse(ERROR_MESSAGES.USER_NOT_FOUND)
+  @ApiInternalServerError(ERROR_MESSAGES.INTERNAL_SERVER_ERROR)
+  @ResponseMessage('User role updated successfully')
+  updateRole(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updateUserRoleDto: UpdateUserRoleDto,
+  ) {
+    return this.adminUsersService.updateRole(id, updateUserRoleDto);
   }
 }
