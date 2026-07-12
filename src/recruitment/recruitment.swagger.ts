@@ -22,7 +22,7 @@ const application_example = {
 };
 
 export const get_open_vacancies_swagger = {
-  operation: { summary: 'Get all open vacancies' },
+  operation: { summary: 'Get all open vacancies', description: 'Retrieve all open vacancies. Supports search by title or description.' },
   responses: {
     success: {
       status: HttpStatus.OK,

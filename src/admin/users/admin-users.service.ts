@@ -18,14 +18,29 @@ export class AdminUsersService {
     private readonly storageService: StorageService,
   ) {}
 
-  async findAll(page: number, limit: number) {
-    const [users, total] = await this.usersRepository.findAndCount({
-      skip: (page - 1) * limit,
-      take: limit,
-      order: {
-        created_at: 'DESC',
-      },
-    });
+  async findAll(page: number, limit: number, search?: string, email?: string, username?: string) {
+    const qb = this.usersRepository
+      .createQueryBuilder('user')
+      .orderBy('user.created_at', 'DESC')
+      .skip((page - 1) * limit)
+      .take(limit);
+
+    if (search) {
+      qb.andWhere(
+        '(user.name ILIKE :search)',
+        { search: `%${search}%` },
+      );
+    }
+
+    if (email) {
+      qb.andWhere('user.email ILIKE :email', { email: `%${email}%` });
+    }
+
+    if (username) {
+      qb.andWhere('user.username ILIKE :username', { username: `%${username}%` });
+    }
+
+    const [users, total] = await qb.getManyAndCount();
 
     return {
       data: users,

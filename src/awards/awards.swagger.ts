@@ -13,7 +13,7 @@ const award_example = {
 export const get_all_awards_swagger = {
   operation: {
     summary: 'Get all awards',
-    description: 'Retrieve all awards ordered by title (ascending).',
+    description: 'Retrieve all awards. Supports search by title/description and filtering by year or source.',
   },
   responses: {
     success: {

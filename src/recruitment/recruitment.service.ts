@@ -17,11 +17,20 @@ export class RecruitmentService {
     private readonly storageService: StorageService,
   ) {}
 
-  async getOpenVacancies() {
-    return this.vacanciesRepository.find({
-      where: { is_open: true },
-      order: { created_at: 'DESC' },
-    });
+  async getOpenVacancies(search?: string) {
+    const qb = this.vacanciesRepository
+      .createQueryBuilder('vacancy')
+      .where('vacancy.is_open = :isOpen', { isOpen: true })
+      .orderBy('vacancy.created_at', 'DESC');
+
+    if (search) {
+      qb.andWhere(
+        '(vacancy.title ILIKE :search OR vacancy.description ILIKE :search)',
+        { search: `%${search}%` },
+      );
+    }
+
+    return qb.getMany();
   }
 
   async applyToVacancy(userId: string, vacancyId: string, dto: ApplyToVacancyDto) {

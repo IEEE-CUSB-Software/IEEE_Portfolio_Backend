@@ -13,7 +13,7 @@ export const get_all_board_members_swagger = {
   operation: {
     summary: 'Get all board members',
     description:
-      'Retrieve all board members ordered by display_order (ascending) and name (ascending).',
+      'Retrieve all board members. Supports search by name and filtering by role. Ordered by display_order (ascending) and name (ascending).',
   },
   responses: {
     success: {

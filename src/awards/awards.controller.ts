@@ -3,11 +3,13 @@ import {
   Get,
   Param,
   ParseUUIDPipe,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import {
   ApiOkResponse,
   ApiOperation,
+  ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
 import { AwardsService } from './awards.service';
@@ -22,6 +24,7 @@ import {
 } from './awards.swagger';
 import { OptionalJwtGuard } from 'src/auth/guards/optional-jwt.guard';
 import { ResponseMessage } from 'src/decorators/response-message.decorator';
+import { AwardSource } from './enums/award-source.enum';
 
 @ApiTags('awards')
 @Controller('awards')
@@ -33,9 +36,16 @@ export class AwardsController {
   @ApiOperation(get_all_awards_swagger.operation)
   @ApiOkResponse(get_all_awards_swagger.responses.success)
   @ApiInternalServerError(ERROR_MESSAGES.INTERNAL_SERVER_ERROR)
+  @ApiQuery({ name: 'search', required: false, type: String, description: 'Search by title or description' })
+  @ApiQuery({ name: 'year', required: false, type: Number, description: 'Filter by award year' })
+  @ApiQuery({ name: 'source', required: false, enum: AwardSource, description: 'Filter by award source' })
   @ResponseMessage(SUCCESS_MESSAGES.AWARDS_RETRIEVED)
-  findAll() {
-    return this.awardsService.findAll();
+  findAll(
+    @Query('search') search?: string,
+    @Query('year') year?: string,
+    @Query('source') source?: AwardSource,
+  ) {
+    return this.awardsService.findAll(search, year ? parseInt(year) : undefined, source);
   }
 
   @Get(':id')

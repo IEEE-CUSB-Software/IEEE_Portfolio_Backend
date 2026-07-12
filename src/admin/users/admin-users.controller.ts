@@ -54,12 +54,18 @@ export class AdminUsersController {
   @ApiInternalServerError(ERROR_MESSAGES.INTERNAL_SERVER_ERROR)
   @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
   @ApiQuery({ name: 'limit', required: false, type: Number, example: 10 })
+  @ApiQuery({ name: 'search', required: false, type: String, description: 'Search by name' })
+  @ApiQuery({ name: 'email', required: false, type: String, description: 'Filter by email' })
+  @ApiQuery({ name: 'username', required: false, type: String, description: 'Filter by username' })
   @ResponseMessage('Users retrieved successfully')
   findAll(
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
+    @Query('search') search?: string,
+    @Query('email') email?: string,
+    @Query('username') username?: string,
   ) {
-    return this.adminUsersService.findAll(page, limit);
+    return this.adminUsersService.findAll(page, limit, search, email, username);
   }
 
   @Get(':id')

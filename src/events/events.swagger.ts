@@ -34,7 +34,7 @@ export const get_all_events_swagger = {
   operation: {
     summary: 'Get all events',
     description:
-      'Retrieve a paginated list of all events. Includes capacity information (remainingSpots, is_full). If authenticated, also includes user registration status (is_registered, registration_id).',
+      'Retrieve a paginated list of all events. Supports search by title/description and filtering by location or category. Includes capacity information (remainingSpots, is_full). If authenticated, also includes user registration status (is_registered, registration_id).',
   },
   responses: {
     success: {
