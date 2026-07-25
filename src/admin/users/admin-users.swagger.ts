@@ -1,4 +1,5 @@
 // admin-users.swagger.ts
+import { RoleName } from 'src/roles/entities/role.entity';
 
 const user_example = {
   id: 'd102dadc-0b17-4e83-812b-00103b606a1f',
@@ -121,3 +122,28 @@ export const admin_get_user_swagger = {
     },
   },
 };
+
+export const admin_update_user_role_swagger = {
+  operation: {
+    summary: 'Update user role (Super Admin only)',
+    description: 'Super Admins can update the role of a user.',
+  },
+  responses: {
+    success: {
+      description: 'User role updated successfully',
+      schema: {
+        example: {
+          data: {
+            ...user_example,
+            role: {
+              id: '550e8400-e29b-41d4-a716-446655440000',
+              name: RoleName.ADMIN,
+            },
+          },
+          message: 'User role updated successfully',
+        },
+      },
+    },
+  },
+};
+

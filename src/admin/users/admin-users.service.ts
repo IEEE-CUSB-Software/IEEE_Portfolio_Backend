@@ -8,6 +8,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ERROR_MESSAGES } from 'src/constants/swagger-messages';
 import { MediaService } from 'src/media/media.service';
 import { StorageService } from 'src/storage/storage.service';
+import { RolesService } from 'src/roles/roles.service';
+import { UpdateUserRoleDto } from './dto/update-user-role.dto';
 
 @Injectable()
 export class AdminUsersService {
@@ -16,6 +18,7 @@ export class AdminUsersService {
     private readonly usersRepository: Repository<User>,
     private readonly mediaService: MediaService,
     private readonly storageService: StorageService,
+    private readonly rolesService: RolesService,
   ) {}
 
   async findAll(page: number, limit: number, search?: string, email?: string, username?: string) {
@@ -107,5 +110,23 @@ export class AdminUsersService {
       userName: user.name,
       userEmail: user.email,
     };
+  }
+
+  async updateRole(id: string, updateUserRoleDto: UpdateUserRoleDto) {
+    const user = await this.usersRepository.findOne({
+      where: { id },
+      relations: ['role'],
+    });
+
+    if (!user) {
+      throw new NotFoundException(ERROR_MESSAGES.USER_NOT_FOUND);
+    }
+
+    const role = await this.rolesService.findOne(updateUserRoleDto.roleId);
+
+    user.role = role;
+    user.role_id = role.id;
+
+    return await this.usersRepository.save(user);
   }
 }
