@@ -27,8 +27,7 @@ import {
   CopyFileResponse,
 } from './storage.types';
 import { getR2Config } from './storage.config';
-import { v4 as uuidv4 } from 'uuid';
-import { fileTypeFromBuffer } from 'file-type';
+import { randomUUID } from 'crypto';
 
 @Injectable()
 export class StorageService {
@@ -80,6 +79,7 @@ export class StorageService {
     if (!fileName || !fileBuffer) {
       throw new BadRequestException('File name and buffer are required');
     }
+    const { fileTypeFromBuffer } = await import('file-type');
     const detectedType = await fileTypeFromBuffer(fileBuffer);
     if (!detectedType) {
         throw new BadRequestException('Invalid or unreadable file content. Could not verify file type.');
@@ -95,7 +95,7 @@ export class StorageService {
       if (maxSize > 0 && fileBuffer.length > maxSize) {
         throw new BadRequestException(`File size exceeds the maximum allowed size of ${maxSize} bytes`);
       }
-      const baseFileKey = `${uuidv4()}-${Date.now()}.${detectedType.ext}`;
+      const baseFileKey = `${randomUUID()}-${Date.now()}.${detectedType.ext}`;
       const fileKey = prefix ? `${prefix}${baseFileKey}` : baseFileKey;
 
       const command = new PutObjectCommand({

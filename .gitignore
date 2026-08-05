@@ -3,6 +3,9 @@
 /node_modules
 /build
 
+# Vercel
+/.vercel
+
 # Logs
 logs
 *.log
