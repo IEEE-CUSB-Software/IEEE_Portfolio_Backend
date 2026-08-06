@@ -3,9 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Award } from 'src/awards/entities/award.entity';
+import { AwardsRepository } from 'src/awards/awards.repository';
 import { CreateAwardDto } from './dto/create-award.dto';
 import { UpdateAwardDto } from './dto/update-award.dto';
 import { ERROR_MESSAGES } from 'src/constants/swagger-messages';
@@ -20,8 +18,7 @@ const AWARDS_MEDIA_FOLDER = resolveMediaFolder(
 @Injectable()
 export class AdminAwardsService {
   constructor(
-    @InjectRepository(Award)
-    private readonly awardsRepository: Repository<Award>,
+    private readonly awardsRepository: AwardsRepository,
     private readonly mediaService: MediaService,
   ) {}
 
@@ -36,11 +33,7 @@ export class AdminAwardsService {
   }
 
   async update(id: string, updateAwardDto: UpdateAwardDto) {
-    const award = await this.awardsRepository.findOne({ where: { id } });
-
-    if (!award) {
-      throw new NotFoundException(ERROR_MESSAGES.AWARD_NOT_FOUND);
-    }
+    const award = await this.getAwardOrFail(id);
 
     Object.assign(award, updateAwardDto);
 
@@ -48,11 +41,7 @@ export class AdminAwardsService {
   }
 
   async uploadImage(id: string, image: any) {
-    const award = await this.awardsRepository.findOne({ where: { id } });
-
-    if (!award) {
-      throw new NotFoundException(ERROR_MESSAGES.AWARD_NOT_FOUND);
-    }
+    const award = await this.getAwardOrFail(id);
 
     if (!image) {
       throw new BadRequestException(ERROR_MESSAGES.IMAGE_IS_REQUIRED);
@@ -76,11 +65,7 @@ export class AdminAwardsService {
   }
 
   async removeImage(id: string) {
-    const award = await this.awardsRepository.findOne({ where: { id } });
-
-    if (!award) {
-      throw new NotFoundException(ERROR_MESSAGES.AWARD_NOT_FOUND);
-    }
+    const award = await this.getAwardOrFail(id);
 
     if (!award.image_public_id) {
       throw new NotFoundException(ERROR_MESSAGES.IMAGE_NOT_FOUND);
@@ -97,11 +82,7 @@ export class AdminAwardsService {
   }
 
   async remove(id: string) {
-    const award = await this.awardsRepository.findOne({ where: { id } });
-
-    if (!award) {
-      throw new NotFoundException(ERROR_MESSAGES.AWARD_NOT_FOUND);
-    }
+    const award = await this.getAwardOrFail(id);
 
     await this.awardsRepository.remove(award);
 
@@ -110,5 +91,15 @@ export class AdminAwardsService {
     }
 
     return { message: 'Award deleted successfully' };
+  }
+
+  private async getAwardOrFail(id: string) {
+    const award = await this.awardsRepository.findById(id);
+
+    if (!award) {
+      throw new NotFoundException(ERROR_MESSAGES.AWARD_NOT_FOUND);
+    }
+
+    return award;
   }
 }

@@ -3,9 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { BoardMember } from 'src/board/entities/board-member.entity';
+import { BoardRepository } from 'src/board/board.repository';
 import { CreateBoardMemberDto } from './dto/create-board-member.dto';
 import { UpdateBoardMemberDto } from './dto/update-board-member.dto';
 import { ERROR_MESSAGES } from 'src/constants/swagger-messages';
@@ -20,8 +18,7 @@ const BOARD_MEDIA_FOLDER = resolveMediaFolder(
 @Injectable()
 export class AdminBoardService {
   constructor(
-    @InjectRepository(BoardMember)
-    private readonly boardRepository: Repository<BoardMember>,
+    private readonly boardRepository: BoardRepository,
     private readonly mediaService: MediaService,
   ) {}
 
@@ -36,11 +33,7 @@ export class AdminBoardService {
   }
 
   async update(id: string, updateBoardMemberDto: UpdateBoardMemberDto) {
-    const member = await this.boardRepository.findOne({ where: { id } });
-
-    if (!member) {
-      throw new NotFoundException(ERROR_MESSAGES.BOARD_MEMBER_NOT_FOUND);
-    }
+    const member = await this.getMemberOrFail(id);
 
     Object.assign(member, updateBoardMemberDto);
 
@@ -48,11 +41,7 @@ export class AdminBoardService {
   }
 
   async uploadImage(id: string, image: any) {
-    const member = await this.boardRepository.findOne({ where: { id } });
-
-    if (!member) {
-      throw new NotFoundException(ERROR_MESSAGES.BOARD_MEMBER_NOT_FOUND);
-    }
+    const member = await this.getMemberOrFail(id);
 
     if (!image) {
       throw new BadRequestException(ERROR_MESSAGES.IMAGE_IS_REQUIRED);
@@ -77,11 +66,7 @@ export class AdminBoardService {
   }
 
   async removeImage(id: string) {
-    const member = await this.boardRepository.findOne({ where: { id } });
-
-    if (!member) {
-      throw new NotFoundException(ERROR_MESSAGES.BOARD_MEMBER_NOT_FOUND);
-    }
+    const member = await this.getMemberOrFail(id);
 
     if (!member.image_public_id) {
       throw new NotFoundException(ERROR_MESSAGES.IMAGE_NOT_FOUND);
@@ -98,11 +83,7 @@ export class AdminBoardService {
   }
 
   async remove(id: string) {
-    const member = await this.boardRepository.findOne({ where: { id } });
-
-    if (!member) {
-      throw new NotFoundException(ERROR_MESSAGES.BOARD_MEMBER_NOT_FOUND);
-    }
+    const member = await this.getMemberOrFail(id);
 
     await this.boardRepository.remove(member);
 
@@ -111,5 +92,15 @@ export class AdminBoardService {
     }
 
     return { message: 'Board member deleted successfully' };
+  }
+
+  private async getMemberOrFail(id: string) {
+    const member = await this.boardRepository.findById(id);
+
+    if (!member) {
+      throw new NotFoundException(ERROR_MESSAGES.BOARD_MEMBER_NOT_FOUND);
+    }
+
+    return member;
   }
 }

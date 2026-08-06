@@ -1,27 +1,16 @@
-import {
-  Injectable,
-} from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Category } from './entities/category.entity';
+import { Injectable } from '@nestjs/common';
+import { paginatedResponse } from 'src/common/utils/pagination.util';
+import { CategoriesRepository } from './categories.repository';
+import { CategoriesQueryDto } from './dto/categories-query.dto';
 
 @Injectable()
 export class CategoriesService {
-  constructor(
-    @InjectRepository(Category)
-    private readonly categoryRepository: Repository<Category>,
-  ) {}
+  constructor(private readonly categoriesRepository: CategoriesRepository) {}
 
-  async findAll() {
-    const categories = await this.categoryRepository.find({
-      order: {
-        name: 'ASC',
-      },
-    });
-
-    return {
-      categories,
-      count: categories.length,
-    };
+  async findAll(query: CategoriesQueryDto) {
+    return paginatedResponse(
+      'categories',
+      await this.categoriesRepository.findAllPaginated(query),
+    );
   }
 }

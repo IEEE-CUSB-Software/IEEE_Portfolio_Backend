@@ -1,21 +1,24 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Between, LessThanOrEqual, MoreThanOrEqual } from 'typeorm';
-import { Vacancy } from '../../recruitment/entities/vacancy.entity';
 import { Application } from '../../recruitment/entities/application.entity';
+import { VacanciesRepository } from '../../recruitment/vacancies.repository';
+import { ApplicationsRepository } from '../../recruitment/applications.repository';
 import { CreateVacancyDto } from './dto/create-vacancy.dto';
 import { UpdateVacancyDto } from './dto/update-vacancy.dto';
+import { VacanciesQueryDto } from './dto/vacancies-query.dto';
+import { ApplicationsQueryDto } from './dto/applications-query.dto';
 import { ERROR_MESSAGES } from 'src/constants/swagger-messages';
 import { StorageService } from '../../storage/storage.service';
+import { paginatedResponse } from 'src/common/utils/pagination.util';
 import * as ExcelJS from 'exceljs';
+
+/** `cv_url` is derived per-request, not a mapped column on the entity. */
+type ApplicationWithCvUrl = Application & { cv_url?: string };
 
 @Injectable()
 export class AdminRecruitmentService {
   constructor(
-    @InjectRepository(Vacancy)
-    private readonly vacanciesRepository: Repository<Vacancy>,
-    @InjectRepository(Application)
-    private readonly applicationsRepository: Repository<Application>,
+    private readonly vacanciesRepository: VacanciesRepository,
+    private readonly applicationsRepository: ApplicationsRepository,
     private readonly storageService: StorageService,
   ) {}
 
@@ -32,82 +35,43 @@ export class AdminRecruitmentService {
     return this.vacanciesRepository.save(vacancy);
   }
 
-  async getVacancies(search?: string) {
-    const qb = this.vacanciesRepository
-      .createQueryBuilder('vacancy')
-      .orderBy('vacancy.created_at', 'DESC');
+  async getVacancies(query: VacanciesQueryDto) {
+    return paginatedResponse(
+      'vacancies',
+      await this.vacanciesRepository.findAllPaginated(query),
+    );
+  }
 
-    if (search) {
-      qb.andWhere(
-        '(vacancy.title ILIKE :search OR vacancy.description ILIKE :search)',
-        { search: `%${search}%` },
+  async getApplications(vacancyId: string, query: ApplicationsQueryDto) {
+    await this.getVacancyOrFail(vacancyId);
+
+    const { items, total, page, limit, totalPages } =
+      await this.applicationsRepository.findByVacancyPaginated(
+        vacancyId,
+        query,
       );
-    }
 
-    return qb.getMany();
-  }
-
-  private getApplicationsDateFilter(startDate?: string, endDate?: string) {
-    let start: Date | undefined;
-    let end: Date | undefined;
-
-    if (startDate) {
-      start = new Date(startDate);
-      start.setHours(0, 0, 0, 0);
-    }
-    
-    if (endDate) {
-      end = new Date(endDate);
-      end.setHours(23, 59, 59, 999);
-    }
-
-    if (start && end) {
-      return Between(start, end);
-    } else if (start) {
-      return MoreThanOrEqual(start);
-    } else if (end) {
-      return LessThanOrEqual(end);
-    }
-    return undefined;
-  }
-
-  async getApplications(vacancyId: string, startDate?: string, endDate?: string, page: number = 1, limit: number = 10) {
-    const vacancy = await this.vacanciesRepository.findOne({ where: { id: vacancyId } });
-    if (!vacancy) {
-      throw new NotFoundException(ERROR_MESSAGES.VACANCY_NOT_FOUND);
-    }
-
-    const dateFilter = this.getApplicationsDateFilter(startDate, endDate);
-    const whereClause: any = { vacancy_id: vacancyId };
-    if (dateFilter) {
-      whereClause.created_at = dateFilter;
-    }
-
-    const [data, total] = await this.applicationsRepository.findAndCount({
-      where: whereClause,
-      relations: ['user'],
-      order: { created_at: 'DESC' },
-      skip: (page - 1) * limit,
-      take: limit,
-    });
-
-    for (const app of data) {
+    for (const app of items) {
       if (app.user?.cv_file_key) {
-        (app as any).cv_url = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/${app.id}/cv`;
+        (app as ApplicationWithCvUrl).cv_url =
+          `${process.env.FRONTEND_URL || 'http://localhost:3000'}/${app.id}/cv`;
       }
     }
 
     return {
-      data,
+      data: items,
       total,
       page,
       limit,
-      totalPages: Math.ceil(total / limit),
+      totalPages,
     };
   }
 
-  async updateApplicationStatus(id: string, status: 'PENDING' | 'ACCEPTED' | 'REJECTED') {
-    const application = await this.applicationsRepository.findOne({ where: { id } });
+  async updateApplicationStatus(
+    id: string,
+    status: 'PENDING' | 'ACCEPTED' | 'REJECTED',
+  ) {
+    const application = await this.applicationsRepository.findById(id);
     if (!application) {
       throw new NotFoundException(ERROR_MESSAGES.APPLICATION_NOT_FOUND);
     }
@@ -115,23 +79,17 @@ export class AdminRecruitmentService {
     return this.applicationsRepository.save(application);
   }
 
-  async exportApplicationsToExcel(vacancyId: string, startDate?: string, endDate?: string) {
-    const vacancy = await this.vacanciesRepository.findOne({ where: { id: vacancyId } });
-    if (!vacancy) {
-      throw new NotFoundException(ERROR_MESSAGES.VACANCY_NOT_FOUND);
-    }
+  async exportApplicationsToExcel(
+    vacancyId: string,
+    startDate?: string,
+    endDate?: string,
+  ) {
+    const vacancy = await this.getVacancyOrFail(vacancyId);
 
-    const dateFilter = this.getApplicationsDateFilter(startDate, endDate);
-    const whereClause: any = { vacancy_id: vacancyId };
-    if (dateFilter) {
-      whereClause.created_at = dateFilter;
-    }
-
-    const applications = await this.applicationsRepository.find({
-      where: whereClause,
-      relations: ['user'],
-      order: { created_at: 'DESC' },
-    });
+    const applications = await this.applicationsRepository.findByVacancy(
+      vacancyId,
+      { startDate, endDate },
+    );
 
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Applications');
@@ -152,7 +110,7 @@ export class AdminRecruitmentService {
     ];
 
     for (const app of applications) {
-      let cvLink: any = 'N/A';
+      let cvLink: string | ExcelJS.CellHyperlinkValue = 'N/A';
       if (app.user?.cv_file_key) {
         const url = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/${app.id}/cv`;
         cvLink = { text: 'View CV', hyperlink: url };
@@ -177,22 +135,19 @@ export class AdminRecruitmentService {
     const buffer = await workbook.xlsx.writeBuffer();
 
     return {
-      fileBuffer: Buffer.from(buffer as any),
+      fileBuffer: Buffer.from(buffer as ArrayBuffer),
       fileName: `applications-${vacancy.title.replace(/\s+/g, '-')}-${new Date().toISOString().split('T')[0]}.xlsx`,
     };
   }
 
   async deleteVacancy(id: string) {
-    const vacancy = await this.vacanciesRepository.findOne({ where: { id } });
-    if (!vacancy) {
-      throw new NotFoundException(ERROR_MESSAGES.VACANCY_NOT_FOUND);
-    }
+    const vacancy = await this.getVacancyOrFail(id);
     await this.vacanciesRepository.remove(vacancy);
     return { success: true };
   }
 
   async getApplicationCv(id: string) {
-    const application = await this.applicationsRepository.findOne({ where: { id }, relations: ['user'] });
+    const application = await this.applicationsRepository.findByIdWithUser(id);
     if (!application) {
       throw new NotFoundException(ERROR_MESSAGES.APPLICATION_NOT_FOUND);
     }
@@ -200,5 +155,13 @@ export class AdminRecruitmentService {
       throw new NotFoundException('CV file not found for this user');
     }
     return this.storageService.getFile(application.user.cv_file_key);
+  }
+
+  private async getVacancyOrFail(id: string) {
+    const vacancy = await this.vacanciesRepository.findById(id);
+    if (!vacancy) {
+      throw new NotFoundException(ERROR_MESSAGES.VACANCY_NOT_FOUND);
+    }
+    return vacancy;
   }
 }

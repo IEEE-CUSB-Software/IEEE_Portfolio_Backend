@@ -1,11 +1,12 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { BoardMember } from 'src/board/entities/board-member.entity';
+import { BoardModule } from 'src/board/board.module';
 import { AdminBoardController } from './admin-board.controller';
 import { AdminBoardService } from './admin-board.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([BoardMember])],
+  // BoardRepository comes from the non-admin module so both sides share one
+  // query surface for the entity.
+  imports: [BoardModule],
   controllers: [AdminBoardController],
   providers: [AdminBoardService],
 })

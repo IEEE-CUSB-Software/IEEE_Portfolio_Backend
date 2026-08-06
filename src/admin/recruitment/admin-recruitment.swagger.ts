@@ -17,15 +17,27 @@ const application_example = {
   extra_data: { why_join: 'I want to learn', portfolio: 'link' },
   created_at: '2025-12-03T10:30:00Z',
   updated_at: '2025-12-03T10:30:00Z',
+  user: {
+    id: 'd102dadc-0b17-4e83-812b-00103b606a1f',
+    name: 'Jane Smith',
+    username: 'janesmith',
+    email: 'jane.smith@ieee.org',
+    phone: '+201234567890',
+    university: 'Cairo University',
+    faculty: 'Engineering',
+    major: 'Computer Engineering',
+    academic_year: 3,
+  },
+  cv_url: 'https://example.com/a102dadc-0b17-4e83-812b-00103b606a1f/cv',
 };
 
 export const admin_create_vacancy_swagger = {
-  operation: { 
+  operation: {
     summary: 'Create a new vacancy',
     description: 'Admins can create a new vacancy.',
   },
   responses: {
-    success: { 
+    success: {
       description: 'Vacancy successfully created.',
       schema: {
         example: {
@@ -39,12 +51,12 @@ export const admin_create_vacancy_swagger = {
 };
 
 export const admin_update_vacancy_swagger = {
-  operation: { 
+  operation: {
     summary: 'Update a vacancy',
     description: 'Admins can update a vacancy and toggle its is_open status.',
   },
   responses: {
-    success: { 
+    success: {
       description: 'Vacancy successfully updated.',
       schema: {
         example: {
@@ -58,16 +70,23 @@ export const admin_update_vacancy_swagger = {
 };
 
 export const admin_get_vacancies_swagger = {
-  operation: { 
+  operation: {
     summary: 'Get all vacancies',
-    description: 'Admins can get all vacancies, both open and closed. Supports search by title or description.',
+    description:
+      'Admins can get all vacancies, both open and closed, paginated. Supports search by title or description, plus page/limit query parameters. `data.count` is the total number of matched vacancies, not the size of the current page.',
   },
   responses: {
-    success: { 
+    success: {
       description: 'Vacancies successfully retrieved.',
       schema: {
         example: {
-          data: [vacancy_example],
+          data: {
+            vacancies: [vacancy_example],
+            count: 12,
+            page: 1,
+            limit: 10,
+            totalPages: 2,
+          },
           count: 1,
           message: SUCCESS_MESSAGES.VACANCIES_RETRIEVED,
         },
@@ -77,20 +96,24 @@ export const admin_get_vacancies_swagger = {
 };
 
 export const admin_get_applications_swagger = {
-  operation: { 
+  operation: {
     summary: 'Get applications for a specific vacancy',
-    description: 'Admins can get a paginated list of applications for a specific vacancy, optionally filtered by date.',
+    description:
+      'Admins can get a paginated list of applications for a specific vacancy, optionally filtered by date range and searched by applicant name, email, or university.',
   },
   responses: {
-    success: { 
+    success: {
       description: 'Applications successfully retrieved.',
       schema: {
         example: {
-          data: [application_example],
-          total: 50,
-          page: 1,
-          limit: 10,
-          totalPages: 5,
+          data: {
+            data: [application_example],
+            total: 50,
+            page: 1,
+            limit: 10,
+            totalPages: 5,
+          },
+          count: 1,
           message: SUCCESS_MESSAGES.APPLICATIONS_RETRIEVED,
         },
       },
@@ -99,12 +122,13 @@ export const admin_get_applications_swagger = {
 };
 
 export const admin_update_application_status_swagger = {
-  operation: { 
+  operation: {
     summary: 'Update application status',
-    description: 'Admins can update the status of an application (e.g. ACCEPTED, REJECTED).',
+    description:
+      'Admins can update the status of an application (e.g. ACCEPTED, REJECTED).',
   },
   responses: {
-    success: { 
+    success: {
       description: 'Application status successfully updated.',
       schema: {
         example: {
@@ -121,12 +145,13 @@ export const admin_update_application_status_swagger = {
 };
 
 export const admin_export_applications_swagger = {
-  operation: { 
+  operation: {
     summary: 'Export applications as Excel',
-    description: 'Admins can export applications for a specific vacancy to an Excel sheet.',
+    description:
+      'Admins can export applications for a specific vacancy to an Excel sheet.',
   },
   responses: {
-    success: { 
+    success: {
       description: 'Excel file exported successfully.',
       schema: {
         type: 'string',
@@ -134,11 +159,13 @@ export const admin_export_applications_swagger = {
       },
       headers: {
         'Content-Type': {
-          description: 'The MIME type of the file (application/vnd.openxmlformats-officedocument.spreadsheetml.sheet)',
+          description:
+            'The MIME type of the file (application/vnd.openxmlformats-officedocument.spreadsheetml.sheet)',
           schema: { type: 'string' },
         },
         'Content-Disposition': {
-          description: 'Standard header indicating an attachment with a file name',
+          description:
+            'Standard header indicating an attachment with a file name',
           schema: { type: 'string' },
         },
       },
@@ -147,12 +174,12 @@ export const admin_export_applications_swagger = {
 };
 
 export const admin_delete_vacancy_swagger = {
-  operation: { 
+  operation: {
     summary: 'Delete a vacancy',
     description: 'Admins can delete a vacancy and all associated applications.',
   },
   responses: {
-    success: { 
+    success: {
       description: 'Vacancy successfully deleted.',
       schema: {
         example: {
@@ -166,12 +193,12 @@ export const admin_delete_vacancy_swagger = {
 };
 
 export const admin_view_application_cv_swagger = {
-  operation: { 
+  operation: {
     summary: 'View application CV',
     description: 'Stream the CV file directly to the browser.',
   },
   responses: {
-    success: { 
+    success: {
       description: 'The CV file buffer.',
       content: {
         'application/pdf': {

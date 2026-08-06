@@ -1,11 +1,12 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { Category } from 'src/categories/entities/category.entity';
+import { CategoriesModule } from 'src/categories/categories.module';
 import { AdminCategoriesController } from './admin-categories.controller';
 import { AdminCategoriesService } from './admin-categories.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Category])],
+  // CategoriesRepository comes from the non-admin module so both sides share
+  // one query surface for the entity.
+  imports: [CategoriesModule],
   controllers: [AdminCategoriesController],
   providers: [AdminCategoriesService],
 })

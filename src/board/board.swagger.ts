@@ -13,7 +13,7 @@ export const get_all_board_members_swagger = {
   operation: {
     summary: 'Get all board members',
     description:
-      'Retrieve all board members. Supports search by name and filtering by role. Ordered by display_order (ascending) and name (ascending).',
+      'Retrieve board members, paginated. Supports search by name, filtering by role, and page/limit query parameters. Ordered by display_order (ascending, nulls last) and name (ascending). `count` is the total number of matched members, not the size of the current page.',
   },
   responses: {
     success: {
@@ -22,7 +22,10 @@ export const get_all_board_members_swagger = {
         example: {
           data: {
             members: [board_member_example],
-            count: 1,
+            count: 14,
+            page: 1,
+            limit: 10,
+            totalPages: 2,
           },
           count: 1,
           message: 'Board members retrieved successfully',

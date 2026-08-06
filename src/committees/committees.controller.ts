@@ -6,24 +6,23 @@ import {
   ParseUUIDPipe,
   UseGuards,
 } from '@nestjs/common';
-import {
-  ApiOkResponse,
-  ApiOperation,
-  ApiQuery,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CommitteesService } from './committees.service';
 import {
   ApiInternalServerError,
   ApiNotFoundErrorResponse,
 } from 'src/decorators/swagger-error-responses.decorator';
-import { ERROR_MESSAGES, SUCCESS_MESSAGES } from 'src/constants/swagger-messages';
+import {
+  ERROR_MESSAGES,
+  SUCCESS_MESSAGES,
+} from 'src/constants/swagger-messages';
 import {
   get_all_committees_swagger,
   get_committee_by_id_swagger,
 } from './committees.swagger';
 import { OptionalJwtGuard } from 'src/auth/guards/optional-jwt.guard';
 import { ResponseMessage } from 'src/decorators/response-message.decorator';
+import { CommitteesQueryDto } from './dto/committees-query.dto';
 
 @ApiTags('committees')
 @Controller('committees')
@@ -33,21 +32,11 @@ export class CommitteesController {
   @Get()
   @UseGuards(OptionalJwtGuard)
   @ApiOperation(get_all_committees_swagger.operation)
-  @ApiQuery({
-    name: 'category_id',
-    required: false,
-    description: 'Filter by category ID',
-    type: String,
-  })
-  @ApiQuery({ name: 'search', required: false, type: String, description: 'Search by name or about' })
   @ApiOkResponse(get_all_committees_swagger.responses.success)
   @ApiInternalServerError(ERROR_MESSAGES.INTERNAL_SERVER_ERROR)
   @ResponseMessage(SUCCESS_MESSAGES.COMMITTEES_RETRIEVED)
-  findAll(
-    @Query('category_id', new ParseUUIDPipe({ optional: true })) categoryId?: string,
-    @Query('search') search?: string,
-  ) {
-    return this.committeesService.findAll(categoryId, search);
+  findAll(@Query() query: CommitteesQueryDto) {
+    return this.committeesService.findAll(query);
   }
 
   @Get(':id')

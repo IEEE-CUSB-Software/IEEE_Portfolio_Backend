@@ -1,16 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import {
-  CommitteeMember,
-  CommitteeMemberRole,
-} from './entities/committee-member.entity';
+import { CommitteeMemberRole } from './entities/committee-member.entity';
+import { CommitteeMembersRepository } from './committee-members.repository';
 
 @Injectable()
 export class CommitteeMembersService {
   constructor(
-    @InjectRepository(CommitteeMember)
-    private readonly committeeMemberRepository: Repository<CommitteeMember>,
+    private readonly committeeMembersRepository: CommitteeMembersRepository,
   ) {}
 
   private getRoleOrder(role: CommitteeMemberRole): number {
@@ -23,9 +18,8 @@ export class CommitteeMembersService {
   }
 
   async findByCommittee(committeeId: string) {
-    const members = await this.committeeMemberRepository.find({
-      where: { committee_id: committeeId },
-    });
+    const members =
+      await this.committeeMembersRepository.findByCommittee(committeeId);
 
     // Sort by role hierarchy, then by name
     members.sort((a, b) => {

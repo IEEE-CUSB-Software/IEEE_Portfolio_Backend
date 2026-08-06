@@ -1,55 +1,22 @@
-import {
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Committee } from './entities/committee.entity';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { ERROR_MESSAGES } from 'src/constants/swagger-messages';
+import { paginatedResponse } from 'src/common/utils/pagination.util';
+import { CommitteesRepository } from './committees.repository';
+import { CommitteesQueryDto } from './dto/committees-query.dto';
 
 @Injectable()
 export class CommitteesService {
-  constructor(
-    @InjectRepository(Committee)
-    private readonly committeeRepository: Repository<Committee>,
-  ) {}
+  constructor(private readonly committeesRepository: CommitteesRepository) {}
 
-  async findAll(categoryId?: string, search?: string) {
-    const queryBuilder = this.committeeRepository
-      .createQueryBuilder('committee')
-      .leftJoinAndSelect('committee.category', 'category')
-      .orderBy('committee.name', 'ASC');
-
-    if (categoryId) {
-      queryBuilder.where('committee.category_id = :categoryId', { categoryId });
-    }
-
-    if (search) {
-      queryBuilder.andWhere(
-        '(committee.name ILIKE :search OR committee.about ILIKE :search)',
-        { search: `%${search}%` },
-      );
-    }
-
-    const committees = await queryBuilder.getMany();
-
-    return {
-      committees,
-      count: committees.length,
-    };
+  async findAll(query: CommitteesQueryDto) {
+    return paginatedResponse(
+      'committees',
+      await this.committeesRepository.findAllPaginated(query),
+    );
   }
 
   async findOne(id: string) {
-    const committee = await this.committeeRepository.findOne({
-      where: { id },
-      relations: ['category', 'members'],
-      order: {
-        members: {
-          role: 'ASC',
-          name: 'ASC',
-        },
-      },
-    });
+    const committee = await this.committeesRepository.findByIdWithMembers(id);
 
     if (!committee) {
       throw new NotFoundException(ERROR_MESSAGES.COMMITTEE_NOT_FOUND);

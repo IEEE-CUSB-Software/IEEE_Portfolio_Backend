@@ -1,11 +1,12 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { Award } from 'src/awards/entities/award.entity';
+import { AwardsModule } from 'src/awards/awards.module';
 import { AdminAwardsController } from './admin-awards.controller';
 import { AdminAwardsService } from './admin-awards.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Award])],
+  // AwardsRepository comes from the non-admin module so both sides share one
+  // query surface for the entity.
+  imports: [AwardsModule],
   controllers: [AdminAwardsController],
   providers: [AdminAwardsService],
 })

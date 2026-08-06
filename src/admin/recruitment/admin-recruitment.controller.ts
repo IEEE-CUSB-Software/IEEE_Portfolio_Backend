@@ -1,27 +1,53 @@
-import { Controller, Get, Post, Patch, Body, Param, ParseUUIDPipe, Query, DefaultValuePipe, ParseIntPipe, Req, Res, UseInterceptors, ClassSerializerInterceptor, Delete, StreamableFile } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiOkResponse, ApiBearerAuth, ApiCreatedResponse, ApiQuery, ApiProduces } from '@nestjs/swagger';
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Body,
+  Param,
+  ParseUUIDPipe,
+  Query,
+  Res,
+  UseInterceptors,
+  ClassSerializerInterceptor,
+  Delete,
+} from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiOkResponse,
+  ApiBearerAuth,
+  ApiCreatedResponse,
+  ApiQuery,
+  ApiProduces,
+} from '@nestjs/swagger';
 import {
   ApiForbiddenErrorResponse,
   ApiInternalServerError,
   ApiNotFoundErrorResponse,
   ApiUnauthorizedErrorResponse,
 } from '../../decorators/swagger-error-responses.decorator';
-import { ERROR_MESSAGES, SUCCESS_MESSAGES } from '../../constants/swagger-messages';
+import {
+  ERROR_MESSAGES,
+  SUCCESS_MESSAGES,
+} from '../../constants/swagger-messages';
 import { AdminRecruitmentService } from './admin-recruitment.service';
 import { CreateVacancyDto } from './dto/create-vacancy.dto';
 import { UpdateVacancyDto } from './dto/update-vacancy.dto';
 import { UpdateApplicationStatusDto } from './dto/update-application-status.dto';
+import { VacanciesQueryDto } from './dto/vacancies-query.dto';
+import { ApplicationsQueryDto } from './dto/applications-query.dto';
 import { ResponseMessage } from '../../decorators/response-message.decorator';
 import type { Request, Response } from 'express';
-import { 
-  admin_create_vacancy_swagger, 
-  admin_update_vacancy_swagger, 
-  admin_get_vacancies_swagger, 
-  admin_get_applications_swagger, 
-  admin_update_application_status_swagger, 
+import {
+  admin_create_vacancy_swagger,
+  admin_update_vacancy_swagger,
+  admin_get_vacancies_swagger,
+  admin_get_applications_swagger,
+  admin_update_application_status_swagger,
   admin_export_applications_swagger,
   admin_delete_vacancy_swagger,
-  admin_view_application_cv_swagger
+  admin_view_application_cv_swagger,
 } from './admin-recruitment.swagger';
 
 @ApiTags('admin/recruitment')
@@ -29,7 +55,9 @@ import {
 @ApiBearerAuth()
 @UseInterceptors(ClassSerializerInterceptor)
 export class AdminRecruitmentController {
-  constructor(private readonly adminRecruitmentService: AdminRecruitmentService) {}
+  constructor(
+    private readonly adminRecruitmentService: AdminRecruitmentService,
+  ) {}
 
   @Post('vacancies')
   @ApiOperation(admin_create_vacancy_swagger.operation)
@@ -52,7 +80,7 @@ export class AdminRecruitmentController {
   @ResponseMessage(SUCCESS_MESSAGES.VACANCY_UPDATED)
   updateVacancy(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() dto: UpdateVacancyDto
+    @Body() dto: UpdateVacancyDto,
   ) {
     return this.adminRecruitmentService.updateVacancy(id, dto);
   }
@@ -63,10 +91,9 @@ export class AdminRecruitmentController {
   @ApiUnauthorizedErrorResponse(ERROR_MESSAGES.INVALID_OR_EXPIRED_TOKEN)
   @ApiForbiddenErrorResponse(ERROR_MESSAGES.FORBIDDEN_ACTION)
   @ApiInternalServerError(ERROR_MESSAGES.INTERNAL_SERVER_ERROR)
-  @ApiQuery({ name: 'search', required: false, type: String, description: 'Search by vacancy title or description' })
   @ResponseMessage(SUCCESS_MESSAGES.VACANCIES_RETRIEVED)
-  getVacancies(@Query('search') search?: string) {
-    return this.adminRecruitmentService.getVacancies(search);
+  getVacancies(@Query() query: VacanciesQueryDto) {
+    return this.adminRecruitmentService.getVacancies(query);
   }
 
   @Get('vacancies/:id/applications')
@@ -76,19 +103,12 @@ export class AdminRecruitmentController {
   @ApiUnauthorizedErrorResponse(ERROR_MESSAGES.INVALID_OR_EXPIRED_TOKEN)
   @ApiForbiddenErrorResponse(ERROR_MESSAGES.FORBIDDEN_ACTION)
   @ApiInternalServerError(ERROR_MESSAGES.INTERNAL_SERVER_ERROR)
-  @ApiQuery({ name: 'startDate', required: false, type: String, example: '2024-01-01' })
-  @ApiQuery({ name: 'endDate', required: false, type: String, example: '2024-01-31' })
-  @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
-  @ApiQuery({ name: 'limit', required: false, type: Number, example: 10 })
   @ResponseMessage(SUCCESS_MESSAGES.APPLICATIONS_RETRIEVED)
   getApplications(
     @Param('id', ParseUUIDPipe) vacancyId: string,
-    @Query('startDate') startDate?: string,
-    @Query('endDate') endDate?: string,
-    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page?: number,
-    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit?: number,
+    @Query() query: ApplicationsQueryDto,
   ) {
-    return this.adminRecruitmentService.getApplications(vacancyId, startDate, endDate, page, limit);
+    return this.adminRecruitmentService.getApplications(vacancyId, query);
   }
 
   @Patch('applications/:id/status')
@@ -101,7 +121,7 @@ export class AdminRecruitmentController {
   @ResponseMessage(SUCCESS_MESSAGES.APPLICATION_STATUS_UPDATED)
   updateApplicationStatus(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() dto: UpdateApplicationStatusDto
+    @Body() dto: UpdateApplicationStatusDto,
   ) {
     return this.adminRecruitmentService.updateApplicationStatus(id, dto.status);
   }
@@ -121,13 +141,18 @@ export class AdminRecruitmentController {
     @Query('startDate') startDate?: string,
     @Query('endDate') endDate?: string,
   ) {
-    const file = await this.adminRecruitmentService.exportApplicationsToExcel(vacancyId, startDate, endDate);
-    
+    const file = await this.adminRecruitmentService.exportApplicationsToExcel(
+      vacancyId,
+      startDate,
+      endDate,
+    );
+
     res.set({
-      'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'Content-Type':
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       'Content-Disposition': `attachment; filename="${file.fileName}"`,
     });
-    
+
     res.send(file.fileBuffer);
   }
 
@@ -152,7 +177,7 @@ export class AdminRecruitmentController {
   @ApiForbiddenErrorResponse(ERROR_MESSAGES.FORBIDDEN_ACTION)
   async viewApplicationCv(
     @Param('id', ParseUUIDPipe) id: string,
-    @Res() res: Response
+    @Res() res: Response,
   ) {
     const file = await this.adminRecruitmentService.getApplicationCv(id);
     res.set({
