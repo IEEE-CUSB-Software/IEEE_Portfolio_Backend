@@ -13,7 +13,10 @@ import { ERROR_MESSAGES } from 'src/constants/swagger-messages';
 import { MediaService } from 'src/media/media.service';
 import { resolveMediaFolder } from 'src/media/media.utils';
 
-const COMMITTEE_MEMBERS_MEDIA_FOLDER = resolveMediaFolder('COMMITTEES_MEMBERS_IMAGES_FILE_NAME', 'committees-members');
+const COMMITTEE_MEMBERS_MEDIA_FOLDER = resolveMediaFolder(
+  'COMMITTEES_MEMBERS_IMAGES_FILE_NAME',
+  'committees-members',
+);
 
 @Injectable()
 export class AdminCommitteeMembersService {
@@ -44,7 +47,9 @@ export class AdminCommitteeMembersService {
   }
 
   async update(id: string, updateCommitteeMemberDto: UpdateCommitteeMemberDto) {
-    const member = await this.committeeMemberRepository.findOne({ where: { id } });
+    const member = await this.committeeMemberRepository.findOne({
+      where: { id },
+    });
 
     if (!member) {
       throw new NotFoundException(ERROR_MESSAGES.COMMITTEE_MEMBER_NOT_FOUND);
@@ -67,7 +72,9 @@ export class AdminCommitteeMembersService {
   }
 
   async uploadImage(id: string, image: any) {
-    const member = await this.committeeMemberRepository.findOne({ where: { id } });
+    const member = await this.committeeMemberRepository.findOne({
+      where: { id },
+    });
 
     if (!member) {
       throw new NotFoundException(ERROR_MESSAGES.COMMITTEE_MEMBER_NOT_FOUND);
@@ -78,7 +85,10 @@ export class AdminCommitteeMembersService {
     }
 
     const previousPublicId = member.image_public_id;
-    const uploadedImage = await this.mediaService.uploadImage(image, COMMITTEE_MEMBERS_MEDIA_FOLDER);
+    const uploadedImage = await this.mediaService.uploadImage(
+      image,
+      COMMITTEE_MEMBERS_MEDIA_FOLDER,
+    );
 
     member.image_url = uploadedImage.url;
     member.image_public_id = uploadedImage.public_id;
@@ -93,7 +103,9 @@ export class AdminCommitteeMembersService {
   }
 
   async removeImage(id: string) {
-    const member = await this.committeeMemberRepository.findOne({ where: { id } });
+    const member = await this.committeeMemberRepository.findOne({
+      where: { id },
+    });
 
     if (!member) {
       throw new NotFoundException(ERROR_MESSAGES.COMMITTEE_MEMBER_NOT_FOUND);
@@ -114,7 +126,9 @@ export class AdminCommitteeMembersService {
   }
 
   async remove(id: string) {
-    const member = await this.committeeMemberRepository.findOne({ where: { id } });
+    const member = await this.committeeMemberRepository.findOne({
+      where: { id },
+    });
 
     if (!member) {
       throw new NotFoundException(ERROR_MESSAGES.COMMITTEE_MEMBER_NOT_FOUND);

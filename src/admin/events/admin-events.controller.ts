@@ -59,9 +59,7 @@ import { ResponseMessage } from 'src/decorators/response-message.decorator';
 @Controller('admin/events')
 @ApiBearerAuth()
 export class AdminEventsController {
-  constructor(
-    private readonly adminEventsService: AdminEventsService,
-  ) {}
+  constructor(private readonly adminEventsService: AdminEventsService) {}
 
   @Post()
   @ApiOperation(admin_create_event_swagger.operation)
@@ -99,7 +97,9 @@ export class AdminEventsController {
   @ApiConsumes('multipart/form-data')
   @ApiBody(admin_upload_primary_event_image_swagger.body)
   @ApiOperation(admin_upload_primary_event_image_swagger.operation)
-  @ApiCreatedResponse(admin_upload_primary_event_image_swagger.responses.success)
+  @ApiCreatedResponse(
+    admin_upload_primary_event_image_swagger.responses.success,
+  )
   @ApiUnauthorizedErrorResponse(ERROR_MESSAGES.INVALID_OR_EXPIRED_TOKEN)
   @ApiForbiddenErrorResponse(ERROR_MESSAGES.FORBIDDEN_ACTION)
   @ApiNotFoundErrorResponse(ERROR_MESSAGES.EVENT_NOT_FOUND)
@@ -132,9 +132,7 @@ export class AdminEventsController {
   @ApiNotFoundErrorResponse(ERROR_MESSAGES.EVENT_NOT_FOUND)
   @ApiInternalServerError(ERROR_MESSAGES.INTERNAL_SERVER_ERROR)
   @ResponseMessage(SUCCESS_MESSAGES.EVENT_DELETED)
-  remove(
-    @Param('id', ParseUUIDPipe) id: string,
-  ) {
+  remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.adminEventsService.remove(id);
   }
 

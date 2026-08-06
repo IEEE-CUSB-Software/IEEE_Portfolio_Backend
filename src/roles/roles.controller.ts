@@ -20,13 +20,8 @@ import {
   ApiUnauthorizedErrorResponse,
   ApiForbiddenErrorResponse,
 } from 'src/decorators/swagger-error-responses.decorator';
-import {
-  ERROR_MESSAGES,
-} from 'src/constants/swagger-messages';
-import {
-  get_all_roles_swagger,
-  get_role_by_id_swagger,
-} from './roles.swagger';
+import { ERROR_MESSAGES } from 'src/constants/swagger-messages';
+import { get_all_roles_swagger, get_role_by_id_swagger } from './roles.swagger';
 
 @Controller('roles')
 @ApiTags('roles')
@@ -57,9 +52,7 @@ export class RolesController {
   @ApiForbiddenErrorResponse(ERROR_MESSAGES.FORBIDDEN_ACTION)
   @ApiNotFoundErrorResponse(ERROR_MESSAGES.ROLE_NOT_FOUND)
   @ApiInternalServerError(ERROR_MESSAGES.INTERNAL_SERVER_ERROR)
-  findOne(
-    @Param('id', ParseUUIDPipe) id: string,
-  ) {
+  findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.rolesService.findOne(id);
   }
 }

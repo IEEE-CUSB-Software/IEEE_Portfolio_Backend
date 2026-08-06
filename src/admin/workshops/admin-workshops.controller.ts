@@ -37,7 +37,10 @@ import {
   ApiNotFoundErrorResponse,
   ApiUnauthorizedErrorResponse,
 } from 'src/decorators/swagger-error-responses.decorator';
-import { ERROR_MESSAGES, SUCCESS_MESSAGES } from 'src/constants/swagger-messages';
+import {
+  ERROR_MESSAGES,
+  SUCCESS_MESSAGES,
+} from 'src/constants/swagger-messages';
 import { ResponseMessage } from 'src/decorators/response-message.decorator';
 import {
   admin_create_workshop_swagger,
@@ -106,7 +109,9 @@ export class AdminWorkshopsController {
   @ApiConsumes('multipart/form-data')
   @ApiBody(admin_upload_primary_workshop_image_swagger.body)
   @ApiOperation(admin_upload_primary_workshop_image_swagger.operation)
-  @ApiCreatedResponse(admin_upload_primary_workshop_image_swagger.responses.success)
+  @ApiCreatedResponse(
+    admin_upload_primary_workshop_image_swagger.responses.success,
+  )
   @ApiUnauthorizedErrorResponse(ERROR_MESSAGES.INVALID_OR_EXPIRED_TOKEN)
   @ApiForbiddenErrorResponse(ERROR_MESSAGES.FORBIDDEN_ACTION)
   @ApiNotFoundErrorResponse(ERROR_MESSAGES.WORKSHOP_NOT_FOUND)
@@ -185,7 +190,9 @@ export class AdminWorkshopsController {
 
   @Patch(':id/registrations/:registrationId/status')
   @ApiOperation(admin_update_workshop_registration_status_swagger.operation)
-  @ApiOkResponse(admin_update_workshop_registration_status_swagger.responses.success)
+  @ApiOkResponse(
+    admin_update_workshop_registration_status_swagger.responses.success,
+  )
   @ApiUnauthorizedErrorResponse(ERROR_MESSAGES.INVALID_OR_EXPIRED_TOKEN)
   @ApiForbiddenErrorResponse(ERROR_MESSAGES.FORBIDDEN_ACTION)
   @ApiBadRequestErrorResponse(ERROR_MESSAGES.WORKSHOP_FULL)

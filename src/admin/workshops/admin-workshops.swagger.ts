@@ -112,7 +112,8 @@ export const admin_upload_instructor_image_swagger = {
   },
   operation: {
     summary: 'Upload instructor avatar image',
-    description: 'Upload or replace the profile picture of an instructor. Admin only.',
+    description:
+      'Upload or replace the profile picture of an instructor. Admin only.',
   },
   responses: {
     success: {
@@ -131,7 +132,8 @@ export const admin_upload_instructor_image_swagger = {
 export const admin_delete_instructor_image_swagger = {
   operation: {
     summary: 'Delete instructor avatar image',
-    description: 'Delete only the profile picture of an instructor. Admin only.',
+    description:
+      'Delete only the profile picture of an instructor. Admin only.',
   },
   responses: {
     success: {
@@ -155,7 +157,8 @@ export const admin_delete_instructor_image_swagger = {
 export const admin_create_workshop_swagger = {
   operation: {
     summary: 'Create a new workshop',
-    description: 'Admins can create a new workshop. Requires title, description, content, times, capacity and location.',
+    description:
+      'Admins can create a new workshop. Requires title, description, content, times, capacity and location.',
   },
   responses: {
     success: {
@@ -193,7 +196,8 @@ export const admin_update_workshop_swagger = {
 export const admin_delete_workshop_swagger = {
   operation: {
     summary: 'Delete workshop',
-    description: 'Admins can delete a workshop and all its cover/gallery images from storage.',
+    description:
+      'Admins can delete a workshop and all its cover/gallery images from storage.',
   },
   responses: {
     success: {
@@ -275,7 +279,8 @@ export const admin_upload_workshop_images_swagger = {
   },
   operation: {
     summary: 'Upload workshop gallery images',
-    description: 'Upload one or more gallery images for a workshop. Admin only.',
+    description:
+      'Upload one or more gallery images for a workshop. Admin only.',
   },
   responses: {
     success: {
@@ -294,7 +299,8 @@ export const admin_upload_workshop_images_swagger = {
 export const admin_delete_workshop_image_swagger = {
   operation: {
     summary: 'Delete workshop gallery image',
-    description: 'Delete a single gallery image from the workshop by its image ID. Admin only.',
+    description:
+      'Delete a single gallery image from the workshop by its image ID. Admin only.',
   },
   responses: {
     success: {
@@ -327,7 +333,8 @@ export const workshop_registration_example = {
 export const admin_get_workshop_registrations_swagger = {
   operation: {
     summary: 'Get workshop registrations',
-    description: 'Admins can view all registrations (pending, accepted, rejected, cancelled, attended) for a specific workshop.',
+    description:
+      'Admins can view all registrations (pending, accepted, rejected, cancelled, attended) for a specific workshop.',
   },
   responses: {
     success: {
@@ -348,7 +355,8 @@ export const admin_get_workshop_registrations_swagger = {
 export const admin_update_workshop_registration_status_swagger = {
   operation: {
     summary: 'Update workshop registration status',
-    description: 'Admins can approve (accept) or reject a registration request. Capacity constraints are validated when status changes to accepted.',
+    description:
+      'Admins can approve (accept) or reject a registration request. Capacity constraints are validated when status changes to accepted.',
   },
   responses: {
     success: {
@@ -370,7 +378,8 @@ export const admin_update_workshop_registration_status_swagger = {
 export const admin_bulk_register_workshop_swagger = {
   operation: {
     summary: 'Bulk register users to workshop',
-    description: 'Admins can register multiple users to a workshop. Registered users will have their status set to ACCEPTED automatically. This bulk flow does not re-check workshop capacity, so it may accept users even when the workshop is already full.',
+    description:
+      'Admins can register multiple users to a workshop. Registered users will have their status set to ACCEPTED automatically. This bulk flow does not re-check workshop capacity, so it may accept users even when the workshop is already full.',
   },
   responses: {
     success: {

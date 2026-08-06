@@ -20,7 +20,7 @@ export class CompleteOAuthProfileDto {
   @IsNotEmpty()
   @IsString()
   university!: string;
-  
+
   @ApiProperty({
     description: 'Phone number',
     example: '+20-100-123-4567',

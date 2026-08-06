@@ -6,9 +6,14 @@ import { UploadedMedia } from './media.types';
 @Injectable()
 export class MediaService {
   private configureCloudinary() {
-    const { CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET } = process.env;
+    const { CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET } =
+      process.env;
 
-    if (!CLOUDINARY_CLOUD_NAME || !CLOUDINARY_API_KEY || !CLOUDINARY_API_SECRET) {
+    if (
+      !CLOUDINARY_CLOUD_NAME ||
+      !CLOUDINARY_API_KEY ||
+      !CLOUDINARY_API_SECRET
+    ) {
       throw new InternalServerErrorException('Cloudinary is not configured');
     }
 
@@ -20,10 +25,7 @@ export class MediaService {
     });
   }
 
-  async uploadImage(
-    file: any,
-    folder: string,
-  ): Promise<UploadedMedia> {
+  async uploadImage(file: any, folder: string): Promise<UploadedMedia> {
     this.configureCloudinary();
 
     return new Promise((resolve, reject) => {

@@ -69,7 +69,8 @@ export const upload_user_image_swagger = {
   },
   operation: {
     summary: 'Upload user image',
-    description: 'Upload or replace user image. User can only upload own image.',
+    description:
+      'Upload or replace user image. User can only upload own image.',
   },
   responses: {
     success: {
@@ -163,7 +164,8 @@ export const download_user_cv_swagger = {
           schema: { type: 'string' },
         },
         'Content-Disposition': {
-          description: 'Standard header indicating an attachment with a file name',
+          description:
+            'Standard header indicating an attachment with a file name',
           schema: { type: 'string' },
         },
       },

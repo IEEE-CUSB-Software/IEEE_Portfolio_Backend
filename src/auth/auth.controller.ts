@@ -296,10 +296,7 @@ export class AuthController {
   @UseGuards(GoogleGuard)
   @SkipPhoneNumberCheck()
   @Get('google/callback')
-  async googleAuthCallback(
-    @Req() request: Request,
-    @Res() response: Response,
-  ) {
+  async googleAuthCallback(@Req() request: Request, @Res() response: Response) {
     const user = request.user as any;
 
     if (!user?.google_id || !user?.email) {
@@ -308,16 +305,13 @@ export class AuthController {
       );
     }
 
-    const {
-      access_token,
-      refresh_token,
-      needsProfileCompletion,
-    } = await this.auth_service.validateGoogleOAuth({
-      google_id: user.google_id,
-      email: user.email,
-      name: user.name,
-      image_url: user.image_url,
-    });
+    const { access_token, refresh_token, needsProfileCompletion } =
+      await this.auth_service.validateGoogleOAuth({
+        google_id: user.google_id,
+        email: user.email,
+        name: user.name,
+        image_url: user.image_url,
+      });
 
     this.redirectWithTokens(
       response,
@@ -338,10 +332,7 @@ export class AuthController {
   @UseGuards(GithubGuard)
   @SkipPhoneNumberCheck()
   @Get('github/callback')
-  async githubAuthCallback(
-    @Req() request: Request,
-    @Res() response: Response,
-  ) {
+  async githubAuthCallback(@Req() request: Request, @Res() response: Response) {
     const user = request.user as any;
 
     if (!user?.github_id || !user?.email) {
@@ -350,16 +341,13 @@ export class AuthController {
       );
     }
 
-    const {
-      access_token,
-      refresh_token,
-      needsProfileCompletion,
-    } = await this.auth_service.validateGithubOAuth({
-      github_id: user.github_id,
-      email: user.email,
-      name: user.name,
-      image_url: user.image_url,
-    });
+    const { access_token, refresh_token, needsProfileCompletion } =
+      await this.auth_service.validateGithubOAuth({
+        github_id: user.github_id,
+        email: user.email,
+        name: user.name,
+        image_url: user.image_url,
+      });
 
     this.redirectWithTokens(
       response,
@@ -371,7 +359,8 @@ export class AuthController {
 
   @ApiOperation({
     summary: 'Complete OAuth user profile',
-    description: 'Complete missing profile information after Google OAuth login',
+    description:
+      'Complete missing profile information after Google OAuth login',
   })
   @ApiBearerAuth()
   @UseGuards(JwtGuard)

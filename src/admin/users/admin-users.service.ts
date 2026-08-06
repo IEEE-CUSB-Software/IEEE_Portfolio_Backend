@@ -1,7 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { User } from 'src/users/entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -21,7 +18,13 @@ export class AdminUsersService {
     private readonly rolesService: RolesService,
   ) {}
 
-  async findAll(page: number, limit: number, search?: string, email?: string, username?: string) {
+  async findAll(
+    page: number,
+    limit: number,
+    search?: string,
+    email?: string,
+    username?: string,
+  ) {
     const qb = this.usersRepository
       .createQueryBuilder('user')
       .orderBy('user.created_at', 'DESC')
@@ -29,10 +32,7 @@ export class AdminUsersService {
       .take(limit);
 
     if (search) {
-      qb.andWhere(
-        '(user.name ILIKE :search)',
-        { search: `%${search}%` },
-      );
+      qb.andWhere('(user.name ILIKE :search)', { search: `%${search}%` });
     }
 
     if (email) {
@@ -40,7 +40,9 @@ export class AdminUsersService {
     }
 
     if (username) {
-      qb.andWhere('user.username ILIKE :username', { username: `%${username}%` });
+      qb.andWhere('user.username ILIKE :username', {
+        username: `%${username}%`,
+      });
     }
 
     const [users, total] = await qb.getManyAndCount();
@@ -85,8 +87,8 @@ export class AdminUsersService {
       await this.storageService.deleteFile(user.cv_file_key);
     }
 
-    return { 
-        success: true,
+    return {
+      success: true,
     };
   }
 

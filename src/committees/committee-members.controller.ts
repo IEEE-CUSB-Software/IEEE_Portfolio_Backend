@@ -5,16 +5,13 @@ import {
   ParseUUIDPipe,
   UseGuards,
 } from '@nestjs/common';
-import {
-  ApiOkResponse,
-  ApiOperation,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CommitteeMembersService } from './committee-members.service';
+import { ApiInternalServerError } from 'src/decorators/swagger-error-responses.decorator';
 import {
-  ApiInternalServerError,
-} from 'src/decorators/swagger-error-responses.decorator';
-import { ERROR_MESSAGES, SUCCESS_MESSAGES } from 'src/constants/swagger-messages';
+  ERROR_MESSAGES,
+  SUCCESS_MESSAGES,
+} from 'src/constants/swagger-messages';
 import { get_committee_members_swagger } from './committee-members.swagger';
 import { OptionalJwtGuard } from 'src/auth/guards/optional-jwt.guard';
 import { ResponseMessage } from 'src/decorators/response-message.decorator';

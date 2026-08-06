@@ -10,8 +10,9 @@ const registration_example = {
 const event_example = {
   id: '550e8400-e29b-41d4-a716-446655440000',
   title: 'IEEE AI Workshop',
-  image_url: "https://res.cloudinary.com/dgmdresu7/image/upload/v1777051798/events-primary/kcllgsm0imlbanhw5ska.png",
-  image_public_id: "events-primary/kcllgsm0imlbanhw5ska",
+  image_url:
+    'https://res.cloudinary.com/dgmdresu7/image/upload/v1777051798/events-primary/kcllgsm0imlbanhw5ska.png',
+  image_public_id: 'events-primary/kcllgsm0imlbanhw5ska',
   description: 'A hands-on workshop on AI fundamentals and applications.',
   category: 'Technical',
   location: 'Main Auditorium, Building B',
@@ -28,7 +29,6 @@ const event_example = {
   is_registered: true,
   registration: registration_example,
 };
-
 
 export const get_all_events_swagger = {
   operation: {

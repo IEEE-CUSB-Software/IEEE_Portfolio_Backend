@@ -13,9 +13,15 @@ import { ERROR_MESSAGES } from 'src/constants/swagger-messages';
 import { MediaService } from 'src/media/media.service';
 import { resolveMediaFolder } from 'src/media/media.utils';
 import { StorageService } from 'src/storage/storage.service';
-import { ALLOWED_CV_TYPES, ALLOWED_MAX_CV_SIZE } from 'src/storage/storage.constants';
+import {
+  ALLOWED_CV_TYPES,
+  ALLOWED_MAX_CV_SIZE,
+} from 'src/storage/storage.constants';
 
-const USERS_MEDIA_FOLDER = resolveMediaFolder('USERS_IMAGES_FILE_NAME', 'users');
+const USERS_MEDIA_FOLDER = resolveMediaFolder(
+  'USERS_IMAGES_FILE_NAME',
+  'users',
+);
 
 @Injectable()
 export class UsersService {
@@ -74,7 +80,10 @@ export class UsersService {
     }
 
     const previousPublicId = user.image_public_id;
-    const uploadedImage = await this.mediaService.uploadImage(image, USERS_MEDIA_FOLDER);
+    const uploadedImage = await this.mediaService.uploadImage(
+      image,
+      USERS_MEDIA_FOLDER,
+    );
 
     user.image_url = uploadedImage.url;
     user.image_public_id = uploadedImage.public_id;

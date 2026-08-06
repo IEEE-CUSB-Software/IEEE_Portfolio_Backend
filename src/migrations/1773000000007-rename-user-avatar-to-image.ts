@@ -1,8 +1,6 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class RenameUserAvatarToImage1773000000007
-  implements MigrationInterface
-{
+export class RenameUserAvatarToImage1773000000007 implements MigrationInterface {
   name = 'RenameUserAvatarToImage1773000000007';
 
   public async up(queryRunner: QueryRunner): Promise<void> {

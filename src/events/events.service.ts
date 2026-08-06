@@ -115,7 +115,9 @@ export class EventsService {
     }
 
     if (location) {
-      qb.andWhere('event.location ILIKE :location', { location: `%${location}%` });
+      qb.andWhere('event.location ILIKE :location', {
+        location: `%${location}%`,
+      });
     }
 
     if (category) {

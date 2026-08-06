@@ -1,8 +1,6 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class MakeMediaImageColumnsNullable1773000000006
-  implements MigrationInterface
-{
+export class MakeMediaImageColumnsNullable1773000000006 implements MigrationInterface {
   name = 'MakeMediaImageColumnsNullable1773000000006';
 
   public async up(queryRunner: QueryRunner): Promise<void> {

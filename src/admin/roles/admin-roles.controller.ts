@@ -52,9 +52,7 @@ export class AdminRolesController {
   @ApiForbiddenErrorResponse(ERROR_MESSAGES.FORBIDDEN_ACTION)
   @ApiInternalServerError(ERROR_MESSAGES.INTERNAL_SERVER_ERROR)
   @ResponseMessage(SUCCESS_MESSAGES.ROLE_CREATED)
-  create(
-    @Body() createRoleDto: CreateRoleDto,
-  ) {
+  create(@Body() createRoleDto: CreateRoleDto) {
     return this.adminRolesService.create(createRoleDto);
   }
 
@@ -82,9 +80,7 @@ export class AdminRolesController {
   @ApiNotFoundErrorResponse(ERROR_MESSAGES.ROLE_NOT_FOUND)
   @ApiInternalServerError(ERROR_MESSAGES.INTERNAL_SERVER_ERROR)
   @ResponseMessage(SUCCESS_MESSAGES.ROLE_DELETED)
-  remove(
-    @Param('id', ParseUUIDPipe) id: string,
-  ) {
+  remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.adminRolesService.remove(id);
   }
 }

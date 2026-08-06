@@ -7,10 +7,7 @@ import { Vacancy } from '../../recruitment/entities/vacancy.entity';
 import { Application } from '../../recruitment/entities/application.entity';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([Vacancy, Application]),
-    StorageModule,
-  ],
+  imports: [TypeOrmModule.forFeature([Vacancy, Application]), StorageModule],
   controllers: [AdminRecruitmentController],
   providers: [AdminRecruitmentService],
   exports: [AdminRecruitmentService],

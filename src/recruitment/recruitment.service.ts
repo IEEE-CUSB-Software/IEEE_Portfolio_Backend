@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Vacancy } from './entities/vacancy.entity';
@@ -33,8 +37,14 @@ export class RecruitmentService {
     return qb.getMany();
   }
 
-  async applyToVacancy(userId: string, vacancyId: string, dto: ApplyToVacancyDto) {
-    const vacancy = await this.vacanciesRepository.findOne({ where: { id: vacancyId } });
+  async applyToVacancy(
+    userId: string,
+    vacancyId: string,
+    dto: ApplyToVacancyDto,
+  ) {
+    const vacancy = await this.vacanciesRepository.findOne({
+      where: { id: vacancyId },
+    });
     if (!vacancy) {
       throw new NotFoundException(ERROR_MESSAGES.VACANCY_NOT_FOUND);
     }

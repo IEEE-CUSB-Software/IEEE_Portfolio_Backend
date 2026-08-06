@@ -18,8 +18,14 @@ import { UpdateEventDto } from 'src/admin/events/dto/update-event.dto';
 import { MediaService } from 'src/media/media.service';
 import { resolveMediaFolder } from 'src/media/media.utils';
 
-const EVENTS_PRIMARY_MEDIA_FOLDER = resolveMediaFolder('EVENTS_PRIMARY_IMAGES_FILE_NAME', 'events-primary');
-const EVENTS_GALLERY_MEDIA_FOLDER = resolveMediaFolder('EVENTS_IMAGES_FILE_NAME', 'events');
+const EVENTS_PRIMARY_MEDIA_FOLDER = resolveMediaFolder(
+  'EVENTS_PRIMARY_IMAGES_FILE_NAME',
+  'events-primary',
+);
+const EVENTS_GALLERY_MEDIA_FOLDER = resolveMediaFolder(
+  'EVENTS_IMAGES_FILE_NAME',
+  'events',
+);
 
 @Injectable()
 export class AdminEventsService {
@@ -124,7 +130,10 @@ export class AdminEventsService {
     }
 
     const previousPublicId = event.image_public_id;
-    const uploadedImage = await this.mediaService.uploadImage(image, EVENTS_PRIMARY_MEDIA_FOLDER);
+    const uploadedImage = await this.mediaService.uploadImage(
+      image,
+      EVENTS_PRIMARY_MEDIA_FOLDER,
+    );
 
     event.image_url = uploadedImage.url;
     event.image_public_id = uploadedImage.public_id;
@@ -171,19 +180,21 @@ export class AdminEventsService {
 
     const publicIdsToDelete = [
       event.image_public_id,
-      ...((event.images || [])
+      ...(event.images || [])
         .map((image) => image.image_public_id)
-        .filter(Boolean)),
+        .filter(Boolean),
     ].filter(Boolean) as string[];
 
     await this.eventsRepository.remove(event);
 
     await Promise.all(
-      publicIdsToDelete.map((publicId) => this.mediaService.deleteImage(publicId)),
+      publicIdsToDelete.map((publicId) =>
+        this.mediaService.deleteImage(publicId),
+      ),
     );
 
     return {
-        success: true,
+      success: true,
     };
   }
 
@@ -198,7 +209,9 @@ export class AdminEventsService {
     }
 
     if (!files.length) {
-      throw new BadRequestException(ERROR_MESSAGES.AT_LEAST_ONE_IMAGE_IS_REQUIRED);
+      throw new BadRequestException(
+        ERROR_MESSAGES.AT_LEAST_ONE_IMAGE_IS_REQUIRED,
+      );
     }
 
     const existingCount = await this.eventImagesRepository.count({
@@ -276,7 +289,7 @@ export class AdminEventsService {
   async updateRegistrationStatus(
     eventId: string,
     registrationId: string,
-    status: EventRegistrationStatus
+    status: EventRegistrationStatus,
   ) {
     const registration = await this.registrationsRepository.findOne({
       where: { id: registrationId, event_id: eventId },
@@ -332,7 +345,8 @@ export class AdminEventsService {
       );
 
       if (existingReg) {
-        if (existingReg.status === EventRegistrationStatus.CANCELLED || 
+        if (
+          existingReg.status === EventRegistrationStatus.CANCELLED ||
           existingReg.status === EventRegistrationStatus.WAITLISTED
         ) {
           existingReg.status = EventRegistrationStatus.REGISTERED;

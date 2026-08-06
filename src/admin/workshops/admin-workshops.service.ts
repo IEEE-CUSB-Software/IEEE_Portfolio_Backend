@@ -8,7 +8,10 @@ import { Repository, In } from 'typeorm';
 import { Workshop } from 'src/workshops/entities/workshop.entity';
 import { Instructor } from 'src/workshops/entities/instructor.entity';
 import { WorkshopImage } from 'src/workshops/entities/workshop-image.entity';
-import { WorkshopRegistration, WorkshopRegistrationStatus } from 'src/workshops/entities/workshop-registration.entity';
+import {
+  WorkshopRegistration,
+  WorkshopRegistrationStatus,
+} from 'src/workshops/entities/workshop-registration.entity';
 import { User } from 'src/users/entities/user.entity';
 import { ERROR_MESSAGES } from 'src/constants/swagger-messages';
 import { CreateWorkshopDto } from './dto/create-workshop.dto';
@@ -16,8 +19,14 @@ import { UpdateWorkshopDto } from './dto/update-workshop.dto';
 import { MediaService } from 'src/media/media.service';
 import { resolveMediaFolder } from 'src/media/media.utils';
 
-const WORKSHOPS_PRIMARY_MEDIA_FOLDER = resolveMediaFolder('WORKSHOPS_PRIMARY_IMAGES_FILE_NAME', 'workshops-primary');
-const WORKSHOPS_GALLERY_MEDIA_FOLDER = resolveMediaFolder('WORKSHOPS_IMAGES_FILE_NAME', 'workshops');
+const WORKSHOPS_PRIMARY_MEDIA_FOLDER = resolveMediaFolder(
+  'WORKSHOPS_PRIMARY_IMAGES_FILE_NAME',
+  'workshops-primary',
+);
+const WORKSHOPS_GALLERY_MEDIA_FOLDER = resolveMediaFolder(
+  'WORKSHOPS_IMAGES_FILE_NAME',
+  'workshops',
+);
 
 @Injectable()
 export class AdminWorkshopsService {
@@ -61,12 +70,17 @@ export class AdminWorkshopsService {
   async create(createWorkshopDto: CreateWorkshopDto, currentUser: User) {
     const start_time = new Date(createWorkshopDto.start_time);
     const end_time = new Date(createWorkshopDto.end_time);
-    const registration_deadline = new Date(createWorkshopDto.registration_deadline);
+    const registration_deadline = new Date(
+      createWorkshopDto.registration_deadline,
+    );
 
     this.validateWorkshopTimes(start_time, end_time, registration_deadline);
 
     let instructors: Instructor[] = [];
-    if (createWorkshopDto.instructor_ids && createWorkshopDto.instructor_ids.length > 0) {
+    if (
+      createWorkshopDto.instructor_ids &&
+      createWorkshopDto.instructor_ids.length > 0
+    ) {
       instructors = await this.instructorsRepository.find({
         where: { id: In(createWorkshopDto.instructor_ids) },
       });
@@ -127,10 +141,14 @@ export class AdminWorkshopsService {
     const { instructor_ids, ...rest } = updateWorkshopDto;
     Object.assign(workshop, rest);
 
-    if (updateWorkshopDto.start_time) workshop.start_time = new Date(updateWorkshopDto.start_time);
-    if (updateWorkshopDto.end_time) workshop.end_time = new Date(updateWorkshopDto.end_time);
+    if (updateWorkshopDto.start_time)
+      workshop.start_time = new Date(updateWorkshopDto.start_time);
+    if (updateWorkshopDto.end_time)
+      workshop.end_time = new Date(updateWorkshopDto.end_time);
     if (updateWorkshopDto.registration_deadline) {
-      workshop.registration_deadline = new Date(updateWorkshopDto.registration_deadline);
+      workshop.registration_deadline = new Date(
+        updateWorkshopDto.registration_deadline,
+      );
     }
 
     this.validateWorkshopTimes(
@@ -154,7 +172,10 @@ export class AdminWorkshopsService {
     }
 
     const previousPublicId = workshop.image_public_id;
-    const uploadedImage = await this.mediaService.uploadImage(image, WORKSHOPS_PRIMARY_MEDIA_FOLDER);
+    const uploadedImage = await this.mediaService.uploadImage(
+      image,
+      WORKSHOPS_PRIMARY_MEDIA_FOLDER,
+    );
 
     workshop.image_url = uploadedImage.url;
     workshop.image_public_id = uploadedImage.public_id;
@@ -201,29 +222,35 @@ export class AdminWorkshopsService {
 
     const publicIdsToDelete = [
       workshop.image_public_id,
-      ...((workshop.images || [])
+      ...(workshop.images || [])
         .map((image) => image.image_public_id)
-        .filter(Boolean)),
+        .filter(Boolean),
     ].filter(Boolean) as string[];
 
     await this.workshopsRepository.remove(workshop);
 
     await Promise.all(
-      publicIdsToDelete.map((publicId) => this.mediaService.deleteImage(publicId)),
+      publicIdsToDelete.map((publicId) =>
+        this.mediaService.deleteImage(publicId),
+      ),
     );
 
     return { success: true };
   }
 
   async addImages(workshopId: string, files: any[]) {
-    const workshop = await this.workshopsRepository.findOne({ where: { id: workshopId } });
+    const workshop = await this.workshopsRepository.findOne({
+      where: { id: workshopId },
+    });
 
     if (!workshop) {
       throw new NotFoundException(ERROR_MESSAGES.WORKSHOP_NOT_FOUND);
     }
 
     if (!files || !files.length) {
-      throw new BadRequestException(ERROR_MESSAGES.AT_LEAST_ONE_IMAGE_IS_REQUIRED);
+      throw new BadRequestException(
+        ERROR_MESSAGES.AT_LEAST_ONE_IMAGE_IS_REQUIRED,
+      );
     }
 
     const existingCount = await this.workshopImagesRepository.count({
@@ -231,7 +258,9 @@ export class AdminWorkshopsService {
     });
 
     const uploadedImages = await Promise.all(
-      files.map((file) => this.mediaService.uploadImage(file, WORKSHOPS_GALLERY_MEDIA_FOLDER)),
+      files.map((file) =>
+        this.mediaService.uploadImage(file, WORKSHOPS_GALLERY_MEDIA_FOLDER),
+      ),
     );
 
     const images = uploadedImages.map((uploadedImage, index) =>
@@ -279,13 +308,14 @@ export class AdminWorkshopsService {
 
     const skip = (page - 1) * limit;
 
-    const [registrations, total] = await this.registrationsRepository.findAndCount({
-      where: { workshop_id: workshopId },
-      relations: ['user'],
-      skip,
-      take: limit,
-      order: { created_at: 'DESC' },
-    });
+    const [registrations, total] =
+      await this.registrationsRepository.findAndCount({
+        where: { workshop_id: workshopId },
+        relations: ['user'],
+        skip,
+        take: limit,
+        order: { created_at: 'DESC' },
+      });
 
     return {
       data: registrations,
@@ -314,7 +344,9 @@ export class AdminWorkshopsService {
     });
 
     if (!registration) {
-      throw new NotFoundException(ERROR_MESSAGES.WORKSHOP_REGISTRATION_NOT_FOUND);
+      throw new NotFoundException(
+        ERROR_MESSAGES.WORKSHOP_REGISTRATION_NOT_FOUND,
+      );
     }
 
     // Capacity validation if updating status to ACCEPTED
@@ -383,8 +415,10 @@ export class AdminWorkshopsService {
       );
 
       if (existingReg) {
-        if (existingReg.status !== WorkshopRegistrationStatus.ACCEPTED &&
-            existingReg.status !== WorkshopRegistrationStatus.ATTENDED) {
+        if (
+          existingReg.status !== WorkshopRegistrationStatus.ACCEPTED &&
+          existingReg.status !== WorkshopRegistrationStatus.ATTENDED
+        ) {
           existingReg.status = WorkshopRegistrationStatus.ACCEPTED;
           updatedRegistrations.push(existingReg);
         }

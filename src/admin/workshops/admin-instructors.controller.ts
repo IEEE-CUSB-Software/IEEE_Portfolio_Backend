@@ -33,7 +33,10 @@ import {
   ApiNotFoundErrorResponse,
   ApiUnauthorizedErrorResponse,
 } from 'src/decorators/swagger-error-responses.decorator';
-import { ERROR_MESSAGES, SUCCESS_MESSAGES } from 'src/constants/swagger-messages';
+import {
+  ERROR_MESSAGES,
+  SUCCESS_MESSAGES,
+} from 'src/constants/swagger-messages';
 import { ResponseMessage } from 'src/decorators/response-message.decorator';
 import {
   admin_create_instructor_swagger,
@@ -47,7 +50,9 @@ import {
 @Controller('admin/workshops/instructors')
 @ApiBearerAuth()
 export class AdminInstructorsController {
-  constructor(private readonly adminInstructorsService: AdminInstructorsService) {}
+  constructor(
+    private readonly adminInstructorsService: AdminInstructorsService,
+  ) {}
 
   @Post()
   @ApiOperation(admin_create_instructor_swagger.operation)

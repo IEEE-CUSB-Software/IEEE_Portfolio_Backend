@@ -1,4 +1,9 @@
-import { Module, MiddlewareConsumer, NestModule, RequestMethod } from '@nestjs/common';
+import {
+  Module,
+  MiddlewareConsumer,
+  NestModule,
+  RequestMethod,
+} from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { RecruitmentController } from './recruitment.controller';
 import { RecruitmentService } from './recruitment.service';
@@ -34,11 +39,12 @@ export class RecruitmentModule implements NestModule {
         { path: 'recruitment/vacancies', method: RequestMethod.GET },
         { path: 'recruitment/vacancies/:id/apply', method: RequestMethod.POST },
         { path: 'recruitment/my-applications', method: RequestMethod.GET },
-        { path: 'recruitment/applications/:id', method: RequestMethod.DELETE }
+        { path: 'recruitment/applications/:id', method: RequestMethod.DELETE },
       )
       .apply(CompleteProfileMiddleware)
-      .forRoutes(
-        { path: 'recruitment/vacancies/:id/apply', method: RequestMethod.POST }
-      );
+      .forRoutes({
+        path: 'recruitment/vacancies/:id/apply',
+        method: RequestMethod.POST,
+      });
   }
 }

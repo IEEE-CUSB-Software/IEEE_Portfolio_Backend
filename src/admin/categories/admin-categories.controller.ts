@@ -39,7 +39,9 @@ import { ResponseMessage } from 'src/decorators/response-message.decorator';
 @Controller('admin/categories')
 @ApiBearerAuth()
 export class AdminCategoriesController {
-  constructor(private readonly adminCategoriesService: AdminCategoriesService) {}
+  constructor(
+    private readonly adminCategoriesService: AdminCategoriesService,
+  ) {}
 
   @Post()
   @ApiOperation(admin_create_category_swagger.operation)

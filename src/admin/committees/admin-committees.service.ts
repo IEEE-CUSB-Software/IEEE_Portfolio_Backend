@@ -64,6 +64,8 @@ export class AdminCommitteesService {
 
     // Note: CASCADE DELETE
     await this.committeeRepository.remove(committee);
-    return { message: 'Committee and all associated members deleted successfully' };
+    return {
+      message: 'Committee and all associated members deleted successfully',
+    };
   }
 }

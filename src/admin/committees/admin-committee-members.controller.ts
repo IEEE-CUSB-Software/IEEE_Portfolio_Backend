@@ -75,7 +75,10 @@ export class AdminCommitteeMembersController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateCommitteeMemberDto: UpdateCommitteeMemberDto,
   ) {
-    return this.adminCommitteeMembersService.update(id, updateCommitteeMemberDto);
+    return this.adminCommitteeMembersService.update(
+      id,
+      updateCommitteeMemberDto,
+    );
   }
 
   @Post(':id/image')
@@ -83,7 +86,9 @@ export class AdminCommitteeMembersController {
   @ApiConsumes('multipart/form-data')
   @ApiBody(admin_upload_committee_member_image_swagger.body)
   @ApiOperation(admin_upload_committee_member_image_swagger.operation)
-  @ApiCreatedResponse(admin_upload_committee_member_image_swagger.responses.success)
+  @ApiCreatedResponse(
+    admin_upload_committee_member_image_swagger.responses.success,
+  )
   @ApiUnauthorizedErrorResponse(ERROR_MESSAGES.INVALID_OR_EXPIRED_TOKEN)
   @ApiForbiddenErrorResponse(ERROR_MESSAGES.FORBIDDEN_ACTION)
   @ApiNotFoundErrorResponse(ERROR_MESSAGES.COMMITTEE_MEMBER_NOT_FOUND)

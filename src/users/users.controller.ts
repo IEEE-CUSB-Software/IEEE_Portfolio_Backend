@@ -121,9 +121,7 @@ export class UsersController {
   @ApiNotFoundErrorResponse(ERROR_MESSAGES.USER_NOT_FOUND)
   @ApiInternalServerError(ERROR_MESSAGES.INTERNAL_SERVER_ERROR)
   @ResponseMessage(SUCCESS_MESSAGES.IMAGE_DELETED)
-  removeImage(
-    @Req() req: Request & { user: User },
-  ) {
+  removeImage(@Req() req: Request & { user: User }) {
     return this.usersService.removeImage(req.user.id, req.user);
   }
 
@@ -158,10 +156,7 @@ export class UsersController {
   @ApiNotFoundErrorResponse(ERROR_MESSAGES.USER_NOT_FOUND)
   @ApiInternalServerError(ERROR_MESSAGES.INTERNAL_SERVER_ERROR)
   @SkipPhoneNumberCheck()
-  async downloadCV(
-    @Req() req: Request & { user: User },
-    @Res() res: Response,
-  ) {
+  async downloadCV(@Req() req: Request & { user: User }, @Res() res: Response) {
     const file = await this.usersService.downloadCV(req.user.id, req.user);
 
     res.set({
@@ -182,9 +177,7 @@ export class UsersController {
   @ApiNotFoundErrorResponse(ERROR_MESSAGES.USER_NOT_FOUND)
   @ApiInternalServerError(ERROR_MESSAGES.INTERNAL_SERVER_ERROR)
   @SkipPhoneNumberCheck()
-  async deleteCV(
-    @Req() req: Request & { user: User },
-  ) {
+  async deleteCV(@Req() req: Request & { user: User }) {
     return this.usersService.deleteCV(req.user.id, req.user);
   }
 }

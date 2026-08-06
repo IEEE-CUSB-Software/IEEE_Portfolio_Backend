@@ -45,7 +45,12 @@ export class StorageService {
    * Validates that all required R2 configuration is present
    */
   private validateConfig(): void {
-    const requiredFields = ['endpoint', 'accessKeyId', 'accessKeySecret', 'bucketName'];
+    const requiredFields = [
+      'endpoint',
+      'accessKeyId',
+      'accessKeySecret',
+      'bucketName',
+    ];
     const missingFields = requiredFields.filter((field) => !this.config[field]);
 
     if (missingFields.length > 0) {
@@ -66,7 +71,9 @@ export class StorageService {
       forcePathStyle: true,
     });
 
-    this.logger.log(`S3 client initialized for bucket: ${this.config.bucketName} in region ${this.config.region}`);
+    this.logger.log(
+      `S3 client initialized for bucket: ${this.config.bucketName} in region ${this.config.region}`,
+    );
   }
 
   /**
@@ -75,25 +82,38 @@ export class StorageService {
    * @returns Upload response with file URL and details
    */
   async uploadFile(options: UploadFileOptions): Promise<UploadFileResponse> {
-    const { fileName, fileBuffer, contentType = 'application/octet-stream', metadata = {}, prefix = '', allowedTypes = [], maxSize = 0 } = options;
+    const {
+      fileName,
+      fileBuffer,
+      contentType = 'application/octet-stream',
+      metadata = {},
+      prefix = '',
+      allowedTypes = [],
+      maxSize = 0,
+    } = options;
 
     if (!fileName || !fileBuffer) {
       throw new BadRequestException('File name and buffer are required');
     }
     const detectedType = await fileTypeFromBuffer(fileBuffer);
     if (!detectedType) {
-        throw new BadRequestException('Invalid or unreadable file content. Could not verify file type.');
-      }
-
-    if (allowedTypes.length > 0 && !allowedTypes.includes(detectedType.ext)) {
-      throw new BadRequestException(`File type .${detectedType.ext} (${detectedType.mime}) is not allowed.`);
+      throw new BadRequestException(
+        'Invalid or unreadable file content. Could not verify file type.',
+      );
     }
 
+    if (allowedTypes.length > 0 && !allowedTypes.includes(detectedType.ext)) {
+      throw new BadRequestException(
+        `File type .${detectedType.ext} (${detectedType.mime}) is not allowed.`,
+      );
+    }
 
     try {
       // Generate a unique file key to avoid collisions
       if (maxSize > 0 && fileBuffer.length > maxSize) {
-        throw new BadRequestException(`File size exceeds the maximum allowed size of ${maxSize} bytes`);
+        throw new BadRequestException(
+          `File size exceeds the maximum allowed size of ${maxSize} bytes`,
+        );
       }
       const baseFileKey = `${uuidv4()}-${Date.now()}.${detectedType.ext}`;
       const fileKey = prefix ? `${prefix}${baseFileKey}` : baseFileKey;
@@ -125,7 +145,9 @@ export class StorageService {
         throw error;
       }
       this.logger.error(`Failed to upload file: ${error.message}`, error.stack);
-      throw new InternalServerErrorException(`Failed to upload file: ${error.message}`);
+      throw new InternalServerErrorException(
+        `Failed to upload file: ${error.message}`,
+      );
     }
   }
 
@@ -147,7 +169,9 @@ export class StorageService {
 
       const response = await this.s3Client.send(command);
       if (!response.Body) {
-        throw new NotFoundException(`File content is empty for key: ${fileKey}`);
+        throw new NotFoundException(
+          `File content is empty for key: ${fileKey}`,
+        );
       }
       const fileBuffer = await response.Body.transformToByteArray();
 
@@ -162,8 +186,13 @@ export class StorageService {
       if (error.name === 'NoSuchKey') {
         throw new NotFoundException(`File not found: ${fileKey}`);
       }
-      this.logger.error(`Failed to retrieve file: ${error.message}`, error.stack);
-      throw new InternalServerErrorException(`Failed to retrieve file: ${error.message}`);
+      this.logger.error(
+        `Failed to retrieve file: ${error.message}`,
+        error.stack,
+      );
+      throw new InternalServerErrorException(
+        `Failed to retrieve file: ${error.message}`,
+      );
     }
   }
 
@@ -194,7 +223,9 @@ export class StorageService {
       };
     } catch (error) {
       this.logger.error(`Failed to delete file: ${error.message}`, error.stack);
-      throw new InternalServerErrorException(`Failed to delete file: ${error.message}`);
+      throw new InternalServerErrorException(
+        `Failed to delete file: ${error.message}`,
+      );
     }
   }
 
@@ -205,7 +236,11 @@ export class StorageService {
    * @param continuationToken - Token for pagination
    * @returns List of files with metadata
    */
-  async listFiles(prefix?: string, maxKeys: number = 100, continuationToken?: string): Promise<ListFilesResponse> {
+  async listFiles(
+    prefix?: string,
+    maxKeys: number = 100,
+    continuationToken?: string,
+  ): Promise<ListFilesResponse> {
     try {
       const command = new ListObjectsV2Command({
         Bucket: this.config.bucketName,
@@ -232,7 +267,9 @@ export class StorageService {
       };
     } catch (error) {
       this.logger.error(`Failed to list files: ${error.message}`, error.stack);
-      throw new InternalServerErrorException(`Failed to list files: ${error.message}`);
+      throw new InternalServerErrorException(
+        `Failed to list files: ${error.message}`,
+      );
     }
   }
 
@@ -245,7 +282,9 @@ export class StorageService {
     const { sourcePath, destinationPath } = options;
 
     if (!sourcePath || !destinationPath) {
-      throw new BadRequestException('Source and destination paths are required');
+      throw new BadRequestException(
+        'Source and destination paths are required',
+      );
     }
 
     try {
@@ -257,7 +296,9 @@ export class StorageService {
 
       await this.s3Client.send(command);
 
-      this.logger.log(`File copied successfully from ${sourcePath} to ${destinationPath}`);
+      this.logger.log(
+        `File copied successfully from ${sourcePath} to ${destinationPath}`,
+      );
 
       return {
         success: true,
@@ -267,7 +308,9 @@ export class StorageService {
       };
     } catch (error) {
       this.logger.error(`Failed to copy file: ${error.message}`, error.stack);
-      throw new InternalServerErrorException(`Failed to copy file: ${error.message}`);
+      throw new InternalServerErrorException(
+        `Failed to copy file: ${error.message}`,
+      );
     }
   }
 
@@ -277,7 +320,10 @@ export class StorageService {
    * @param expirationSeconds - URL expiration time in seconds (default: 3600 = 1 hour)
    * @returns Pre-signed URL
    */
-  async generatePresignedUrl(fileKey: string, expirationSeconds: number = 3600): Promise<string> {
+  async generatePresignedUrl(
+    fileKey: string,
+    expirationSeconds: number = 3600,
+  ): Promise<string> {
     if (!fileKey) {
       throw new BadRequestException('File key is required');
     }
@@ -296,8 +342,13 @@ export class StorageService {
 
       return presignedUrl;
     } catch (error) {
-      this.logger.error(`Failed to generate pre-signed URL: ${error.message}`, error.stack);
-      throw new InternalServerErrorException(`Failed to generate pre-signed URL: ${error.message}`);
+      this.logger.error(
+        `Failed to generate pre-signed URL: ${error.message}`,
+        error.stack,
+      );
+      throw new InternalServerErrorException(
+        `Failed to generate pre-signed URL: ${error.message}`,
+      );
     }
   }
 
@@ -320,11 +371,19 @@ export class StorageService {
       await this.s3Client.send(command);
       return true;
     } catch (error) {
-      if (error.name === 'NotFound' || error.$metadata?.httpStatusCode === 404) {
+      if (
+        error.name === 'NotFound' ||
+        error.$metadata?.httpStatusCode === 404
+      ) {
         return false;
       }
-      this.logger.error(`Error checking file existence: ${error.message}`, error.stack);
-      throw new InternalServerErrorException(`Error checking file existence: ${error.message}`);
+      this.logger.error(
+        `Error checking file existence: ${error.message}`,
+        error.stack,
+      );
+      throw new InternalServerErrorException(
+        `Error checking file existence: ${error.message}`,
+      );
     }
   }
 
@@ -359,8 +418,13 @@ export class StorageService {
       if (error.name === 'NoSuchKey') {
         throw new NotFoundException(`File not found: ${fileKey}`);
       }
-      this.logger.error(`Failed to retrieve metadata: ${error.message}`, error.stack);
-      throw new InternalServerErrorException(`Failed to retrieve metadata: ${error.message}`);
+      this.logger.error(
+        `Failed to retrieve metadata: ${error.message}`,
+        error.stack,
+      );
+      throw new InternalServerErrorException(
+        `Failed to retrieve metadata: ${error.message}`,
+      );
     }
   }
 

@@ -62,6 +62,8 @@ export class AdminCategoriesService {
 
     // Note: CASCADE DELETE
     await this.categoryRepository.remove(category);
-    return { message: 'Category and all associated committees deleted successfully' };
+    return {
+      message: 'Category and all associated committees deleted successfully',
+    };
   }
 }

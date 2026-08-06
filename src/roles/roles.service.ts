@@ -1,7 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Role, RoleName } from './entities/role.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -13,8 +10,6 @@ export class RolesService {
     @InjectRepository(Role)
     private readonly rolesRepository: Repository<Role>,
   ) {}
-
-
 
   async findAll(page: number = 1, limit: number = 10) {
     const skip = (page - 1) * limit;

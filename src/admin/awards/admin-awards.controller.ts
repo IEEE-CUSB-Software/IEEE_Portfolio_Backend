@@ -28,7 +28,10 @@ import {
   ApiNotFoundErrorResponse,
   ApiUnauthorizedErrorResponse,
 } from 'src/decorators/swagger-error-responses.decorator';
-import { ERROR_MESSAGES, SUCCESS_MESSAGES } from 'src/constants/swagger-messages';
+import {
+  ERROR_MESSAGES,
+  SUCCESS_MESSAGES,
+} from 'src/constants/swagger-messages';
 import {
   admin_create_award_swagger,
   admin_update_award_swagger,

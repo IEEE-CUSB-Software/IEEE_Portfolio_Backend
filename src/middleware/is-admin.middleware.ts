@@ -5,7 +5,11 @@ import { RoleName } from 'src/roles/entities/role.entity';
 
 @Injectable()
 export class IsAdminMiddleware implements NestMiddleware {
-  use(req: Request & { user?: User; is_admin?: boolean }, res: Response, next: NextFunction) {
+  use(
+    req: Request & { user?: User; is_admin?: boolean },
+    res: Response,
+    next: NextFunction,
+  ) {
     // Set is_admin flag if user is authenticated and has admin role
     if (req.user) {
       req.is_admin =

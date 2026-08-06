@@ -1,9 +1,10 @@
-import {
-  Injectable,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { CommitteeMember, CommitteeMemberRole } from './entities/committee-member.entity';
+import {
+  CommitteeMember,
+  CommitteeMemberRole,
+} from './entities/committee-member.entity';
 
 @Injectable()
 export class CommitteeMembersService {

@@ -7,7 +7,10 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In } from 'typeorm';
 import { Workshop } from './entities/workshop.entity';
-import { WorkshopRegistration, WorkshopRegistrationStatus } from './entities/workshop-registration.entity';
+import {
+  WorkshopRegistration,
+  WorkshopRegistrationStatus,
+} from './entities/workshop-registration.entity';
 import { User } from 'src/users/entities/user.entity';
 import { ERROR_MESSAGES } from 'src/constants/swagger-messages';
 
@@ -20,7 +23,10 @@ export class WorkshopsService {
     private readonly registrationsRepository: Repository<WorkshopRegistration>,
   ) {}
 
-  private async enrichWorkshopWithDetails(workshop: Workshop, currentUser?: User) {
+  private async enrichWorkshopWithDetails(
+    workshop: Workshop,
+    currentUser?: User,
+  ) {
     const acceptedCount = await this.registrationsRepository.count({
       where: {
         workshop_id: workshop.id,
@@ -59,7 +65,13 @@ export class WorkshopsService {
     return enrichedWorkshop;
   }
 
-  async findAll(page: number = 1, limit: number = 10, currentUser?: User, search?: string, location?: string) {
+  async findAll(
+    page: number = 1,
+    limit: number = 10,
+    currentUser?: User,
+    search?: string,
+    location?: string,
+  ) {
     const skip = (page - 1) * limit;
 
     const qb = this.workshopsRepository
@@ -78,13 +90,17 @@ export class WorkshopsService {
     }
 
     if (location) {
-      qb.andWhere('workshop.location ILIKE :location', { location: `%${location}%` });
+      qb.andWhere('workshop.location ILIKE :location', {
+        location: `%${location}%`,
+      });
     }
 
     const [workshops, total] = await qb.getManyAndCount();
 
     const enrichedWorkshops = await Promise.all(
-      workshops.map((workshop) => this.enrichWorkshopWithDetails(workshop, currentUser)),
+      workshops.map((workshop) =>
+        this.enrichWorkshopWithDetails(workshop, currentUser),
+      ),
     );
 
     return {
@@ -119,7 +135,9 @@ export class WorkshopsService {
     }
 
     if (new Date() > workshop.registration_deadline) {
-      throw new BadRequestException(ERROR_MESSAGES.WORKSHOP_REGISTRATION_CLOSED);
+      throw new BadRequestException(
+        ERROR_MESSAGES.WORKSHOP_REGISTRATION_CLOSED,
+      );
     }
 
     const existingRegistration = await this.registrationsRepository.findOne({
@@ -154,7 +172,9 @@ export class WorkshopsService {
     });
 
     if (!registration) {
-      throw new NotFoundException(ERROR_MESSAGES.WORKSHOP_REGISTRATION_NOT_FOUND);
+      throw new NotFoundException(
+        ERROR_MESSAGES.WORKSHOP_REGISTRATION_NOT_FOUND,
+      );
     }
 
     if (

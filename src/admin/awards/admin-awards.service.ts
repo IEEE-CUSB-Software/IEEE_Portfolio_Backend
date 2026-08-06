@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Award } from 'src/awards/entities/award.entity';
@@ -8,7 +12,10 @@ import { ERROR_MESSAGES } from 'src/constants/swagger-messages';
 import { MediaService } from 'src/media/media.service';
 import { resolveMediaFolder } from 'src/media/media.utils';
 
-const AWARDS_MEDIA_FOLDER = resolveMediaFolder('AWARDS_IMAGES_FILE_NAME', 'awards');
+const AWARDS_MEDIA_FOLDER = resolveMediaFolder(
+  'AWARDS_IMAGES_FILE_NAME',
+  'awards',
+);
 
 @Injectable()
 export class AdminAwardsService {
@@ -52,7 +59,10 @@ export class AdminAwardsService {
     }
 
     const previousPublicId = award.image_public_id;
-    const uploadedImage = await this.mediaService.uploadImage(image, AWARDS_MEDIA_FOLDER);
+    const uploadedImage = await this.mediaService.uploadImage(
+      image,
+      AWARDS_MEDIA_FOLDER,
+    );
 
     award.image_url = uploadedImage.url;
     award.image_public_id = uploadedImage.public_id;

@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { BoardMember } from 'src/board/entities/board-member.entity';
@@ -8,7 +12,10 @@ import { ERROR_MESSAGES } from 'src/constants/swagger-messages';
 import { MediaService } from 'src/media/media.service';
 import { resolveMediaFolder } from 'src/media/media.utils';
 
-const BOARD_MEDIA_FOLDER = resolveMediaFolder('BOARD_MEMBERS_IMAGES_FILE_NAME', 'board-members');
+const BOARD_MEDIA_FOLDER = resolveMediaFolder(
+  'BOARD_MEMBERS_IMAGES_FILE_NAME',
+  'board-members',
+);
 
 @Injectable()
 export class AdminBoardService {
@@ -30,7 +37,7 @@ export class AdminBoardService {
 
   async update(id: string, updateBoardMemberDto: UpdateBoardMemberDto) {
     const member = await this.boardRepository.findOne({ where: { id } });
-    
+
     if (!member) {
       throw new NotFoundException(ERROR_MESSAGES.BOARD_MEMBER_NOT_FOUND);
     }
@@ -52,7 +59,10 @@ export class AdminBoardService {
     }
 
     const previousPublicId = member.image_public_id;
-    const uploadedImage = await this.mediaService.uploadImage(image, BOARD_MEDIA_FOLDER);
+    const uploadedImage = await this.mediaService.uploadImage(
+      image,
+      BOARD_MEDIA_FOLDER,
+    );
 
     member.image_url = uploadedImage.url;
     member.image_public_id = uploadedImage.public_id;
@@ -89,7 +99,7 @@ export class AdminBoardService {
 
   async remove(id: string) {
     const member = await this.boardRepository.findOne({ where: { id } });
-    
+
     if (!member) {
       throw new NotFoundException(ERROR_MESSAGES.BOARD_MEMBER_NOT_FOUND);
     }
