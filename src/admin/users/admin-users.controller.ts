@@ -80,6 +80,18 @@ export class AdminUsersController {
     type: String,
     description: 'Filter by username',
   })
+  @ApiQuery({
+    name: 'roleId',
+    required: false,
+    type: String,
+    description: 'Filter by role ID',
+  })
+  @ApiQuery({
+    name: 'university',
+    required: false,
+    type: String,
+    description: 'Filter by university',
+  })
   @ResponseMessage('Users retrieved successfully')
   findAll(
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
@@ -87,8 +99,10 @@ export class AdminUsersController {
     @Query('search') search?: string,
     @Query('email') email?: string,
     @Query('username') username?: string,
+    @Query('roleId') roleId?: string,
+    @Query('university') university?: string,
   ) {
-    return this.adminUsersService.findAll(page, limit, search, email, username);
+    return this.adminUsersService.findAll(page, limit, search, email, username, roleId, university);
   }
 
   @Get(':id')
