@@ -17,6 +17,10 @@ export class CommitteeMembersService {
     return order[role];
   }
 
+  async findLeaders() {
+    return this.committeeMembersRepository.findLeaders();
+  }
+
   async findByCommittee(committeeId: string) {
     const members =
       await this.committeeMembersRepository.findByCommittee(committeeId);
