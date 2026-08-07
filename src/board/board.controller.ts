@@ -25,4 +25,14 @@ export class BoardController {
   findAll(@Query() query: BoardQueryDto) {
     return this.boardService.findAll(query);
   }
+
+  @Get('officers')
+  @UseGuards(OptionalJwtGuard)
+  @ApiOperation({ summary: 'Get all high board members and team leaders' })
+  @ApiOkResponse({ description: 'Officers retrieved successfully' })
+  @ApiInternalServerError(ERROR_MESSAGES.INTERNAL_SERVER_ERROR)
+  @ResponseMessage('Officers retrieved successfully')
+  getOfficers() {
+    return this.boardService.getOfficers();
+  }
 }
