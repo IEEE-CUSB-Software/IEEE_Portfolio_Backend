@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { Repository, Brackets } from 'typeorm';
 import { User } from 'src/users/entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ERROR_MESSAGES } from 'src/constants/swagger-messages';
@@ -24,15 +24,22 @@ export class AdminUsersService {
     search?: string,
     email?: string,
     username?: string,
+    roleId?: string,
+    university?: string,
   ) {
     const qb = this.usersRepository
       .createQueryBuilder('user')
+      .leftJoinAndSelect('user.role', 'role')
       .orderBy('user.created_at', 'DESC')
       .skip((page - 1) * limit)
       .take(limit);
 
     if (search) {
-      qb.andWhere('(user.name ILIKE :search)', { search: `%${search}%` });
+      qb.andWhere(new Brackets(qb => {
+        qb.where('user.name ILIKE :search', { search: `%${search}%` })
+          .orWhere('user.email ILIKE :search', { search: `%${search}%` })
+          .orWhere('user.username ILIKE :search', { search: `%${search}%` });
+      }));
     }
 
     if (email) {
@@ -43,6 +50,14 @@ export class AdminUsersService {
       qb.andWhere('user.username ILIKE :username', {
         username: `%${username}%`,
       });
+    }
+
+    if (roleId) {
+      qb.andWhere('user.role_id = :roleId', { roleId });
+    }
+
+    if (university) {
+      qb.andWhere('user.university = :university', { university });
     }
 
     const [users, total] = await qb.getManyAndCount();
