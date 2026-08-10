@@ -13,7 +13,8 @@ const award_example = {
 export const get_all_awards_swagger = {
   operation: {
     summary: 'Get all awards',
-    description: 'Retrieve all awards. Supports search by title/description and filtering by year or source.',
+    description:
+      'Retrieve awards, paginated. Supports search by title/description, filtering by year or source, and page/limit query parameters. `count` is the total number of matched awards, not the size of the current page.',
   },
   responses: {
     success: {
@@ -22,7 +23,10 @@ export const get_all_awards_swagger = {
         example: {
           data: {
             awards: [award_example],
-            count: 1,
+            count: 18,
+            page: 1,
+            limit: 10,
+            totalPages: 2,
           },
           count: 1,
           message: 'Awards retrieved successfully',

@@ -1,5 +1,25 @@
-import { Controller, Get, Post, Body, Param, ParseUUIDPipe, Req, UseInterceptors, ClassSerializerInterceptor, Delete, Res, Query } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiOkResponse, ApiBearerAuth, ApiCreatedResponse, ApiQuery } from '@nestjs/swagger';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  ParseUUIDPipe,
+  Req,
+  UseInterceptors,
+  ClassSerializerInterceptor,
+  Delete,
+  Res,
+  Query,
+} from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiOkResponse,
+  ApiBearerAuth,
+  ApiCreatedResponse,
+  ApiQuery,
+} from '@nestjs/swagger';
 import {
   ApiForbiddenErrorResponse,
   ApiInternalServerError,
@@ -7,10 +27,18 @@ import {
   ApiUnauthorizedErrorResponse,
   ApiBadRequestErrorResponse,
 } from '../decorators/swagger-error-responses.decorator';
-import { ERROR_MESSAGES, SUCCESS_MESSAGES } from '../constants/swagger-messages';
+import {
+  ERROR_MESSAGES,
+  SUCCESS_MESSAGES,
+} from '../constants/swagger-messages';
 import { RecruitmentService } from './recruitment.service';
 import { ApplyToVacancyDto } from './dto/apply-to-vacancy.dto';
-import { get_open_vacancies_swagger, apply_to_vacancy_swagger, get_my_applications_swagger, revoke_application_swagger } from './recruitment.swagger';
+import {
+  get_open_vacancies_swagger,
+  apply_to_vacancy_swagger,
+  get_my_applications_swagger,
+  revoke_application_swagger,
+} from './recruitment.swagger';
 import { ResponseMessage } from '../decorators/response-message.decorator';
 import type { Request, Response } from 'express';
 
@@ -27,7 +55,12 @@ export class RecruitmentController {
   @ApiUnauthorizedErrorResponse(ERROR_MESSAGES.INVALID_OR_EXPIRED_TOKEN)
   @ApiForbiddenErrorResponse(ERROR_MESSAGES.FORBIDDEN_ACTION)
   @ApiInternalServerError(ERROR_MESSAGES.INTERNAL_SERVER_ERROR)
-  @ApiQuery({ name: 'search', required: false, type: String, description: 'Search by vacancy title or description' })
+  @ApiQuery({
+    name: 'search',
+    required: false,
+    type: String,
+    description: 'Search by vacancy title or description',
+  })
   @ResponseMessage(SUCCESS_MESSAGES.VACANCIES_RETRIEVED)
   getOpenVacancies(@Query('search') search?: string) {
     return this.recruitmentService.getOpenVacancies(search);

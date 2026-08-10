@@ -41,7 +41,8 @@ export const admin_delete_user_swagger = {
 export const admin_download_cv_swagger = {
   operation: {
     summary: 'Download user CV (Admin)',
-    description: "Admin endpoint to download a specific user's CV binary file directly by their user ID.",
+    description:
+      "Admin endpoint to download a specific user's CV binary file directly by their user ID.",
   },
   responses: {
     success: {
@@ -56,7 +57,8 @@ export const admin_download_cv_swagger = {
           schema: { type: 'string' },
         },
         'Content-Disposition': {
-          description: 'Standard header indicating an attachment with a file name',
+          description:
+            'Standard header indicating an attachment with a file name',
           schema: { type: 'string' },
         },
         'X-User-Name': {
@@ -72,20 +74,18 @@ export const admin_download_cv_swagger = {
   },
 };
 
-
 export const admin_get_all_users_swagger = {
   operation: {
     summary: 'Get all users (Paginated)',
-    description: 'Admins can retrieve a paginated list of all registered users. Supports search by name, and filtering by email or username.',
+    description:
+      'Admins can retrieve a paginated list of all registered users. Supports search by name, and filtering by email or username.',
   },
   responses: {
     success: {
       description: 'Users retrieved successfully',
       schema: {
         example: {
-          data: [
-            user_example,
-          ],
+          data: [user_example],
           meta: {
             total: 50,
             page: 1,
@@ -102,7 +102,8 @@ export const admin_get_all_users_swagger = {
 export const admin_get_user_swagger = {
   operation: {
     summary: 'Get specific user details',
-    description: 'Admins can retrieve a specific user by ID along with all their related data (foreign keys loaded).',
+    description:
+      'Admins can retrieve a specific user by ID along with all their related data (foreign keys loaded).',
   },
   responses: {
     success: {
@@ -146,4 +147,3 @@ export const admin_update_user_role_swagger = {
     },
   },
 };
-

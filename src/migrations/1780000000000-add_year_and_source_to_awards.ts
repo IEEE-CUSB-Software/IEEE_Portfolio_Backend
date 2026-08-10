@@ -16,14 +16,8 @@ export class AddYearAndSourceToAwards1780000000000 implements MigrationInterface
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(
-      `ALTER TABLE "awards" DROP COLUMN "source"`,
-    );
-    await queryRunner.query(
-      `DROP TYPE "awards_source_enum"`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "awards" DROP COLUMN "year"`,
-    );
+    await queryRunner.query(`ALTER TABLE "awards" DROP COLUMN "source"`);
+    await queryRunner.query(`DROP TYPE "awards_source_enum"`);
+    await queryRunner.query(`ALTER TABLE "awards" DROP COLUMN "year"`);
   }
 }

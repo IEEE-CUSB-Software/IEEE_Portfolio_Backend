@@ -1,39 +1,33 @@
-import {
-  Injectable,
-} from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { BoardMember } from './entities/board-member.entity';
+import { Injectable } from '@nestjs/common';
+import { paginatedResponse } from 'src/common/utils/pagination.util';
+import { BoardRepository } from './board.repository';
+import { BoardQueryDto } from './dto/board-query.dto';
+import { CommitteeMembersService } from '../committees/committee-members.service';
 
 @Injectable()
 export class BoardService {
   constructor(
-    @InjectRepository(BoardMember)
-    private readonly boardRepository: Repository<BoardMember>,
+    private readonly boardRepository: BoardRepository,
+    private readonly committeeMembersService: CommitteeMembersService,
   ) {}
 
-  async findAll(search?: string, role?: string) {
-    const qb = this.boardRepository
-      .createQueryBuilder('board')
-      .orderBy('board.display_order', 'ASC')
-      .addOrderBy('board.name', 'ASC');
+  async findAll(query: BoardQueryDto) {
+    return paginatedResponse(
+      'members',
+      await this.boardRepository.findAllPaginated(query),
+    );
+  }
 
-    if (search) {
-      qb.andWhere(
-        '(board.name ILIKE :search)',
-        { search: `%${search}%` },
-      );
-    }
-
-    if (role) {
-      qb.andWhere('board.role ILIKE :role', { role: `%${role}%` });
-    }
-
-    const members = await qb.getMany();
+  async getOfficers() {
+    const { items: board } = await this.boardRepository.findAllPaginated({
+      limit: 1000,
+      page: 1,
+    });
+    const leaders = await this.committeeMembersService.findLeaders();
 
     return {
-      members,
-      count: members.length,
+      board,
+      leaders,
     };
   }
 }

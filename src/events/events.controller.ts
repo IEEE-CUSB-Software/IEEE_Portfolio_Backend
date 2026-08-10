@@ -54,9 +54,24 @@ export class EventsController {
   @ApiInternalServerError(ERROR_MESSAGES.INTERNAL_SERVER_ERROR)
   @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
   @ApiQuery({ name: 'limit', required: false, type: Number, example: 10 })
-  @ApiQuery({ name: 'search', required: false, type: String, description: 'Search by title or description' })
-  @ApiQuery({ name: 'location', required: false, type: String, description: 'Filter by location' })
-  @ApiQuery({ name: 'category', required: false, enum: EventCategory, description: 'Filter by event category' })
+  @ApiQuery({
+    name: 'search',
+    required: false,
+    type: String,
+    description: 'Search by title or description',
+  })
+  @ApiQuery({
+    name: 'location',
+    required: false,
+    type: String,
+    description: 'Filter by location',
+  })
+  @ApiQuery({
+    name: 'category',
+    required: false,
+    enum: EventCategory,
+    description: 'Filter by event category',
+  })
   findAll(
     @Req() req: Request & { user?: User },
     @Query('page') page: string = '1',

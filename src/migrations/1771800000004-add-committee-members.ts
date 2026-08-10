@@ -32,8 +32,6 @@ export class AddCommitteeMembers1771800000004 implements MigrationInterface {
       `ALTER TABLE "committee_members" DROP CONSTRAINT "FK_committee_members_committee"`,
     );
     await queryRunner.query(`DROP TABLE "committee_members"`);
-    await queryRunner.query(
-      `DROP TYPE "public"."committee_members_role_enum"`,
-    );
+    await queryRunner.query(`DROP TYPE "public"."committee_members_role_enum"`);
   }
 }

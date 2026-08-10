@@ -17,8 +17,7 @@ const user_example = {
 export const get_current_user_swagger = {
   operation: {
     summary: 'Get current user',
-    description:
-      'Get the currently authenticated user profile information.',
+    description: 'Get the currently authenticated user profile information.',
   },
   responses: {
     success: {
@@ -81,7 +80,8 @@ export const login_swagger = {
 export const register_swagger = {
   operation: {
     summary: 'User registration',
-    description: 'Register a new user with email, username, name, faculty, university, academic year, password, and an optional CV document.',
+    description:
+      'Register a new user with email, username, name, faculty, university, academic year, password, and an optional CV document.',
   },
   body: {
     schema: {
@@ -111,7 +111,7 @@ export const register_swagger = {
         'phone',
         'faculty',
         'university',
-        'academic_year'
+        'academic_year',
       ],
     },
   },

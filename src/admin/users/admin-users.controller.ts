@@ -62,9 +62,36 @@ export class AdminUsersController {
   @ApiInternalServerError(ERROR_MESSAGES.INTERNAL_SERVER_ERROR)
   @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
   @ApiQuery({ name: 'limit', required: false, type: Number, example: 10 })
-  @ApiQuery({ name: 'search', required: false, type: String, description: 'Search by name' })
-  @ApiQuery({ name: 'email', required: false, type: String, description: 'Filter by email' })
-  @ApiQuery({ name: 'username', required: false, type: String, description: 'Filter by username' })
+  @ApiQuery({
+    name: 'search',
+    required: false,
+    type: String,
+    description: 'Search by name',
+  })
+  @ApiQuery({
+    name: 'email',
+    required: false,
+    type: String,
+    description: 'Filter by email',
+  })
+  @ApiQuery({
+    name: 'username',
+    required: false,
+    type: String,
+    description: 'Filter by username',
+  })
+  @ApiQuery({
+    name: 'roleId',
+    required: false,
+    type: String,
+    description: 'Filter by role ID',
+  })
+  @ApiQuery({
+    name: 'university',
+    required: false,
+    type: String,
+    description: 'Filter by university',
+  })
   @ResponseMessage('Users retrieved successfully')
   findAll(
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
@@ -72,8 +99,10 @@ export class AdminUsersController {
     @Query('search') search?: string,
     @Query('email') email?: string,
     @Query('username') username?: string,
+    @Query('roleId') roleId?: string,
+    @Query('university') university?: string,
   ) {
-    return this.adminUsersService.findAll(page, limit, search, email, username);
+    return this.adminUsersService.findAll(page, limit, search, email, username, roleId, university);
   }
 
   @Get(':id')
@@ -96,9 +125,7 @@ export class AdminUsersController {
   @ApiNotFoundErrorResponse(ERROR_MESSAGES.USER_NOT_FOUND)
   @ApiInternalServerError(ERROR_MESSAGES.INTERNAL_SERVER_ERROR)
   @ResponseMessage(SUCCESS_MESSAGES.ACCOUNT_REMOVED)
-  remove(
-    @Param('id', ParseUUIDPipe) id: string,
-  ) {
+  remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.adminUsersService.remove(id);
   }
 

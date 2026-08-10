@@ -9,7 +9,8 @@ const category_example = {
 export const get_all_categories_swagger = {
   operation: {
     summary: 'Get all categories',
-    description: 'Retrieve all categories ordered by name (ascending).',
+    description:
+      'Retrieve categories ordered by name (ascending), paginated. Supports search by name/description and page/limit query parameters. `count` is the total number of matched categories, not the size of the current page.',
   },
   responses: {
     success: {
@@ -18,7 +19,10 @@ export const get_all_categories_swagger = {
         example: {
           data: {
             categories: [category_example],
-            count: 1,
+            count: 6,
+            page: 1,
+            limit: 10,
+            totalPages: 1,
           },
           count: 1,
           message: 'Categories retrieved successfully',

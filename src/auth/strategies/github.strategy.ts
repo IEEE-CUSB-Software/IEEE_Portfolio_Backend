@@ -26,9 +26,7 @@ export class GithubStrategy extends PassportStrategy(Strategy, 'github') {
     });
   }
 
-  private async fetchPrimaryEmail(
-    accessToken: string,
-  ): Promise<string | null> {
+  private async fetchPrimaryEmail(accessToken: string): Promise<string | null> {
     try {
       const response = await fetch('https://api.github.com/user/emails', {
         headers: {

@@ -8,8 +8,8 @@ import { AuthController } from './auth.controller';
 import { UsersModule } from 'src/users/users.module';
 import { RedisModule } from 'src/redis/redis.module';
 import { RolesModule } from 'src/roles/roles.module';
-import { GoogleStrategy } from './strategies/google.strategy';
-import { GithubStrategy } from './strategies/github.strategy';
+// import { GoogleStrategy } from './strategies/google.strategy';
+// import { GithubStrategy } from './strategies/github.strategy';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { MailModule } from 'src/mail/mail.module';
 import { StorageModule } from 'src/storage/storage.module';
@@ -46,7 +46,7 @@ import { StorageModule } from 'src/storage/storage.module';
     MailModule,
     StorageModule,
   ],
-  providers: [AuthService, GoogleStrategy, GithubStrategy, JwtStrategy],
+  providers: [AuthService, JwtStrategy],
   controllers: [AuthController],
 })
 export class AuthModule {}

@@ -44,5 +44,4 @@ export class CreateCommitteeMemberDto {
   @IsEnum(CommitteeMemberRole)
   @IsNotEmpty()
   role!: CommitteeMemberRole;
-
 }

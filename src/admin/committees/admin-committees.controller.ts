@@ -39,7 +39,9 @@ import { ResponseMessage } from 'src/decorators/response-message.decorator';
 @Controller('admin/committees')
 @ApiBearerAuth()
 export class AdminCommitteesController {
-  constructor(private readonly adminCommitteesService: AdminCommitteesService) {}
+  constructor(
+    private readonly adminCommitteesService: AdminCommitteesService,
+  ) {}
 
   @Post()
   @ApiOperation(admin_create_committee_swagger.operation)

@@ -21,7 +21,10 @@ import { RolesService } from 'src/roles/roles.service';
 import { RoleName } from 'src/roles/entities/role.entity';
 import { MailService } from 'src/mail/mail.service';
 import { StorageService } from 'src/storage/storage.service';
-import { ALLOWED_CV_TYPES, ALLOWED_MAX_CV_SIZE } from 'src/storage/storage.constants';
+import {
+  ALLOWED_CV_TYPES,
+  ALLOWED_MAX_CV_SIZE,
+} from 'src/storage/storage.constants';
 
 enum AuthOtpPurpose {
   EmailVerification = 'emailVerification',
@@ -182,7 +185,10 @@ export class AuthService {
     };
   }
 
-  async register(register_dto: RegisterDTO, cvFile?: Express.Multer.File): Promise<User> {
+  async register(
+    register_dto: RegisterDTO,
+    cvFile?: Express.Multer.File,
+  ): Promise<User> {
     const {
       email,
       username,
@@ -245,7 +251,10 @@ export class AuthService {
           cv_file_key: uploadResult.fileKey,
         });
       } catch (error) {
-        console.error(`Failed to upload CV during registration for user ${newUser.id}:`, error);
+        console.error(
+          `Failed to upload CV during registration for user ${newUser.id}:`,
+          error,
+        );
       }
     }
     return newUser;
@@ -301,7 +310,8 @@ export class AuthService {
       { id: payload.id },
       {
         secret: process.env.JWT_TOKEN_SECRET ?? 'fallback-secret',
-        expiresIn: (process.env.JWT_TOKEN_EXPIRATION_TIME ?? '1h') as StringValue,
+        expiresIn: (process.env.JWT_TOKEN_EXPIRATION_TIME ??
+          '1h') as StringValue,
       },
     );
 
@@ -486,7 +496,7 @@ export class AuthService {
     const { google_id, email, name, image_url } = googleOAuthDto;
 
     // Check if user with this email exists
-    let user = await this.user_repository.findByEmail(email);
+    const user = await this.user_repository.findByEmail(email);
 
     if (user) {
       if (!user.google_id) {
@@ -544,7 +554,7 @@ export class AuthService {
     }
 
     // Check if user with this email exists
-    let user = await this.user_repository.findByEmail(email);
+    const user = await this.user_repository.findByEmail(email);
 
     if (user) {
       if (!user.github_id) {

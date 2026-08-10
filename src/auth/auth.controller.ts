@@ -44,18 +44,18 @@ import {
   reset_password_swagger,
   change_password_swagger,
   refresh_token_swagger,
-  google_oauth_swagger,
-  google_oauth_callback_swagger,
-  github_oauth_swagger,
-  github_oauth_callback_swagger,
+  // google_oauth_swagger,
+  // google_oauth_callback_swagger,
+  // github_oauth_swagger,
+  // github_oauth_callback_swagger,
 } from './auth.swagger';
 import { LoginDTO, RegisterDTO, GenerateOtpDTO, VerifyOtpDTO } from './dto';
-import { CompleteOAuthProfileDto } from './dto/complete-oauth-profile.dto';
+// import { CompleteOAuthProfileDto } from './dto/complete-oauth-profile.dto';
 import { ResponseMessage } from 'src/decorators/response-message.decorator';
 import { SkipPhoneNumberCheck } from 'src/decorators/skip-phone-number-check.decorator';
-import { GoogleGuard } from './guards/google.guard';
-import { GithubGuard } from './guards/github.guard';
-import { JwtGuard } from './guards/jwt.guard';
+// import { GoogleGuard } from './guards/google.guard';
+// import { GithubGuard } from './guards/github.guard';
+// import { JwtGuard } from './guards/jwt.guard';
 import { ResetPasswordDTO } from './dto/reset-password.dto';
 import { ChangePasswordDTO } from './dto/change-password.dto';
 import { AuthGuard } from '@nestjs/passport';
@@ -68,12 +68,10 @@ export class AuthController {
   constructor(private readonly auth_service: AuthService) {}
 
   private httpOnlyRefreshToken(response: Response, refresh: string) {
-    const is_production = process.env.NODE_ENV === 'production';
-
     response.cookie('refresh_token', refresh, {
       httpOnly: true,
       secure: true,
-      sameSite: is_production ? 'strict' : 'none',
+      sameSite: 'none',
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
   }
@@ -161,7 +159,7 @@ export class AuthController {
     response.clearCookie('refresh_token', {
       httpOnly: true,
       secure: true,
-      sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'none',
+      sameSite: 'none',
     });
 
     return result;
@@ -285,114 +283,103 @@ export class AuthController {
     );
   }
 
-  @ApiOperation(google_oauth_swagger.operation)
-  @UseGuards(GoogleGuard)
-  @Get('google')
-  async googleAuth() {
-    // This route is handled by GoogleGuard which redirects to Google
-  }
+  // @ApiOperation(google_oauth_swagger.operation)
+  // @UseGuards(GoogleGuard)
+  // @Get('google')
+  // async googleAuth() {
+  //   // This route is handled by GoogleGuard which redirects to Google
+  // }
 
-  @ApiOperation(google_oauth_callback_swagger.operation)
-  @UseGuards(GoogleGuard)
-  @SkipPhoneNumberCheck()
-  @Get('google/callback')
-  async googleAuthCallback(
-    @Req() request: Request,
-    @Res() response: Response,
-  ) {
-    const user = request.user as any;
+  // @ApiOperation(google_oauth_callback_swagger.operation)
+  // @UseGuards(GoogleGuard)
+  // @SkipPhoneNumberCheck()
+  // @Get('google/callback')
+  // async googleAuthCallback(@Req() request: Request, @Res() response: Response) {
+  //   const user = request.user as any;
 
-    if (!user?.google_id || !user?.email) {
-      throw new BadRequestException(
-        ERROR_MESSAGES.EMAIL_NOT_PROVIDED_BY_OAUTH_GOOGLE,
-      );
-    }
+  //   if (!user?.google_id || !user?.email) {
+  //     throw new BadRequestException(
+  //       ERROR_MESSAGES.EMAIL_NOT_PROVIDED_BY_OAUTH_GOOGLE,
+  //     );
+  //   }
 
-    const {
-      access_token,
-      refresh_token,
-      needsProfileCompletion,
-    } = await this.auth_service.validateGoogleOAuth({
-      google_id: user.google_id,
-      email: user.email,
-      name: user.name,
-      image_url: user.image_url,
-    });
+  //   const { access_token, refresh_token, needsProfileCompletion } =
+  //     await this.auth_service.validateGoogleOAuth({
+  //       google_id: user.google_id,
+  //       email: user.email,
+  //       name: user.name,
+  //       image_url: user.image_url,
+  //     });
 
-    this.redirectWithTokens(
-      response,
-      access_token,
-      refresh_token,
-      needsProfileCompletion,
-    );
-  }
+  //   this.redirectWithTokens(
+  //     response,
+  //     access_token,
+  //     refresh_token,
+  //     needsProfileCompletion,
+  //   );
+  // }
 
-  @ApiOperation(github_oauth_swagger.operation)
-  @UseGuards(GithubGuard)
-  @Get('github')
-  async githubAuth() {
-    // This route is handled by GithubGuard which redirects to GitHub
-  }
+  // @ApiOperation(github_oauth_swagger.operation)
+  // @UseGuards(GithubGuard)
+  // @Get('github')
+  // async githubAuth() {
+  //   // This route is handled by GithubGuard which redirects to GitHub
+  // }
 
-  @ApiOperation(github_oauth_callback_swagger.operation)
-  @UseGuards(GithubGuard)
-  @SkipPhoneNumberCheck()
-  @Get('github/callback')
-  async githubAuthCallback(
-    @Req() request: Request,
-    @Res() response: Response,
-  ) {
-    const user = request.user as any;
+  // @ApiOperation(github_oauth_callback_swagger.operation)
+  // @UseGuards(GithubGuard)
+  // @SkipPhoneNumberCheck()
+  // @Get('github/callback')
+  // async githubAuthCallback(@Req() request: Request, @Res() response: Response) {
+  //   const user = request.user as any;
 
-    if (!user?.github_id || !user?.email) {
-      throw new BadRequestException(
-        ERROR_MESSAGES.EMAIL_NOT_PROVIDED_BY_OAUTH_GITHUB,
-      );
-    }
+  //   if (!user?.github_id || !user?.email) {
+  //     throw new BadRequestException(
+  //       ERROR_MESSAGES.EMAIL_NOT_PROVIDED_BY_OAUTH_GITHUB,
+  //     );
+  //   }
 
-    const {
-      access_token,
-      refresh_token,
-      needsProfileCompletion,
-    } = await this.auth_service.validateGithubOAuth({
-      github_id: user.github_id,
-      email: user.email,
-      name: user.name,
-      image_url: user.image_url,
-    });
+  //   const { access_token, refresh_token, needsProfileCompletion } =
+  //     await this.auth_service.validateGithubOAuth({
+  //       github_id: user.github_id,
+  //       email: user.email,
+  //       name: user.name,
+  //       image_url: user.image_url,
+  //     });
 
-    this.redirectWithTokens(
-      response,
-      access_token,
-      refresh_token,
-      needsProfileCompletion,
-    );
-  }
+  //   this.redirectWithTokens(
+  //     response,
+  //     access_token,
+  //     refresh_token,
+  //     needsProfileCompletion,
+  //   );
+  // }
 
-  @ApiOperation({
-    summary: 'Complete OAuth user profile',
-    description: 'Complete missing profile information after Google OAuth login',
-  })
-  @ApiBearerAuth()
-  @UseGuards(JwtGuard)
-  @SkipPhoneNumberCheck()
-  @Post('oauth/complete-profile')
-  @ResponseMessage(SUCCESS_MESSAGES.PROFILE_UPDATED)
-  async completeOAuthProfile(
-    @Req() request: Request,
-    @Body() completeProfileDto: CompleteOAuthProfileDto,
-  ) {
-    const userId = (request.user as any)?.id;
+  // @ApiOperation({
+  //   summary: 'Complete OAuth user profile',
+  //   description:
+  //     'Complete missing profile information after Google OAuth login',
+  // })
+  // @ApiBearerAuth()
+  // @UseGuards(JwtGuard)
+  // @SkipPhoneNumberCheck()
+  // @Post('oauth/complete-profile')
+  // @ResponseMessage(SUCCESS_MESSAGES.PROFILE_UPDATED)
+  // async completeOAuthProfile(
+  //   @Req() request: Request,
+  //   @Body() completeProfileDto: CompleteOAuthProfileDto,
+  // ) {
+  //   const userId = (request.user as any)?.id;
 
-    if (!userId) {
-      throw new BadRequestException('User not authenticated');
-    }
+  //   if (!userId) {
+  //     throw new BadRequestException('User not authenticated');
+  //   }
 
-    const user = await this.auth_service.completeOAuthProfile(
-      userId,
-      completeProfileDto,
-    );
+  //   const user = await this.auth_service.completeOAuthProfile(
+  //     userId,
+  //     completeProfileDto,
+  //   );
 
-    return { user };
-  }
+  //   return { user };
+  // }
 }

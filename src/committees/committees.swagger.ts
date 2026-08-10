@@ -33,7 +33,7 @@ export const get_all_committees_swagger = {
   operation: {
     summary: 'Get all committees',
     description:
-      'Retrieve all committees with their category. Supports search by name/about and filtering by category_id query parameter.',
+      'Retrieve committees with their category, paginated. Supports search by name/about, filtering by category_id, and page/limit query parameters. `count` is the total number of matched committees, not the size of the current page.',
   },
   responses: {
     success: {
@@ -42,7 +42,10 @@ export const get_all_committees_swagger = {
         example: {
           data: {
             committees: [committee_example],
-            count: 1,
+            count: 24,
+            page: 1,
+            limit: 10,
+            totalPages: 3,
           },
           count: 1,
           message: 'Committees retrieved successfully',

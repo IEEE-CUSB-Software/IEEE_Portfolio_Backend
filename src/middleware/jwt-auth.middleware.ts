@@ -1,4 +1,8 @@
-import { Injectable, NestMiddleware, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  NestMiddleware,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
 import { JwtService } from '@nestjs/jwt';
 import { JwtStrategy } from 'src/auth/strategies/jwt.strategy';
@@ -14,9 +18,11 @@ export class JwtAuthMiddleware implements NestMiddleware {
   async use(req: Request & { user?: any }, res: Response, next: NextFunction) {
     try {
       const authHeader = req.headers.authorization;
-      
+
       if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        throw new UnauthorizedException(ERROR_MESSAGES.INVALID_OR_EXPIRED_TOKEN);
+        throw new UnauthorizedException(
+          ERROR_MESSAGES.INVALID_OR_EXPIRED_TOKEN,
+        );
       }
 
       const token = authHeader.substring(7);
@@ -24,7 +30,7 @@ export class JwtAuthMiddleware implements NestMiddleware {
         secret: process.env.JWT_TOKEN_SECRET,
       });
 
-      const user = await this.jwtStrategy.validate(payload);      
+      const user = await this.jwtStrategy.validate(payload);
       req.user = user;
       next();
     } catch (error) {

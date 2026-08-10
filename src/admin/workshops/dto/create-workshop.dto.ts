@@ -20,7 +20,10 @@ export class WorkshopContentDto {
   @IsNotEmpty()
   sectionTitle!: string;
 
-  @ApiProperty({ description: 'Subsections', example: ['HTML Basics', 'CSS Basics'] })
+  @ApiProperty({
+    description: 'Subsections',
+    example: ['HTML Basics', 'CSS Basics'],
+  })
   @IsArray()
   @IsString({ each: true })
   subSection!: string[];
@@ -46,7 +49,8 @@ export class CreateWorkshopDto {
   description!: string;
 
   @ApiProperty({
-    description: 'Detailed workshop content / syllabus outlining what they will learn',
+    description:
+      'Detailed workshop content / syllabus outlining what they will learn',
     type: [WorkshopContentDto],
     example: [
       {

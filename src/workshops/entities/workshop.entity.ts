@@ -76,7 +76,10 @@ export class Workshop {
   })
   instructors!: Instructor[];
 
-  @OneToMany(() => WorkshopRegistration, (registration) => registration.workshop)
+  @OneToMany(
+    () => WorkshopRegistration,
+    (registration) => registration.workshop,
+  )
   registrations!: WorkshopRegistration[];
 
   @OneToMany(() => WorkshopImage, (image) => image.workshop)

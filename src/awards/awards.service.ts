@@ -1,50 +1,22 @@
-import {
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Award } from './entities/award.entity';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { ERROR_MESSAGES } from 'src/constants/swagger-messages';
-import { AwardSource } from './enums/award-source.enum';
+import { paginatedResponse } from 'src/common/utils/pagination.util';
+import { AwardsRepository } from './awards.repository';
+import { AwardsQueryDto } from './dto/awards-query.dto';
 
 @Injectable()
 export class AwardsService {
-  constructor(
-    @InjectRepository(Award)
-    private readonly awardsRepository: Repository<Award>,
-  ) {}
+  constructor(private readonly awardsRepository: AwardsRepository) {}
 
-  async findAll(search?: string, year?: number, source?: AwardSource) {
-    const qb = this.awardsRepository
-      .createQueryBuilder('award')
-      .orderBy('award.title', 'ASC');
-
-    if (search) {
-      qb.andWhere(
-        '(award.title ILIKE :search OR award.description ILIKE :search)',
-        { search: `%${search}%` },
-      );
-    }
-
-    if (year) {
-      qb.andWhere('award.year = :year', { year });
-    }
-
-    if (source) {
-      qb.andWhere('award.source = :source', { source });
-    }
-
-    const awards = await qb.getMany();
-
-    return {
-      awards,
-      count: awards.length,
-    };
+  async findAll(query: AwardsQueryDto) {
+    return paginatedResponse(
+      'awards',
+      await this.awardsRepository.findAllPaginated(query),
+    );
   }
 
   async findOne(id: string) {
-    const award = await this.awardsRepository.findOne({ where: { id } });
+    const award = await this.awardsRepository.findById(id);
 
     if (!award) {
       throw new NotFoundException(ERROR_MESSAGES.AWARD_NOT_FOUND);

@@ -20,7 +20,6 @@ import { MediaModule } from './media/media.module';
 import { WorkshopsModule } from './workshops/workshops.module';
 import { StorageModule } from './storage/storage.module';
 import { RecruitmentModule } from './recruitment/recruitment.module';
-  
 
 @Module({
   imports: [

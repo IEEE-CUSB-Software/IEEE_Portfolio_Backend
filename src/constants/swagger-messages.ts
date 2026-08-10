@@ -66,8 +66,7 @@ export const ERROR_MESSAGES = {
   // categories
   CATEGORY_NOT_FOUND: 'Category not found',
   CATEGORY_ALREADY_EXISTS: 'Category name already exists',
-  CATEGORY_HAS_COMMITTEES:
-    'Cannot delete category with existing committees',
+  CATEGORY_HAS_COMMITTEES: 'Cannot delete category with existing committees',
 
   // committees
   COMMITTEE_NOT_FOUND: 'Committee not found',
@@ -81,7 +80,8 @@ export const ERROR_MESSAGES = {
   APPLICATION_NOT_FOUND: 'Application not found',
   VACANCY_CLOSED: 'This vacancy is currently closed for applications',
   ALREADY_APPLIED: 'You have already applied to this vacancy',
-  ALREADY_APPLIED_OR_CLOSED: 'Already applied to this vacancy, or vacancy is closed',
+  ALREADY_APPLIED_OR_CLOSED:
+    'Already applied to this vacancy, or vacancy is closed',
 
   // communication
   FAILED_TO_SEND_OTP_EMAIL: 'Failed to send OTP email',
@@ -109,7 +109,8 @@ export const ERROR_MESSAGES = {
   AT_LEAST_ONE_IMAGE_IS_REQUIRED: 'At least one image file is required',
 
   // request interception
-  PHONE_NUMBER_REQUIRED: 'Phone number is required. Please update your profile with a valid phone number.'
+  PHONE_NUMBER_REQUIRED:
+    'Phone number is required. Please update your profile with a valid phone number.',
 } as const;
 
 // Success Messages
@@ -159,7 +160,8 @@ export const SUCCESS_MESSAGES = {
   WORKSHOP_UPDATED: 'Workshop updated successfully',
   WORKSHOP_DELETED: 'Workshop deleted successfully',
   WORKSHOP_REGISTERED: 'Workshop registration created successfully',
-  WORKSHOP_REGISTRATION_CANCELLED: 'Workshop registration cancelled successfully',
+  WORKSHOP_REGISTRATION_CANCELLED:
+    'Workshop registration cancelled successfully',
   WORKSHOP_REGISTRATION_STATUS_UPDATED:
     'Workshop registration status updated successfully',
   INSTRUCTOR_CREATED: 'Instructor created successfully',

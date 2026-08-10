@@ -1,40 +1,30 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Vacancy } from './entities/vacancy.entity';
-import { Application } from './entities/application.entity';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { ApplyToVacancyDto } from './dto/apply-to-vacancy.dto';
 import { ERROR_MESSAGES } from 'src/constants/swagger-messages';
-import { StorageService } from '../storage/storage.service';
+import { VacanciesRepository } from './vacancies.repository';
+import { ApplicationsRepository } from './applications.repository';
 
 @Injectable()
 export class RecruitmentService {
   constructor(
-    @InjectRepository(Vacancy)
-    private readonly vacanciesRepository: Repository<Vacancy>,
-    @InjectRepository(Application)
-    private readonly applicationsRepository: Repository<Application>,
-    private readonly storageService: StorageService,
+    private readonly vacanciesRepository: VacanciesRepository,
+    private readonly applicationsRepository: ApplicationsRepository,
   ) {}
 
   async getOpenVacancies(search?: string) {
-    const qb = this.vacanciesRepository
-      .createQueryBuilder('vacancy')
-      .where('vacancy.is_open = :isOpen', { isOpen: true })
-      .orderBy('vacancy.created_at', 'DESC');
-
-    if (search) {
-      qb.andWhere(
-        '(vacancy.title ILIKE :search OR vacancy.description ILIKE :search)',
-        { search: `%${search}%` },
-      );
-    }
-
-    return qb.getMany();
+    return this.vacanciesRepository.findOpen(search);
   }
 
-  async applyToVacancy(userId: string, vacancyId: string, dto: ApplyToVacancyDto) {
-    const vacancy = await this.vacanciesRepository.findOne({ where: { id: vacancyId } });
+  async applyToVacancy(
+    userId: string,
+    vacancyId: string,
+    dto: ApplyToVacancyDto,
+  ) {
+    const vacancy = await this.vacanciesRepository.findById(vacancyId);
     if (!vacancy) {
       throw new NotFoundException(ERROR_MESSAGES.VACANCY_NOT_FOUND);
     }
@@ -43,9 +33,8 @@ export class RecruitmentService {
       throw new BadRequestException(ERROR_MESSAGES.VACANCY_CLOSED);
     }
 
-    const existingApplication = await this.applicationsRepository.findOne({
-      where: { user_id: userId, vacancy_id: vacancyId },
-    });
+    const existingApplication =
+      await this.applicationsRepository.findByUserAndVacancy(userId, vacancyId);
 
     if (existingApplication) {
       throw new BadRequestException(ERROR_MESSAGES.ALREADY_APPLIED);
@@ -61,17 +50,14 @@ export class RecruitmentService {
   }
 
   async getMyApplications(userId: string) {
-    return this.applicationsRepository.find({
-      where: { user_id: userId },
-      relations: ['vacancy', 'user'],
-      order: { created_at: 'DESC' },
-    });
+    return this.applicationsRepository.findByUser(userId);
   }
 
   async revokeApplication(userId: string, applicationId: string) {
-    const application = await this.applicationsRepository.findOne({
-      where: { id: applicationId, user_id: userId },
-    });
+    const application = await this.applicationsRepository.findByIdForUser(
+      applicationId,
+      userId,
+    );
 
     if (!application) {
       throw new NotFoundException(ERROR_MESSAGES.APPLICATION_NOT_FOUND);

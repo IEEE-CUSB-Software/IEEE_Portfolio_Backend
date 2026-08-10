@@ -12,7 +12,10 @@ import { UpdateInstructorDto } from './dto/update-instructor.dto';
 import { MediaService } from 'src/media/media.service';
 import { resolveMediaFolder } from 'src/media/media.utils';
 
-const INSTRUCTORS_MEDIA_FOLDER = resolveMediaFolder('INSTRUCTORS_IMAGES_FILE_NAME', 'instructors');
+const INSTRUCTORS_MEDIA_FOLDER = resolveMediaFolder(
+  'INSTRUCTORS_IMAGES_FILE_NAME',
+  'instructors',
+);
 
 @Injectable()
 export class AdminInstructorsService {
@@ -45,7 +48,9 @@ export class AdminInstructorsService {
   }
 
   async uploadImage(id: string, image: any) {
-    const instructor = await this.instructorsRepository.findOne({ where: { id } });
+    const instructor = await this.instructorsRepository.findOne({
+      where: { id },
+    });
 
     if (!instructor) {
       throw new NotFoundException(ERROR_MESSAGES.INSTRUCTOR_NOT_FOUND);
@@ -56,7 +61,10 @@ export class AdminInstructorsService {
     }
 
     const previousPublicId = instructor.image_public_id;
-    const uploadedImage = await this.mediaService.uploadImage(image, INSTRUCTORS_MEDIA_FOLDER);
+    const uploadedImage = await this.mediaService.uploadImage(
+      image,
+      INSTRUCTORS_MEDIA_FOLDER,
+    );
 
     instructor.image_url = uploadedImage.url;
     instructor.image_public_id = uploadedImage.public_id;
@@ -71,7 +79,9 @@ export class AdminInstructorsService {
   }
 
   async removeImage(id: string) {
-    const instructor = await this.instructorsRepository.findOne({ where: { id } });
+    const instructor = await this.instructorsRepository.findOne({
+      where: { id },
+    });
 
     if (!instructor) {
       throw new NotFoundException(ERROR_MESSAGES.INSTRUCTOR_NOT_FOUND);
@@ -92,7 +102,9 @@ export class AdminInstructorsService {
   }
 
   async remove(id: string) {
-    const instructor = await this.instructorsRepository.findOne({ where: { id } });
+    const instructor = await this.instructorsRepository.findOne({
+      where: { id },
+    });
 
     if (!instructor) {
       throw new NotFoundException(ERROR_MESSAGES.INSTRUCTOR_NOT_FOUND);
