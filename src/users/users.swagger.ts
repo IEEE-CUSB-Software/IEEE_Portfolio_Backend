@@ -173,6 +173,30 @@ export const download_user_cv_swagger = {
   },
 };
 
+export const get_my_applications_swagger = {
+  operation: {
+    summary: 'Get my applications',
+    description:
+      'Retrieve all event registrations, workshop registrations, and vacancy applications for the current user.',
+  },
+  responses: {
+    success: {
+      description: 'Applications retrieved successfully',
+      schema: {
+        example: {
+          data: {
+            eventRegistrations: [],
+            workshopRegistrations: [],
+            vacancyApplications: [],
+          },
+          count: 1,
+          message: 'Applications retrieved successfully',
+        },
+      },
+    },
+  },
+};
+
 export const delete_user_cv_swagger = {
   operation: {
     summary: 'Delete user CV',

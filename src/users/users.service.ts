@@ -17,6 +17,9 @@ import {
   ALLOWED_CV_TYPES,
   ALLOWED_MAX_CV_SIZE,
 } from 'src/storage/storage.constants';
+import { EventRegistration } from 'src/events/entities/event-registration.entity';
+import { WorkshopRegistration } from 'src/workshops/entities/workshop-registration.entity';
+import { Application } from 'src/recruitment/entities/application.entity';
 
 const USERS_MEDIA_FOLDER = resolveMediaFolder(
   'USERS_IMAGES_FILE_NAME',
@@ -28,6 +31,12 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
+    @InjectRepository(EventRegistration)
+    private readonly eventRegistrationsRepository: Repository<EventRegistration>,
+    @InjectRepository(WorkshopRegistration)
+    private readonly workshopRegistrationsRepository: Repository<WorkshopRegistration>,
+    @InjectRepository(Application)
+    private readonly applicationsRepository: Repository<Application>,
     private readonly rolesService: RolesService,
     private readonly mediaService: MediaService,
     private readonly storageService: StorageService,
@@ -213,6 +222,29 @@ export class UsersService {
       userName: user.name,
       userEmail: user.email,
     };
+  }
+
+  async getApplications(userId: string) {
+    const [eventRegistrations, workshopRegistrations, vacancyApplications] =
+      await Promise.all([
+        this.eventRegistrationsRepository.find({
+          where: { user_id: userId },
+          relations: ['event'],
+          order: { created_at: 'DESC' },
+        }),
+        this.workshopRegistrationsRepository.find({
+          where: { user_id: userId },
+          relations: ['workshop'],
+          order: { created_at: 'DESC' },
+        }),
+        this.applicationsRepository.find({
+          where: { user_id: userId },
+          relations: ['vacancy'],
+          order: { created_at: 'DESC' },
+        }),
+      ]);
+
+    return { eventRegistrations, workshopRegistrations, vacancyApplications };
   }
 
   async deleteCV(id: string, currentUser: Express.User & User) {

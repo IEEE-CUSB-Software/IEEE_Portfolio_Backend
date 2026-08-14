@@ -6,6 +6,7 @@ import { AdminUsersService } from './admin-users.service';
 import { StorageModule } from 'src/storage/storage.module';
 import { MediaModule } from 'src/media/media.module';
 import { RolesModule } from 'src/roles/roles.module';
+import { UsersModule } from 'src/users/users.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { RolesModule } from 'src/roles/roles.module';
     StorageModule,
     MediaModule,
     RolesModule,
+    UsersModule,
   ],
   controllers: [AdminUsersController],
   providers: [AdminUsersService],
