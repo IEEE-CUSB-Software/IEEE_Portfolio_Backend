@@ -13,6 +13,7 @@ import {
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { STRING_MAX_LENGTH } from 'src/constants/variables';
 import { Type } from 'class-transformer';
+import { IsHumanText } from 'src/decorators/human-text.decorator';
 
 export class RegisterDTO {
   @ApiProperty({ description: 'User email', example: 'wagih123@gmail.com' })
@@ -24,13 +25,20 @@ export class RegisterDTO {
   @ApiProperty({ description: 'Username', example: 'AhmedWaGiiH' })
   @IsString()
   @IsNotEmpty()
+  @MinLength(3)
   @MaxLength(STRING_MAX_LENGTH)
+  @Matches(/^[a-zA-Z0-9_.]+$/, {
+    message:
+      'username may only contain letters, numbers, dots, and underscores',
+  })
   username!: string;
 
   @ApiProperty({ description: 'Full name', example: 'Ahmed Wagih' })
-  @IsString()
-  @IsNotEmpty()
-  @MaxLength(STRING_MAX_LENGTH)
+  @IsHumanText({
+    minLength: 2,
+    maxLength: STRING_MAX_LENGTH,
+    fieldLabel: 'name',
+  })
   name!: string;
 
   @ApiProperty({
@@ -43,15 +51,19 @@ export class RegisterDTO {
   phone!: string;
 
   @ApiProperty({ description: 'Faculty', example: 'Engineering' })
-  @IsString()
-  @IsNotEmpty()
-  @MaxLength(STRING_MAX_LENGTH)
+  @IsHumanText({
+    minLength: 2,
+    maxLength: STRING_MAX_LENGTH,
+    fieldLabel: 'faculty',
+  })
   faculty!: string;
 
   @ApiProperty({ description: 'University', example: 'Cairo University' })
-  @IsString()
-  @IsNotEmpty()
-  @MaxLength(STRING_MAX_LENGTH)
+  @IsHumanText({
+    minLength: 2,
+    maxLength: STRING_MAX_LENGTH,
+    fieldLabel: 'university',
+  })
   university!: string;
 
   @ApiProperty({

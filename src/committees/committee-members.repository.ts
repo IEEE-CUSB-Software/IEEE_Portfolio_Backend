@@ -1,7 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
-import { CommitteeMember, CommitteeMemberRole } from './entities/committee-member.entity';
+import {
+  CommitteeMember,
+  CommitteeMemberRole,
+} from './entities/committee-member.entity';
 
 @Injectable()
 export class CommitteeMembersRepository {
@@ -18,7 +21,9 @@ export class CommitteeMembersRepository {
 
   async findLeaders(): Promise<CommitteeMember[]> {
     return this.committeeMemberRepository.find({
-      where: { role: In([CommitteeMemberRole.HEAD, CommitteeMemberRole.VICE_HEAD]) },
+      where: {
+        role: In([CommitteeMemberRole.HEAD, CommitteeMemberRole.VICE_HEAD]),
+      },
     });
   }
 

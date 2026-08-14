@@ -1,33 +1,26 @@
-import {
-  IsInt,
-  IsNotEmpty,
-  IsString,
-  IsEnum,
-  MaxLength,
-  Min,
-  Max,
-} from 'class-validator';
+import { IsInt, IsNotEmpty, IsEnum, Min, Max } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { STRING_MAX_LENGTH } from 'src/constants/variables';
 import { AwardSource } from 'src/awards/enums/award-source.enum';
+import { IsHumanText } from 'src/decorators/human-text.decorator';
 
 export class CreateAwardDto {
   @ApiProperty({
     description: 'Award title',
     example: 'Best Technical Chapter',
   })
-  @IsString()
-  @IsNotEmpty()
-  @MaxLength(STRING_MAX_LENGTH)
+  @IsHumanText({
+    minLength: 6,
+    maxLength: STRING_MAX_LENGTH,
+    fieldLabel: 'title',
+  })
   title!: string;
 
   @ApiProperty({
     description: 'Award description',
     example: 'Awarded for outstanding chapter performance and activities.',
   })
-  @IsString()
-  @IsNotEmpty()
-  @MaxLength(1000)
+  @IsHumanText({ minLength: 6, maxLength: 1000, fieldLabel: 'description' })
   description!: string;
 
   @ApiProperty({

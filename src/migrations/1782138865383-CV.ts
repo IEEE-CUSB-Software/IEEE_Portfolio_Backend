@@ -43,9 +43,7 @@ export class CV1782138865383 implements MigrationInterface {
     await queryRunner.query(
       `ALTER TABLE "awards" ALTER COLUMN "year" SET DEFAULT '2026'`,
     );
-    await queryRunner.query(
-      `ALTER TABLE "users" DROP COLUMN "cv_file_key"`,
-    );
+    await queryRunner.query(`ALTER TABLE "users" DROP COLUMN "cv_file_key"`);
     await queryRunner.query(
       `ALTER TABLE "committees" ADD CONSTRAINT "FK_committees_category" FOREIGN KEY ("category_id") REFERENCES "categories"("id") ON DELETE CASCADE ON UPDATE CASCADE`,
     );

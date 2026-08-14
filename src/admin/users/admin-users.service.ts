@@ -35,11 +35,13 @@ export class AdminUsersService {
       .take(limit);
 
     if (search) {
-      qb.andWhere(new Brackets(qb => {
-        qb.where('user.name ILIKE :search', { search: `%${search}%` })
-          .orWhere('user.email ILIKE :search', { search: `%${search}%` })
-          .orWhere('user.username ILIKE :search', { search: `%${search}%` });
-      }));
+      qb.andWhere(
+        new Brackets((qb) => {
+          qb.where('user.name ILIKE :search', { search: `%${search}%` })
+            .orWhere('user.email ILIKE :search', { search: `%${search}%` })
+            .orWhere('user.username ILIKE :search', { search: `%${search}%` });
+        }),
+      );
     }
 
     if (email) {

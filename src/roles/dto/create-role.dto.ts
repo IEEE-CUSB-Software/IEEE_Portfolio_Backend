@@ -1,13 +1,8 @@
-import {
-  IsNotEmpty,
-  IsString,
-  MaxLength,
-  MinLength,
-  IsEnum,
-} from 'class-validator';
+import { IsNotEmpty, IsEnum } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { STRING_MAX_LENGTH } from 'src/constants/variables';
 import { RoleName } from '../entities/role.entity';
+import { IsHumanText } from 'src/decorators/human-text.decorator';
 
 export class CreateRoleDto {
   @ApiProperty({
@@ -27,9 +22,10 @@ export class CreateRoleDto {
     minLength: 5,
     maxLength: STRING_MAX_LENGTH,
   })
-  @IsNotEmpty()
-  @IsString()
-  @MinLength(5)
-  @MaxLength(STRING_MAX_LENGTH)
+  @IsHumanText({
+    minLength: 5,
+    maxLength: STRING_MAX_LENGTH,
+    fieldLabel: 'description',
+  })
   description!: string;
 }

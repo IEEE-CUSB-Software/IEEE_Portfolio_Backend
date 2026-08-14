@@ -1,14 +1,8 @@
-import {
-  IsEmail,
-  IsEnum,
-  IsNotEmpty,
-  IsString,
-  IsUUID,
-  MaxLength,
-} from 'class-validator';
+import { IsEmail, IsEnum, IsNotEmpty, IsUUID } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { STRING_MAX_LENGTH } from 'src/constants/variables';
 import { CommitteeMemberRole } from 'src/committees/entities/committee-member.entity';
+import { IsHumanText } from 'src/decorators/human-text.decorator';
 
 export class CreateCommitteeMemberDto {
   @ApiProperty({
@@ -23,9 +17,11 @@ export class CreateCommitteeMemberDto {
     description: 'Committee member name',
     example: 'Mario Raafat',
   })
-  @IsString()
-  @IsNotEmpty()
-  @MaxLength(STRING_MAX_LENGTH)
+  @IsHumanText({
+    minLength: 2,
+    maxLength: STRING_MAX_LENGTH,
+    fieldLabel: 'name',
+  })
   name!: string;
 
   @ApiProperty({

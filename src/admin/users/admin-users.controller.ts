@@ -102,7 +102,15 @@ export class AdminUsersController {
     @Query('roleId') roleId?: string,
     @Query('university') university?: string,
   ) {
-    return this.adminUsersService.findAll(page, limit, search, email, username, roleId, university);
+    return this.adminUsersService.findAll(
+      page,
+      limit,
+      search,
+      email,
+      username,
+      roleId,
+      university,
+    );
   }
 
   @Get(':id')

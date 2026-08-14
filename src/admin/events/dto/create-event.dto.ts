@@ -1,33 +1,26 @@
-import {
-  IsDateString,
-  IsEnum,
-  IsInt,
-  IsNotEmpty,
-  IsString,
-  MaxLength,
-  Min,
-} from 'class-validator';
+import { IsDateString, IsEnum, IsInt, IsNotEmpty, Min } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { STRING_MAX_LENGTH } from 'src/constants/variables';
 import { EventCategory } from '../../../events/entities/event.entity';
+import { IsHumanText } from 'src/decorators/human-text.decorator';
 
 export class CreateEventDto {
   @ApiProperty({
     description: 'Event title',
     example: 'IEEE AI Workshop',
   })
-  @IsString()
-  @IsNotEmpty()
-  @MaxLength(STRING_MAX_LENGTH)
+  @IsHumanText({
+    minLength: 6,
+    maxLength: STRING_MAX_LENGTH,
+    fieldLabel: 'title',
+  })
   title!: string;
 
   @ApiProperty({
     description: 'Event description',
     example: 'A hands-on workshop on AI fundamentals and applications.',
   })
-  @IsString()
-  @IsNotEmpty()
-  @MaxLength(1000)
+  @IsHumanText({ minLength: 6, maxLength: 1000, fieldLabel: 'description' })
   description!: string;
 
   @ApiProperty({
@@ -43,9 +36,11 @@ export class CreateEventDto {
     description: 'Event location',
     example: 'Main Auditorium, Building B',
   })
-  @IsString()
-  @IsNotEmpty()
-  @MaxLength(STRING_MAX_LENGTH)
+  @IsHumanText({
+    minLength: 3,
+    maxLength: STRING_MAX_LENGTH,
+    fieldLabel: 'location',
+  })
   location!: string;
 
   @ApiProperty({

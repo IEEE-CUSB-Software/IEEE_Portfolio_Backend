@@ -1,15 +1,20 @@
-import { IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { STRING_MAX_LENGTH } from 'src/constants/variables';
+import {
+  IsHumanText,
+  IsOptionalHumanText,
+} from 'src/decorators/human-text.decorator';
 
 export class CreateCategoryDto {
   @ApiProperty({
     description: 'Category name',
     example: 'Technical',
   })
-  @IsString()
-  @IsNotEmpty()
-  @MaxLength(STRING_MAX_LENGTH)
+  @IsHumanText({
+    minLength: 2,
+    maxLength: STRING_MAX_LENGTH,
+    fieldLabel: 'name',
+  })
   name!: string;
 
   @ApiProperty({
@@ -17,8 +22,10 @@ export class CreateCategoryDto {
     example: 'Technical committees focused on engineering and technology',
     required: false,
   })
-  @IsString()
-  @IsOptional()
-  @MaxLength(500)
+  @IsOptionalHumanText({
+    minLength: 6,
+    maxLength: 500,
+    fieldLabel: 'description',
+  })
   description?: string;
 }
