@@ -2,22 +2,30 @@ import {
   IsArray,
   IsDateString,
   IsInt,
-  IsNotEmpty,
   IsOptional,
   IsString,
   IsUUID,
+  Matches,
   MaxLength,
   Min,
+  MinLength,
   ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 import { STRING_MAX_LENGTH } from 'src/constants/variables';
+import {
+  CONTAINS_LETTERS_REGEX,
+  IsHumanText,
+} from 'src/decorators/human-text.decorator';
 
 export class WorkshopContentDto {
   @ApiProperty({ description: 'Section title', example: 'Introduction' })
-  @IsString()
-  @IsNotEmpty()
+  @IsHumanText({
+    minLength: 2,
+    maxLength: STRING_MAX_LENGTH,
+    fieldLabel: 'sectionTitle',
+  })
   sectionTitle!: string;
 
   @ApiProperty({
@@ -26,6 +34,12 @@ export class WorkshopContentDto {
   })
   @IsArray()
   @IsString({ each: true })
+  @MinLength(2, { each: true })
+  @MaxLength(STRING_MAX_LENGTH, { each: true })
+  @Matches(CONTAINS_LETTERS_REGEX, {
+    each: true,
+    message: 'subSection entries must contain at least two letters',
+  })
   subSection!: string[];
 }
 
@@ -34,18 +48,18 @@ export class CreateWorkshopDto {
     description: 'Workshop title',
     example: 'IEEE Web Development Workshop',
   })
-  @IsString()
-  @IsNotEmpty()
-  @MaxLength(STRING_MAX_LENGTH)
+  @IsHumanText({
+    minLength: 6,
+    maxLength: STRING_MAX_LENGTH,
+    fieldLabel: 'title',
+  })
   title!: string;
 
   @ApiProperty({
     description: 'Workshop description summary',
     example: 'A comprehensive crash course on modern web development.',
   })
-  @IsString()
-  @IsNotEmpty()
-  @MaxLength(1000)
+  @IsHumanText({ minLength: 6, maxLength: 1000, fieldLabel: 'description' })
   description!: string;
 
   @ApiProperty({
@@ -68,9 +82,11 @@ export class CreateWorkshopDto {
     description: 'Workshop location',
     example: 'Lab 3, Building C',
   })
-  @IsString()
-  @IsNotEmpty()
-  @MaxLength(STRING_MAX_LENGTH)
+  @IsHumanText({
+    minLength: 3,
+    maxLength: STRING_MAX_LENGTH,
+    fieldLabel: 'location',
+  })
   location!: string;
 
   @ApiProperty({

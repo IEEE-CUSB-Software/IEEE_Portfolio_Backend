@@ -2,7 +2,6 @@ import {
   IsEmail,
   IsInt,
   IsNotEmpty,
-  IsOptional,
   IsPhoneNumber,
   IsString,
   Matches,
@@ -15,6 +14,10 @@ import {
 import { ApiProperty } from '@nestjs/swagger';
 import { STRING_MAX_LENGTH } from 'src/constants/variables';
 import { RoleName } from 'src/roles/entities/role.entity';
+import {
+  IsHumanText,
+  IsOptionalHumanText,
+} from 'src/decorators/human-text.decorator';
 
 export class CreateUserDto {
   @ApiProperty({
@@ -22,10 +25,11 @@ export class CreateUserDto {
     example: 'Ali Said',
     minLength: 2,
   })
-  @IsNotEmpty()
-  @IsString()
-  @MinLength(2)
-  @MaxLength(STRING_MAX_LENGTH)
+  @IsHumanText({
+    minLength: 2,
+    maxLength: STRING_MAX_LENGTH,
+    fieldLabel: 'name',
+  })
   name!: string;
 
   @ApiProperty({
@@ -76,8 +80,7 @@ export class CreateUserDto {
       'Computer Engineering student interested in AI and web development',
     required: false,
   })
-  @IsString()
-  @IsOptional()
+  @IsOptionalHumanText({ minLength: 2, maxLength: 1000, fieldLabel: 'bio' })
   bio?: string;
 
   @ApiProperty({
@@ -93,16 +96,22 @@ export class CreateUserDto {
     description: 'Faculty or school name',
     example: 'Faculty of Engineering',
   })
-  @IsString()
-  @IsNotEmpty()
+  @IsHumanText({
+    minLength: 2,
+    maxLength: STRING_MAX_LENGTH,
+    fieldLabel: 'faculty',
+  })
   faculty!: string;
 
   @ApiProperty({
     description: 'University name',
     example: 'Cairo University',
   })
-  @IsString()
-  @IsNotEmpty()
+  @IsHumanText({
+    minLength: 2,
+    maxLength: STRING_MAX_LENGTH,
+    fieldLabel: 'university',
+  })
   university!: string;
 
   @ApiProperty({
@@ -122,7 +131,10 @@ export class CreateUserDto {
     example: 'Web Development Team',
     required: false,
   })
-  @IsString()
-  @IsOptional()
+  @IsOptionalHumanText({
+    minLength: 2,
+    maxLength: STRING_MAX_LENGTH,
+    fieldLabel: 'major',
+  })
   major?: string;
 }

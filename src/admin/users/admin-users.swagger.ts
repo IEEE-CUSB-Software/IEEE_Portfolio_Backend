@@ -17,6 +17,30 @@ const user_example = {
   updated_at: '2025-12-03T10:30:00Z',
 };
 
+export const admin_get_user_applications_swagger = {
+  operation: {
+    summary: "Get a user's applications",
+    description:
+      'Admins can retrieve all event registrations, workshop registrations, and vacancy applications for a specific user.',
+  },
+  responses: {
+    success: {
+      description: 'Applications retrieved successfully',
+      schema: {
+        example: {
+          data: {
+            eventRegistrations: [],
+            workshopRegistrations: [],
+            vacancyApplications: [],
+          },
+          count: 1,
+          message: 'Applications retrieved successfully',
+        },
+      },
+    },
+  },
+};
+
 export const admin_delete_user_swagger = {
   operation: {
     summary: 'Delete user',

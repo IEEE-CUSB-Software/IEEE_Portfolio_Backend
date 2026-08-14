@@ -43,6 +43,7 @@ import {
   admin_download_cv_swagger,
   admin_get_all_users_swagger,
   admin_get_user_swagger,
+  admin_get_user_applications_swagger,
   admin_update_user_role_swagger,
 } from './admin-users.swagger';
 import { SuperAdminGuard } from 'src/auth/guards/super-admin.guard';
@@ -102,7 +103,15 @@ export class AdminUsersController {
     @Query('roleId') roleId?: string,
     @Query('university') university?: string,
   ) {
-    return this.adminUsersService.findAll(page, limit, search, email, username, roleId, university);
+    return this.adminUsersService.findAll(
+      page,
+      limit,
+      search,
+      email,
+      username,
+      roleId,
+      university,
+    );
   }
 
   @Get(':id')
@@ -127,6 +136,18 @@ export class AdminUsersController {
   @ResponseMessage(SUCCESS_MESSAGES.ACCOUNT_REMOVED)
   remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.adminUsersService.remove(id);
+  }
+
+  @Get(':id/applications')
+  @ApiOperation(admin_get_user_applications_swagger.operation)
+  @ApiOkResponse(admin_get_user_applications_swagger.responses.success)
+  @ApiUnauthorizedErrorResponse(ERROR_MESSAGES.INVALID_OR_EXPIRED_TOKEN)
+  @ApiForbiddenErrorResponse(ERROR_MESSAGES.FORBIDDEN_ACTION)
+  @ApiNotFoundErrorResponse(ERROR_MESSAGES.USER_NOT_FOUND)
+  @ApiInternalServerError(ERROR_MESSAGES.INTERNAL_SERVER_ERROR)
+  @ResponseMessage('Applications retrieved successfully')
+  getApplications(@Param('id', ParseUUIDPipe) id: string) {
+    return this.adminUsersService.getApplications(id);
   }
 
   @Get(':userId/cv/download')

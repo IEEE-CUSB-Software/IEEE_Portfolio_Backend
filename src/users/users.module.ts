@@ -6,9 +6,21 @@ import { User } from './entities/user.entity';
 import { RolesModule } from 'src/roles/roles.module';
 import { StorageModule } from 'src/storage/storage.module';
 import { UsersRepository } from './users.repository';
+import { EventRegistration } from 'src/events/entities/event-registration.entity';
+import { WorkshopRegistration } from 'src/workshops/entities/workshop-registration.entity';
+import { Application } from 'src/recruitment/entities/application.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User]), RolesModule, StorageModule],
+  imports: [
+    TypeOrmModule.forFeature([
+      User,
+      EventRegistration,
+      WorkshopRegistration,
+      Application,
+    ]),
+    RolesModule,
+    StorageModule,
+  ],
   controllers: [UsersController],
   providers: [UsersService, UsersRepository],
   exports: [UsersService, UsersRepository],

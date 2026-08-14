@@ -1,22 +1,18 @@
-import {
-  IsEmail,
-  IsInt,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-  MaxLength,
-} from 'class-validator';
+import { IsEmail, IsInt, IsNotEmpty, IsOptional } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { STRING_MAX_LENGTH } from 'src/constants/variables';
+import { IsHumanText } from 'src/decorators/human-text.decorator';
 
 export class CreateBoardMemberDto {
   @ApiProperty({
     description: 'Board member name',
     example: 'Mario Raafat',
   })
-  @IsString()
-  @IsNotEmpty()
-  @MaxLength(STRING_MAX_LENGTH)
+  @IsHumanText({
+    minLength: 2,
+    maxLength: STRING_MAX_LENGTH,
+    fieldLabel: 'name',
+  })
   name!: string;
 
   @ApiProperty({
@@ -31,9 +27,11 @@ export class CreateBoardMemberDto {
     description: 'Board member role',
     example: 'Chair & Vice Chair',
   })
-  @IsString()
-  @IsNotEmpty()
-  @MaxLength(STRING_MAX_LENGTH)
+  @IsHumanText({
+    minLength: 2,
+    maxLength: STRING_MAX_LENGTH,
+    fieldLabel: 'role',
+  })
   role!: string;
 
   @ApiProperty({

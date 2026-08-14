@@ -43,6 +43,7 @@ import {
   upload_user_cv_swagger,
   download_user_cv_swagger,
   delete_user_cv_swagger,
+  get_my_applications_swagger,
 } from './users.swagger';
 import { ResponseMessage } from 'src/decorators/response-message.decorator';
 import { SkipPhoneNumberCheck } from 'src/decorators/skip-phone-number-check.decorator';
@@ -165,6 +166,17 @@ export class UsersController {
     });
 
     res.send(file.fileBuffer);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Get('me/applications')
+  @ApiBearerAuth()
+  @ApiOperation(get_my_applications_swagger.operation)
+  @ApiOkResponse(get_my_applications_swagger.responses.success)
+  @ApiUnauthorizedErrorResponse(ERROR_MESSAGES.INVALID_OR_EXPIRED_TOKEN)
+  @ApiInternalServerError(ERROR_MESSAGES.INTERNAL_SERVER_ERROR)
+  getMyApplications(@Req() req: Request & { user: User }) {
+    return this.usersService.getApplications(req.user.id);
   }
 
   @UseGuards(AuthGuard('jwt'))

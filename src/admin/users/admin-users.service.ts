@@ -7,6 +7,7 @@ import { MediaService } from 'src/media/media.service';
 import { StorageService } from 'src/storage/storage.service';
 import { RolesService } from 'src/roles/roles.service';
 import { UpdateUserRoleDto } from './dto/update-user-role.dto';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class AdminUsersService {
@@ -16,6 +17,7 @@ export class AdminUsersService {
     private readonly mediaService: MediaService,
     private readonly storageService: StorageService,
     private readonly rolesService: RolesService,
+    private readonly usersService: UsersService,
   ) {}
 
   async findAll(
@@ -35,11 +37,13 @@ export class AdminUsersService {
       .take(limit);
 
     if (search) {
-      qb.andWhere(new Brackets(qb => {
-        qb.where('user.name ILIKE :search', { search: `%${search}%` })
-          .orWhere('user.email ILIKE :search', { search: `%${search}%` })
-          .orWhere('user.username ILIKE :search', { search: `%${search}%` });
-      }));
+      qb.andWhere(
+        new Brackets((qb) => {
+          qb.where('user.name ILIKE :search', { search: `%${search}%` })
+            .orWhere('user.email ILIKE :search', { search: `%${search}%` })
+            .orWhere('user.username ILIKE :search', { search: `%${search}%` });
+        }),
+      );
     }
 
     if (email) {
@@ -127,6 +131,18 @@ export class AdminUsersService {
       userName: user.name,
       userEmail: user.email,
     };
+  }
+
+  async getApplications(userId: string) {
+    const user = await this.usersRepository.findOne({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new NotFoundException(ERROR_MESSAGES.USER_NOT_FOUND);
+    }
+
+    return this.usersService.getApplications(userId);
   }
 
   async updateRole(id: string, updateUserRoleDto: UpdateUserRoleDto) {
