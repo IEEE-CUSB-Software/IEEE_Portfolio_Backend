@@ -12,6 +12,7 @@ const user_example = {
   github_id: null,
   google_id: null,
   image_url: null,
+  major: 'Computer Science',
 };
 
 export const get_current_user_swagger = {
@@ -81,7 +82,7 @@ export const register_swagger = {
   operation: {
     summary: 'User registration',
     description:
-      'Register a new user with email, username, name, faculty, university, academic year, password, and an optional CV document.',
+      'Register a new user with email, username, name, faculty, university, academic year, major, password, and an optional CV document.',
   },
   body: {
     schema: {
@@ -96,6 +97,7 @@ export const register_swagger = {
         faculty: { type: 'string', example: 'Faculty of Engineering' },
         university: { type: 'string', example: 'Cairo University' },
         academic_year: { type: 'number', example: 3 },
+        major: { type: 'string', example: 'Computer Science' },
         cv: {
           type: 'string',
           format: 'binary',

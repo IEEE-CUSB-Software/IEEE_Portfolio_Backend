@@ -199,6 +199,7 @@ export class AuthService {
       faculty,
       university,
       academic_year,
+      major,
     } = register_dto as any;
 
     if (password !== confirmPassword) {
@@ -232,6 +233,7 @@ export class AuthService {
       faculty,
       university,
       academic_year,
+      major,
       verified_email: false,
       // Add other required fields with defaults as needed
     });
