@@ -78,6 +78,14 @@ export class RegisterDTO {
   @Max(10)
   academic_year!: number;
 
+  @ApiPropertyOptional({ description: 'Major', example: 'Computer Science' })
+  @IsHumanText({
+    minLength: 2,
+    maxLength: STRING_MAX_LENGTH,
+    fieldLabel: 'major',
+  })
+  major?: string;
+
   @ApiPropertyOptional({
     type: 'string',
     format: 'binary',
