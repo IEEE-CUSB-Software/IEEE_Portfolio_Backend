@@ -37,10 +37,12 @@ export class WorkshopsService {
       },
     });
 
-    const is_full = workshop.capacity - acceptedCount <= 0;
+    const remainingSpots = Math.max(0, workshop.capacity - acceptedCount);
+    const is_full = remainingSpots <= 0;
 
     const enrichedWorkshop: any = {
       ...workshop,
+      remainingSpots,
       is_full,
     };
 
