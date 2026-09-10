@@ -143,6 +143,21 @@ export class WorkshopsService {
       );
     }
 
+    const registeredCount = await this.registrationsRepository.count({
+      where: {
+        workshop_id: workshopId,
+        status: In([
+          WorkshopRegistrationStatus.PENDING,
+          WorkshopRegistrationStatus.ACCEPTED,
+          WorkshopRegistrationStatus.ATTENDED,
+        ]),
+      },
+    });
+
+    if (registeredCount >= workshop.capacity) {
+      throw new BadRequestException(ERROR_MESSAGES.WORKSHOP_FULL);
+    }
+
     const existingRegistration = await this.registrationsRepository.findOne({
       where: { workshop_id: workshopId, user_id: currentUser.id },
     });

@@ -20,6 +20,7 @@ import {
   ApiCreatedResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
@@ -176,15 +177,49 @@ export class AdminWorkshopsController {
   @ApiForbiddenErrorResponse(ERROR_MESSAGES.FORBIDDEN_ACTION)
   @ApiNotFoundErrorResponse(ERROR_MESSAGES.WORKSHOP_NOT_FOUND)
   @ApiInternalServerError(ERROR_MESSAGES.INTERNAL_SERVER_ERROR)
+  @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
+  @ApiQuery({ name: 'limit', required: false, type: Number, example: 10 })
+  @ApiQuery({
+    name: 'search',
+    required: false,
+    type: String,
+    description: 'Search by user name, username, or email',
+  })
+  @ApiQuery({
+    name: 'username',
+    required: false,
+    type: String,
+    description: 'Filter by username',
+  })
+  @ApiQuery({
+    name: 'email',
+    required: false,
+    type: String,
+    description: 'Filter by email',
+  })
+  @ApiQuery({
+    name: 'university',
+    required: false,
+    type: String,
+    description: 'Filter by university',
+  })
   getWorkshopRegistrations(
     @Param('id', ParseUUIDPipe) id: string,
     @Query('page') page: string = '1',
     @Query('limit') limit: string = '10',
+    @Query('search') search?: string,
+    @Query('username') username?: string,
+    @Query('email') email?: string,
+    @Query('university') university?: string,
   ) {
     return this.adminWorkshopsService.getWorkshopRegistrations(
       id,
       parseInt(page),
       parseInt(limit),
+      search,
+      username,
+      email,
+      university,
     );
   }
 
