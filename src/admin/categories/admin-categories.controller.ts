@@ -5,6 +5,7 @@ import {
   Patch,
   Param,
   Delete,
+  Get,
   ParseUUIDPipe,
 } from '@nestjs/common';
 import {
@@ -69,6 +70,18 @@ export class AdminCategoriesController {
     @Body() updateCategoryDto: UpdateCategoryDto,
   ) {
     return this.adminCategoriesService.update(id, updateCategoryDto);
+  }
+
+  @Get(':id/usage')
+  @ApiOperation({ summary: 'Get usage count of a category' })
+  @ApiOkResponse({ description: 'Usage count retrieved successfully' })
+  @ApiUnauthorizedErrorResponse(ERROR_MESSAGES.INVALID_OR_EXPIRED_TOKEN)
+  @ApiForbiddenErrorResponse(ERROR_MESSAGES.FORBIDDEN_ACTION)
+  @ApiNotFoundErrorResponse(ERROR_MESSAGES.CATEGORY_NOT_FOUND)
+  @ApiInternalServerError(ERROR_MESSAGES.INTERNAL_SERVER_ERROR)
+  @ResponseMessage('Category usage retrieved successfully')
+  getUsage(@Param('id', ParseUUIDPipe) id: string) {
+    return this.adminCategoriesService.getUsage(id);
   }
 
   @Delete(':id')

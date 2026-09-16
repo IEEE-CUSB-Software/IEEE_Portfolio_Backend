@@ -39,7 +39,6 @@ import {
 import { ResponseMessage } from 'src/decorators/response-message.decorator';
 import { User } from 'src/users/entities/user.entity';
 import { OptionalJwtGuard } from 'src/auth/guards/optional-jwt.guard';
-import { EventCategory } from './entities/event.entity';
 
 @ApiTags('events')
 @Controller('events')
@@ -67,10 +66,10 @@ export class EventsController {
     description: 'Filter by location',
   })
   @ApiQuery({
-    name: 'category',
+    name: 'category_id',
     required: false,
-    enum: EventCategory,
-    description: 'Filter by event category',
+    type: String,
+    description: 'Filter by event category ID',
   })
   findAll(
     @Req() req: Request & { user?: User },
@@ -78,7 +77,7 @@ export class EventsController {
     @Query('limit') limit: string = '10',
     @Query('search') search?: string,
     @Query('location') location?: string,
-    @Query('category') category?: EventCategory,
+    @Query('category_id') category_id?: string,
   ) {
     return this.eventsService.findAll(
       parseInt(page),
@@ -86,7 +85,7 @@ export class EventsController {
       req.user,
       search,
       location,
-      category,
+      category_id,
     );
   }
 

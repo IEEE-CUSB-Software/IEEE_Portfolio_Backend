@@ -14,6 +14,7 @@ import {
 import { Instructor } from './instructor.entity';
 import { WorkshopRegistration } from './workshop-registration.entity';
 import { WorkshopImage } from './workshop-image.entity';
+import { Category } from '../../categories/entities/category.entity';
 
 export interface WorkshopContent {
   sectionTitle: string;
@@ -39,6 +40,16 @@ export class Workshop {
 
   @Column({ type: 'varchar', nullable: true })
   image_public_id!: string | null;
+
+  @Column({ type: 'uuid', nullable: true })
+  category_id!: string | null;
+
+  @ManyToOne(() => Category, (category) => category.workshops, {
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
+  @JoinColumn({ name: 'category_id' })
+  category!: Category | null;
 
   @Column()
   location!: string;

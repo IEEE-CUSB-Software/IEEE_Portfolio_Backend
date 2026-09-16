@@ -1,5 +1,5 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsOptional, IsString } from 'class-validator';
+import { IsOptional, IsString, IsUUID } from 'class-validator';
 import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
 
 export class VacanciesQueryDto extends PaginationQueryDto {
@@ -10,4 +10,11 @@ export class VacanciesQueryDto extends PaginationQueryDto {
   @IsString()
   @IsOptional()
   search?: string;
+
+  @ApiPropertyOptional({
+    description: 'Filter by vacancy category ID',
+  })
+  @IsOptional()
+  @IsUUID()
+  category_id?: string;
 }

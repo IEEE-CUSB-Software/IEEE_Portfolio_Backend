@@ -2,6 +2,7 @@ import {
   IsArray,
   IsDateString,
   IsInt,
+  IsNotEmpty,
   IsOptional,
   IsString,
   IsUUID,
@@ -59,8 +60,17 @@ export class CreateWorkshopDto {
     description: 'Workshop description summary',
     example: 'A comprehensive crash course on modern web development.',
   })
-  @IsHumanText({ minLength: 6, maxLength: 1000, fieldLabel: 'description' })
+  @IsHumanText({
+    minLength: 6,
+    maxLength: 1000,
+    fieldLabel: 'description',
+  })
   description!: string;
+
+  @ApiProperty({ description: 'Category ID for the workshop', example: 'uuid-string' })
+  @IsUUID()
+  @IsNotEmpty()
+  category_id!: string;
 
   @ApiProperty({
     description:

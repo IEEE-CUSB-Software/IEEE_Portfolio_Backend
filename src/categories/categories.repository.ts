@@ -28,6 +28,10 @@ export class CategoriesRepository {
       );
     }
 
+    if (query.type) {
+      qb.andWhere('category.type = :type', { type: query.type });
+    }
+
     return paginate(qb, query);
   }
 
@@ -35,8 +39,8 @@ export class CategoriesRepository {
     return this.categoryRepository.findOne({ where: { id } });
   }
 
-  async findByName(name: string): Promise<Category | null> {
-    return this.categoryRepository.findOne({ where: { name } });
+  async findByNameAndType(name: string, type: string): Promise<Category | null> {
+    return this.categoryRepository.findOne({ where: { name, type: type as any } });
   }
 
   create(data: Partial<Category>): Category {

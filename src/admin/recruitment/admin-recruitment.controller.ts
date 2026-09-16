@@ -11,6 +11,7 @@ import {
   UseInterceptors,
   ClassSerializerInterceptor,
   Delete,
+  UploadedFile,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -20,6 +21,8 @@ import {
   ApiCreatedResponse,
   ApiQuery,
   ApiProduces,
+  ApiBody,
+  ApiConsumes,
 } from '@nestjs/swagger';
 import {
   ApiForbiddenErrorResponse,
@@ -39,6 +42,7 @@ import { VacanciesQueryDto } from './dto/vacancies-query.dto';
 import { ApplicationsQueryDto } from './dto/applications-query.dto';
 import { ResponseMessage } from '../../decorators/response-message.decorator';
 import type { Request, Response } from 'express';
+import { FileInterceptor } from '@nestjs/platform-express';
 import {
   admin_create_vacancy_swagger,
   admin_update_vacancy_swagger,
@@ -166,6 +170,43 @@ export class AdminRecruitmentController {
   @ResponseMessage(SUCCESS_MESSAGES.VACANCY_DELETED)
   deleteVacancy(@Param('id', ParseUUIDPipe) id: string) {
     return this.adminRecruitmentService.deleteVacancy(id);
+  }
+
+  @Post('vacancies/:id/image')
+  @UseInterceptors(FileInterceptor('image'))
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        image: { type: 'string', format: 'binary' },
+      },
+    },
+  })
+  @ApiOperation({ summary: 'Upload vacancy image' })
+  @ApiCreatedResponse({ description: 'Image uploaded successfully' })
+  @ApiNotFoundErrorResponse(ERROR_MESSAGES.VACANCY_NOT_FOUND)
+  @ApiUnauthorizedErrorResponse(ERROR_MESSAGES.INVALID_OR_EXPIRED_TOKEN)
+  @ApiForbiddenErrorResponse(ERROR_MESSAGES.FORBIDDEN_ACTION)
+  @ApiInternalServerError(ERROR_MESSAGES.INTERNAL_SERVER_ERROR)
+  @ResponseMessage(SUCCESS_MESSAGES.IMAGE_UPLOADED)
+  uploadVacancyImage(
+    @Param('id', ParseUUIDPipe) id: string,
+    @UploadedFile() image: any,
+  ) {
+    return this.adminRecruitmentService.uploadVacancyImage(id, image);
+  }
+
+  @Delete('vacancies/:id/image')
+  @ApiOperation({ summary: 'Remove vacancy image' })
+  @ApiOkResponse({ description: 'Image removed successfully' })
+  @ApiNotFoundErrorResponse(ERROR_MESSAGES.VACANCY_NOT_FOUND)
+  @ApiUnauthorizedErrorResponse(ERROR_MESSAGES.INVALID_OR_EXPIRED_TOKEN)
+  @ApiForbiddenErrorResponse(ERROR_MESSAGES.FORBIDDEN_ACTION)
+  @ApiInternalServerError(ERROR_MESSAGES.INTERNAL_SERVER_ERROR)
+  @ResponseMessage(SUCCESS_MESSAGES.IMAGE_DELETED)
+  removeVacancyImage(@Param('id', ParseUUIDPipe) id: string) {
+    return this.adminRecruitmentService.removeVacancyImage(id);
   }
 
   @Get('applications/:id/cv')
