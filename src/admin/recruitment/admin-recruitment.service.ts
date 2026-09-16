@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { Application } from '../../recruitment/entities/application.entity';
 import { VacanciesRepository } from '../../recruitment/vacancies.repository';
 import { ApplicationsRepository } from '../../recruitment/applications.repository';
@@ -10,6 +10,13 @@ import { ERROR_MESSAGES } from 'src/constants/swagger-messages';
 import { StorageService } from '../../storage/storage.service';
 import { paginatedResponse } from 'src/common/utils/pagination.util';
 import * as ExcelJS from 'exceljs';
+import { MediaService } from '../../media/media.service';
+import { resolveMediaFolder } from '../../media/media.utils';
+
+const VACANCIES_MEDIA_FOLDER = resolveMediaFolder(
+  'VACANCIES_IMAGES_FILE_NAME',
+  'vacancies',
+);
 
 /** `cv_url` is derived per-request, not a mapped column on the entity. */
 type ApplicationWithCvUrl = Application & { cv_url?: string };
@@ -20,6 +27,7 @@ export class AdminRecruitmentService {
     private readonly vacanciesRepository: VacanciesRepository,
     private readonly applicationsRepository: ApplicationsRepository,
     private readonly storageService: StorageService,
+    private readonly mediaService: MediaService,
   ) {}
 
   async createVacancy(dto: CreateVacancyDto) {
@@ -157,11 +165,54 @@ export class AdminRecruitmentService {
     return this.storageService.getFile(application.user.cv_file_key);
   }
 
+
   private async getVacancyOrFail(id: string) {
     const vacancy = await this.vacanciesRepository.findById(id);
     if (!vacancy) {
       throw new NotFoundException(ERROR_MESSAGES.VACANCY_NOT_FOUND);
     }
+    return vacancy;
+  }
+
+  async uploadVacancyImage(id: string, image: any) {
+    const vacancy = await this.getVacancyOrFail(id);
+
+    if (!image) {
+      throw new BadRequestException('Image is required');
+    }
+
+    const previousPublicId = vacancy.image_public_id;
+    const uploaded = await this.mediaService.uploadImage(
+      image,
+      VACANCIES_MEDIA_FOLDER,
+    );
+
+    vacancy.image_url = uploaded.url;
+    vacancy.image_public_id = uploaded.public_id;
+
+    const saved = await this.vacanciesRepository.save(vacancy);
+
+    if (previousPublicId) {
+      await this.mediaService.deleteImage(previousPublicId);
+    }
+
+    return saved;
+  }
+
+  async removeVacancyImage(id: string) {
+    const vacancy = await this.getVacancyOrFail(id);
+
+    if (!vacancy.image_public_id) {
+      throw new NotFoundException('No image found for this vacancy');
+    }
+
+    const publicId = vacancy.image_public_id;
+    vacancy.image_url = null;
+    vacancy.image_public_id = null;
+
+    await this.vacanciesRepository.save(vacancy);
+    await this.mediaService.deleteImage(publicId);
+
     return vacancy;
   }
 }

@@ -27,17 +27,18 @@ export class WorkshopsService {
     workshop: Workshop,
     currentUser?: User,
   ) {
-    const acceptedCount = await this.registrationsRepository.count({
+    const registeredCount = await this.registrationsRepository.count({
       where: {
         workshop_id: workshop.id,
         status: In([
+          WorkshopRegistrationStatus.PENDING,
           WorkshopRegistrationStatus.ACCEPTED,
           WorkshopRegistrationStatus.ATTENDED,
         ]),
       },
     });
 
-    const remainingSpots = Math.max(0, workshop.capacity - acceptedCount);
+    const remainingSpots = Math.max(0, workshop.capacity - registeredCount);
     const is_full = remainingSpots <= 0;
 
     const enrichedWorkshop: any = {
@@ -140,6 +141,21 @@ export class WorkshopsService {
       throw new BadRequestException(
         ERROR_MESSAGES.WORKSHOP_REGISTRATION_CLOSED,
       );
+    }
+
+    const registeredCount = await this.registrationsRepository.count({
+      where: {
+        workshop_id: workshopId,
+        status: In([
+          WorkshopRegistrationStatus.PENDING,
+          WorkshopRegistrationStatus.ACCEPTED,
+          WorkshopRegistrationStatus.ATTENDED,
+        ]),
+      },
+    });
+
+    if (registeredCount >= workshop.capacity) {
+      throw new BadRequestException(ERROR_MESSAGES.WORKSHOP_FULL);
     }
 
     const existingRegistration = await this.registrationsRepository.findOne({

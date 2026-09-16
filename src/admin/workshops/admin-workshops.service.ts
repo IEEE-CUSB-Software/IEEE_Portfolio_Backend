@@ -297,6 +297,10 @@ export class AdminWorkshopsService {
     workshopId: string,
     page: number = 1,
     limit: number = 10,
+    search?: string,
+    username?: string,
+    email?: string,
+    university?: string,
   ) {
     const workshop = await this.workshopsRepository.findOne({
       where: { id: workshopId },
@@ -308,14 +312,36 @@ export class AdminWorkshopsService {
 
     const skip = (page - 1) * limit;
 
-    const [registrations, total] =
-      await this.registrationsRepository.findAndCount({
-        where: { workshop_id: workshopId },
-        relations: ['user'],
-        skip,
-        take: limit,
-        order: { created_at: 'DESC' },
+    const qb = this.registrationsRepository
+      .createQueryBuilder('registration')
+      .leftJoinAndSelect('registration.user', 'user')
+      .where('registration.workshop_id = :workshopId', { workshopId })
+      .orderBy('registration.created_at', 'DESC')
+      .skip(skip)
+      .take(limit);
+
+    if (search) {
+      qb.andWhere(
+        '(user.name ILIKE :search OR user.username ILIKE :search OR user.email ILIKE :search)',
+        { search: `%${search}%` },
+      );
+    }
+
+    if (username) {
+      qb.andWhere('user.username ILIKE :username', {
+        username: `%${username}%`,
       });
+    }
+
+    if (email) {
+      qb.andWhere('user.email ILIKE :email', { email: `%${email}%` });
+    }
+
+    if (university) {
+      qb.andWhere('user.university = :university', { university });
+    }
+
+    const [registrations, total] = await qb.getManyAndCount();
 
     return {
       data: registrations,
@@ -349,23 +375,29 @@ export class AdminWorkshopsService {
       );
     }
 
-    // Capacity validation if updating status to ACCEPTED
+    // Capacity validation if updating status to ACCEPTED or ATTENDED
     if (
-      status === WorkshopRegistrationStatus.ACCEPTED &&
-      registration.status !== WorkshopRegistrationStatus.ACCEPTED
+      (status === WorkshopRegistrationStatus.ACCEPTED ||
+        status === WorkshopRegistrationStatus.ATTENDED) &&
+      registration.status !== WorkshopRegistrationStatus.ACCEPTED &&
+      registration.status !== WorkshopRegistrationStatus.ATTENDED
     ) {
-      const acceptedCount = await this.registrationsRepository.count({
-        where: {
-          workshop_id: workshopId,
-          status: In([
-            WorkshopRegistrationStatus.ACCEPTED,
-            WorkshopRegistrationStatus.ATTENDED,
-          ]),
-        },
-      });
+      // If previous status was not PENDING (e.g. CANCELLED or REJECTED), accepting takes an additional spot
+      if (registration.status !== WorkshopRegistrationStatus.PENDING) {
+        const totalBooked = await this.registrationsRepository.count({
+          where: {
+            workshop_id: workshopId,
+            status: In([
+              WorkshopRegistrationStatus.PENDING,
+              WorkshopRegistrationStatus.ACCEPTED,
+              WorkshopRegistrationStatus.ATTENDED,
+            ]),
+          },
+        });
 
-      if (acceptedCount >= workshop.capacity) {
-        throw new BadRequestException(ERROR_MESSAGES.WORKSHOP_FULL);
+        if (totalBooked >= workshop.capacity) {
+          throw new BadRequestException(ERROR_MESSAGES.WORKSHOP_FULL);
+        }
       }
     }
 

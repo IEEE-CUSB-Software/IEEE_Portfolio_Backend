@@ -22,18 +22,20 @@ export class VacanciesRepository {
       .addOrderBy('vacancy.id', 'DESC');
 
     this.applySearch(qb, query.search);
+    this.applyCategory(qb, query.category_id);
 
     return paginate(qb, query);
   }
 
   /** Public view: open vacancies only. */
-  async findOpen(search?: string): Promise<Vacancy[]> {
+  async findOpen(search?: string, category?: string): Promise<Vacancy[]> {
     const qb = this.vacanciesRepository
       .createQueryBuilder('vacancy')
       .where('vacancy.is_open = :isOpen', { isOpen: true })
       .orderBy('vacancy.created_at', 'DESC');
 
     this.applySearch(qb, search);
+    this.applyCategory(qb, category);
 
     return qb.getMany();
   }
@@ -48,6 +50,15 @@ export class VacanciesRepository {
         '(vacancy.title ILIKE :search OR vacancy.description ILIKE :search)',
         { search: `%${term}%` },
       );
+    }
+  }
+
+  private applyCategory(
+    qb: ReturnType<Repository<Vacancy>['createQueryBuilder']>,
+    category_id?: string,
+  ): void {
+    if (category_id) {
+      qb.andWhere('vacancy.category_id = :category_id', { category_id });
     }
   }
 

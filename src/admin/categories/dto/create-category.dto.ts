@@ -4,8 +4,17 @@ import {
   IsHumanText,
   IsOptionalHumanText,
 } from 'src/decorators/human-text.decorator';
+import { CategoryType } from 'src/categories/entities/category.entity';
+import { IsEnum } from 'class-validator';
 
 export class CreateCategoryDto {
+  @ApiProperty({
+    description: 'Category type',
+    enum: CategoryType,
+    example: CategoryType.EVENT,
+  })
+  @IsEnum(CategoryType)
+  type!: CategoryType;
   @ApiProperty({
     description: 'Category name',
     example: 'Technical',

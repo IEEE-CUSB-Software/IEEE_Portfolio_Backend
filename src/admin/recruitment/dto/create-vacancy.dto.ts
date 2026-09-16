@@ -1,4 +1,4 @@
-import { IsOptional, IsBoolean } from 'class-validator';
+import { IsOptional, IsBoolean, IsUUID } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { STRING_MAX_LENGTH } from 'src/constants/variables';
 import {
@@ -27,4 +27,9 @@ export class CreateVacancyDto {
   @IsBoolean()
   @IsOptional()
   is_open?: boolean;
+
+  @ApiPropertyOptional({ description: 'Category ID for the vacancy', example: 'uuid-string' })
+  @IsUUID()
+  @IsOptional()
+  category_id?: string;
 }

@@ -15,8 +15,8 @@ export class RecruitmentService {
     private readonly applicationsRepository: ApplicationsRepository,
   ) {}
 
-  async getOpenVacancies(search?: string) {
-    return this.vacanciesRepository.findOpen(search);
+  async getOpenVacancies(search?: string, category_id?: string) {
+    return this.vacanciesRepository.findOpen(search, category_id);
   }
 
   async applyToVacancy(

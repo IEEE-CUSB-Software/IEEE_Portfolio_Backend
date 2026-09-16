@@ -12,11 +12,7 @@ import {
 import { EventRegistration } from './event-registration.entity';
 import { EventImage } from './event-image.entity';
 
-export enum EventCategory {
-  TECHNICAL = 'Technical',
-  NON_TECHNICAL = 'Non-Technical',
-  SOCIAL = 'Social',
-}
+import { Category } from '../../categories/entities/category.entity';
 
 @Entity('events')
 export class Event {
@@ -35,8 +31,15 @@ export class Event {
   @Column({ type: 'text' })
   description!: string;
 
-  @Column({ type: 'enum', enum: EventCategory })
-  category!: EventCategory;
+  @Column({ type: 'uuid', nullable: true })
+  category_id!: string | null;
+
+  @ManyToOne(() => Category, (category) => category.events, {
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
+  @JoinColumn({ name: 'category_id' })
+  category!: Category | null;
 
   @Column()
   location!: string;

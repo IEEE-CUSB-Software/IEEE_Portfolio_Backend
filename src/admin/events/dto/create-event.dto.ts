@@ -1,7 +1,6 @@
-import { IsDateString, IsEnum, IsInt, IsNotEmpty, Min } from 'class-validator';
+import { IsDateString, IsEnum, IsInt, IsNotEmpty, IsUUID, Min } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { STRING_MAX_LENGTH } from 'src/constants/variables';
-import { EventCategory } from '../../../events/entities/event.entity';
 import { IsHumanText } from 'src/decorators/human-text.decorator';
 
 export class CreateEventDto {
@@ -25,12 +24,11 @@ export class CreateEventDto {
 
   @ApiProperty({
     description: 'Event category',
-    enum: EventCategory,
-    example: EventCategory.TECHNICAL,
+    example: 'uuid-string',
   })
-  @IsEnum(EventCategory)
+  @IsUUID()
   @IsNotEmpty()
-  category!: EventCategory;
+  category_id!: string;
 
   @ApiProperty({
     description: 'Event location',

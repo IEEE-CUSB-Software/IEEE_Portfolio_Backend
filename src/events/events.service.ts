@@ -13,7 +13,6 @@ import {
   EventRegistrationStatus,
 } from './entities/event-registration.entity';
 import { User } from 'src/users/entities/user.entity';
-import { EventCategory } from './entities/event.entity';
 import { ERROR_MESSAGES } from 'src/constants/swagger-messages';
 import { MediaService } from 'src/media/media.service';
 import { resolveMediaFolder } from 'src/media/media.utils';
@@ -96,11 +95,11 @@ export class EventsService {
     currentUser?: User,
     search?: string,
     location?: string,
-    category?: EventCategory,
+    category_id?: string,
   ) {
     const skip = (page - 1) * limit;
 
-    const qb = this.eventsRepository
+    const query = this.eventsRepository
       .createQueryBuilder('event')
       .leftJoinAndSelect('event.images', 'images')
       .orderBy('event.start_time', 'ASC')
@@ -108,23 +107,23 @@ export class EventsService {
       .take(limit);
 
     if (search) {
-      qb.andWhere(
+      query.andWhere(
         '(event.title ILIKE :search OR event.description ILIKE :search)',
         { search: `%${search}%` },
       );
     }
 
     if (location) {
-      qb.andWhere('event.location ILIKE :location', {
+      query.andWhere('event.location ILIKE :location', {
         location: `%${location}%`,
       });
     }
 
-    if (category) {
-      qb.andWhere('event.category = :category', { category });
+    if (category_id) {
+      query.andWhere('event.category_id = :category_id', { category_id });
     }
 
-    const [events, total] = await qb.getManyAndCount();
+    const [events, total] = await query.getManyAndCount();
 
     // Enrich events with capacity and registration details
     const enrichedEvents = await Promise.all(

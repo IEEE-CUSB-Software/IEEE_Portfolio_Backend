@@ -61,9 +61,18 @@ export class RecruitmentController {
     type: String,
     description: 'Search by vacancy title or description',
   })
+  @ApiQuery({
+    name: 'category_id',
+    required: false,
+    type: String,
+    description: 'Filter by vacancy category ID',
+  })
   @ResponseMessage(SUCCESS_MESSAGES.VACANCIES_RETRIEVED)
-  getOpenVacancies(@Query('search') search?: string) {
-    return this.recruitmentService.getOpenVacancies(search);
+  getOpenVacancies(
+    @Query('search') search?: string,
+    @Query('category_id') category_id?: string,
+  ) {
+    return this.recruitmentService.getOpenVacancies(search, category_id);
   }
 
   @Post('vacancies/:id/apply')
