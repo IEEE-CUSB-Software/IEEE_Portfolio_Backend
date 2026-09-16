@@ -102,6 +102,7 @@ export class EventsService {
     const query = this.eventsRepository
       .createQueryBuilder('event')
       .leftJoinAndSelect('event.images', 'images')
+      .leftJoinAndSelect('event.category', 'category')
       .orderBy('event.start_time', 'ASC')
       .skip(skip)
       .take(limit);
@@ -142,7 +143,7 @@ export class EventsService {
   async findOne(id: string, currentUser?: User) {
     const event = await this.eventsRepository.findOne({
       where: { id },
-      relations: ['images'],
+      relations: ['images', 'category'],
     });
 
     if (!event) {

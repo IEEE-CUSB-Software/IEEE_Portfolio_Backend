@@ -124,7 +124,7 @@ export class WorkshopsService {
   async findOne(id: string, currentUser?: User) {
     const workshop = await this.workshopsRepository.findOne({
       where: { id },
-      relations: ['images', 'instructors'],
+      relations: ['images', 'instructors', 'category'],
     });
 
     if (!workshop) {

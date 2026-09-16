@@ -18,24 +18,26 @@ export class VacanciesRepository {
   ): Promise<PaginatedResult<Vacancy>> {
     const qb = this.vacanciesRepository
       .createQueryBuilder('vacancy')
+      .leftJoinAndSelect('vacancy.category', 'category')
       .orderBy('vacancy.created_at', 'DESC')
       .addOrderBy('vacancy.id', 'DESC');
 
     this.applySearch(qb, query.search);
-    this.applyCategory(qb, query.category_id);
+    this.applyCategory(qb, (query as any).category_id);
 
     return paginate(qb, query);
   }
 
   /** Public view: open vacancies only. */
-  async findOpen(search?: string, category?: string): Promise<Vacancy[]> {
+  async findOpen(search?: string, category_id?: string): Promise<Vacancy[]> {
     const qb = this.vacanciesRepository
       .createQueryBuilder('vacancy')
+      .leftJoinAndSelect('vacancy.category', 'category')
       .where('vacancy.is_open = :isOpen', { isOpen: true })
       .orderBy('vacancy.created_at', 'DESC');
 
     this.applySearch(qb, search);
-    this.applyCategory(qb, category);
+    this.applyCategory(qb, category_id);
 
     return qb.getMany();
   }
@@ -63,7 +65,10 @@ export class VacanciesRepository {
   }
 
   async findById(id: string): Promise<Vacancy | null> {
-    return this.vacanciesRepository.findOne({ where: { id } });
+    return this.vacanciesRepository.findOne({ 
+      where: { id },
+      relations: ['category']
+    });
   }
 
   create(data: Partial<Vacancy>): Vacancy {
