@@ -67,12 +67,19 @@ export class WorkshopsController {
     type: String,
     description: 'Filter by location',
   })
+  @ApiQuery({
+    name: 'category_id',
+    required: false,
+    type: String,
+    description: 'Filter by category ID',
+  })
   findAll(
     @Req() req: Request & { user?: User },
     @Query('page') page: string = '1',
     @Query('limit') limit: string = '10',
     @Query('search') search?: string,
     @Query('location') location?: string,
+    @Query('category_id') category_id?: string,
   ) {
     return this.workshopsService.findAll(
       parseInt(page),
@@ -80,6 +87,7 @@ export class WorkshopsController {
       req.user,
       search,
       location,
+      category_id,
     );
   }
 

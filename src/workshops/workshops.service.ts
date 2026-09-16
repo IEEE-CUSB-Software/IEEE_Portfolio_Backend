@@ -74,6 +74,7 @@ export class WorkshopsService {
     currentUser?: User,
     search?: string,
     location?: string,
+    category_id?: string,
   ) {
     const skip = (page - 1) * limit;
 
@@ -81,6 +82,7 @@ export class WorkshopsService {
       .createQueryBuilder('workshop')
       .leftJoinAndSelect('workshop.images', 'images')
       .leftJoinAndSelect('workshop.instructors', 'instructors')
+      .leftJoinAndSelect('workshop.category', 'category')
       .orderBy('workshop.start_time', 'ASC')
       .skip(skip)
       .take(limit);
@@ -96,6 +98,10 @@ export class WorkshopsService {
       qb.andWhere('workshop.location ILIKE :location', {
         location: `%${location}%`,
       });
+    }
+
+    if (category_id) {
+      qb.andWhere('workshop.category_id = :category_id', { category_id });
     }
 
     const [workshops, total] = await qb.getManyAndCount();
