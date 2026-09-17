@@ -9,6 +9,7 @@ import { VacanciesRepository } from './vacancies.repository';
 import { ApplicationsRepository } from './applications.repository';
 import { UsersRepository } from '../users/users.repository';
 import { MediaService } from '../media/media.service';
+import { StorageService } from '../storage/storage.service';
 
 @Injectable()
 export class RecruitmentService {
@@ -17,6 +18,7 @@ export class RecruitmentService {
     private readonly applicationsRepository: ApplicationsRepository,
     private readonly usersRepository: UsersRepository,
     private readonly mediaService: MediaService,
+    private readonly storageService: StorageService,
   ) {}
 
   async getOpenVacancies(search?: string, category_id?: string) {
@@ -89,10 +91,26 @@ export class RecruitmentService {
     if (!file) {
       throw new BadRequestException('File is required');
     }
-    const uploaded = await this.mediaService.uploadDocument(file, 'applications');
+    
+    const fileBuffer = file.buffer || file.stream || file.data;
+    if (!fileBuffer) {
+      throw new BadRequestException('Invalid file format');
+    }
+
+    const uploadResponse = await this.storageService.uploadFile({
+      fileName: file.originalname || 'application_file.pdf',
+      fileBuffer: fileBuffer,
+      contentType: file.mimetype || 'application/pdf',
+      prefix: 'applications/',
+      metadata: {
+        uploadType: 'application',
+        uploadedAt: new Date().toISOString(),
+      },
+    });
+
     return {
-      url: uploaded.url,
-      public_id: uploaded.public_id,
+      url: uploadResponse.fileUrl,
+      public_id: uploadResponse.fileKey,
     };
   }
 }
