@@ -229,16 +229,18 @@ export class AdminRecruitmentController {
     res.send(file.fileBuffer);
   }
 
-  @Get('files/*')
+  @Get('file/download')
   @ApiOperation({ summary: 'Download/View an application file' })
   @ApiOkResponse({ description: 'File downloaded successfully' })
   @ApiUnauthorizedErrorResponse(ERROR_MESSAGES.INVALID_OR_EXPIRED_TOKEN)
   @ApiForbiddenErrorResponse(ERROR_MESSAGES.FORBIDDEN_ACTION)
   async downloadApplicationFile(
-    @Req() req: Request,
+    @Query('key') fileKey: string,
     @Res() res: Response,
   ) {
-    const fileKey = req.params[0];
+    if (!fileKey) {
+      return res.status(400).json({ message: 'File key is required' });
+    }
     return this.adminRecruitmentService.downloadApplicationFile(fileKey, res);
   }
 }
