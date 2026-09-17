@@ -76,6 +76,7 @@ export class WorkshopsService {
     search?: string,
     location?: string,
     category_id?: string,
+    include_unpublished?: boolean,
   ) {
     const skip = (page - 1) * limit;
 
@@ -86,7 +87,7 @@ export class WorkshopsService {
       .leftJoinAndSelect('workshop.category', 'category');
 
     const isAdmin = currentUser?.role?.name === RoleName.ADMIN || currentUser?.role?.name === RoleName.SUPER_ADMIN;
-    if (!isAdmin) {
+    if (!(isAdmin && include_unpublished)) {
       qb.where('workshop.is_published = :is_published', { is_published: true });
     }
 

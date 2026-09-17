@@ -97,6 +97,7 @@ export class EventsService {
     search?: string,
     location?: string,
     category_id?: string,
+    include_unpublished?: boolean,
   ) {
     const skip = (page - 1) * limit;
 
@@ -107,7 +108,7 @@ export class EventsService {
 
     // Only admins can see unpublished events
     const isAdmin = currentUser?.role?.name === RoleName.ADMIN || currentUser?.role?.name === RoleName.SUPER_ADMIN;
-    if (!isAdmin) {
+    if (!(isAdmin && include_unpublished)) {
       query.where('event.is_published = :is_published', { is_published: true });
     }
 
