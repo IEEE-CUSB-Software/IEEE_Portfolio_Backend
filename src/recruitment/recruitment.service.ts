@@ -52,7 +52,7 @@ export class RecruitmentService {
     if (vacancy.questions && vacancy.questions.length > 0) {
       const extraData = dto.extra_data || {};
       for (const question of vacancy.questions) {
-        if (question.is_required && !extraData[question.id]) {
+        if (question.is_required && !extraData[question.question_text] && !extraData[question.id]) {
           throw new BadRequestException(`Missing required answer for question: ${question.question_text}`);
         }
       }
