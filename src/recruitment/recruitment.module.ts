@@ -10,6 +10,7 @@ import { RecruitmentService } from './recruitment.service';
 import { VacanciesRepository } from './vacancies.repository';
 import { ApplicationsRepository } from './applications.repository';
 import { Vacancy } from './entities/vacancy.entity';
+import { VacancyQuestion } from './entities/vacancy-question.entity';
 import { Application } from './entities/application.entity';
 import { CompleteProfileMiddleware } from '../middleware/complete-profile.middleware';
 import { JwtAuthMiddleware } from '../middleware/jwt-auth.middleware';
@@ -21,7 +22,7 @@ import { StorageModule } from '../storage/storage.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Vacancy, Application]),
+    TypeOrmModule.forFeature([Vacancy, VacancyQuestion, Application]),
     ConfigModule,
     JwtModule.register({
       secret: process.env.JWT_TOKEN_SECRET,

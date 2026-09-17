@@ -7,12 +7,16 @@ import { ApplyToVacancyDto } from './dto/apply-to-vacancy.dto';
 import { ERROR_MESSAGES } from 'src/constants/swagger-messages';
 import { VacanciesRepository } from './vacancies.repository';
 import { ApplicationsRepository } from './applications.repository';
+import { UsersRepository } from '../users/users.repository';
+import { MediaService } from '../media/media.service';
 
 @Injectable()
 export class RecruitmentService {
   constructor(
     private readonly vacanciesRepository: VacanciesRepository,
     private readonly applicationsRepository: ApplicationsRepository,
+    private readonly usersRepository: UsersRepository,
+    private readonly mediaService: MediaService,
   ) {}
 
   async getOpenVacancies(search?: string, category_id?: string) {
@@ -24,6 +28,11 @@ export class RecruitmentService {
     vacancyId: string,
     dto: ApplyToVacancyDto,
   ) {
+    const user = await this.usersRepository.findById(userId);
+    if (!user?.cv_file_key) {
+      throw new BadRequestException('You must upload your CV in your profile before applying.');
+    }
+
     const vacancy = await this.vacanciesRepository.findById(vacancyId);
     if (!vacancy) {
       throw new NotFoundException(ERROR_MESSAGES.VACANCY_NOT_FOUND);
@@ -38,6 +47,15 @@ export class RecruitmentService {
 
     if (existingApplication) {
       throw new BadRequestException(ERROR_MESSAGES.ALREADY_APPLIED);
+    }
+
+    if (vacancy.questions && vacancy.questions.length > 0) {
+      const extraData = dto.extra_data || {};
+      for (const question of vacancy.questions) {
+        if (question.is_required && !extraData[question.id]) {
+          throw new BadRequestException(`Missing required answer for question: ${question.question_text}`);
+        }
+      }
     }
 
     const application = this.applicationsRepository.create({
@@ -65,5 +83,16 @@ export class RecruitmentService {
 
     await this.applicationsRepository.remove(application);
     return { success: true };
+  }
+
+  async uploadApplicationFile(file: any) {
+    if (!file) {
+      throw new BadRequestException('File is required');
+    }
+    const uploaded = await this.mediaService.uploadDocument(file, 'applications');
+    return {
+      url: uploaded.url,
+      public_id: uploaded.public_id,
+    };
   }
 }

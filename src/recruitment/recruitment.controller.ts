@@ -11,7 +11,9 @@ import {
   Delete,
   Res,
   Query,
+  UploadedFile,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import {
   ApiTags,
   ApiOperation,
@@ -19,6 +21,8 @@ import {
   ApiBearerAuth,
   ApiCreatedResponse,
   ApiQuery,
+  ApiConsumes,
+  ApiBody,
 } from '@nestjs/swagger';
 import {
   ApiForbiddenErrorResponse,
@@ -116,4 +120,31 @@ export class RecruitmentController {
   ) {
     return this.recruitmentService.revokeApplication(req.user.id, id);
   }
+
+  @Post('applications/upload')
+  @UseInterceptors(FileInterceptor('file'))
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Upload file for application' })
+  @ApiOkResponse({ description: 'File uploaded successfully' })
+  @ApiUnauthorizedErrorResponse(ERROR_MESSAGES.INVALID_OR_EXPIRED_TOKEN)
+  @ApiInternalServerError(ERROR_MESSAGES.INTERNAL_SERVER_ERROR)
+  @ResponseMessage('File uploaded successfully')
+  async uploadApplicationFile(
+    @UploadedFile() file: any,
+  ) {
+    return this.recruitmentService.uploadApplicationFile(file);
+  }
 }
+
