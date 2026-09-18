@@ -6,26 +6,8 @@ services:
     restart: always
     ports:
       - "80:80"
-      - "443:443"
     volumes:
-      - certs:/etc/nginx/certs
-      - vhost:/etc/nginx/vhost.d
-      - html:/usr/share/nginx/html
       - /var/run/docker.sock:/tmp/docker.sock:ro
-
-  acme-companion:
-    image: nginxproxy/acme-companion
-    restart: always
-    environment:
-      - DEFAULT_EMAIL=${LETSENCRYPT_EMAIL:-admin@ieeecusb.org}
-    volumes:
-      - certs:/etc/nginx/certs
-      - vhost:/etc/nginx/vhost.d
-      - html:/usr/share/nginx/html
-      - acme:/etc/acme.sh
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-    depends_on:
-      - nginx
 
   postgres:
     image: postgres:15-alpine
@@ -78,7 +60,6 @@ services:
     restart: always
     environment:
       - VIRTUAL_HOST=api.ieeecusb.org
-      - LETSENCRYPT_HOST=api.ieeecusb.org
       - VIRTUAL_PORT=3000
       - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@postgres:5432/${POSTGRES_DB:-ieeecusb}
       - REDIS_URL=redis://redis:6379
@@ -98,7 +79,3 @@ volumes:
   postgres_data:
   redis_data:
   minio_data:
-  certs:
-  vhost:
-  html:
-  acme:
