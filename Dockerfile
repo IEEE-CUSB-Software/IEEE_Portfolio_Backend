@@ -1,24 +1,17 @@
-FROM node:22-alpine AS builder
-
-WORKDIR /app
-
-COPY package*.json ./
-RUN npm ci
-
-COPY . .
-RUN npm run build
-
 FROM node:22-alpine
 
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm ci --omit=dev
+# Install all dependencies (including dev tools) so migrations can run
+RUN npm ci
 
-COPY --from=builder /app/dist ./dist
+COPY . .
+
+# Build the NestJS application
+RUN npm run build
 
 EXPOSE 3000
 
-USER node
-
-CMD ["npm", "run", "start:prod"]
+# Start script: Run migrations first, then start the server!
+CMD npm run migration:run && npm run start:prod
