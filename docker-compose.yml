@@ -65,7 +65,7 @@ services:
       - VIRTUAL_PORT=3000
       - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@postgres:5432/${POSTGRES_DB:-ieeecusb}
       - REDIS_URL=redis://redis:6379
-      - BB_ENDPOINT=http://minio:9000
+      - BB_ENDPOINT=${BB_ENDPOINT:-https://storage.ieeecusb.org}
       - BB_ACCESS_KEY_ID=${MINIO_ROOT_USER:-admin}
       - BB_SECRET_ACCESS_KEY=${MINIO_ROOT_PASSWORD:-admin12345}
       - BB_BUCKET_NAME=${BB_BUCKET_NAME:-ieee-storage}
