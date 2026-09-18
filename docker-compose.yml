@@ -1,0 +1,75 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-password}
+      POSTGRES_DB: ${DB_NAME:-ieee_db}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  minio:
+    image: minio/minio
+    restart: always
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-admin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-admin12345}
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+
+  # This helper container creates the default bucket automatically
+  minio-create-bucket:
+    image: minio/mc
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      /usr/bin/mc config host add myminio http://minio:9000 ${MINIO_ROOT_USER:-admin} ${MINIO_ROOT_PASSWORD:-admin12345};
+      /usr/bin/mc rm -r --force myminio/${BB_BUCKET_NAME:-ieee-storage} || true;
+      /usr/bin/mc mb myminio/${BB_BUCKET_NAME:-ieee-storage};
+      /usr/bin/mc anonymous set public myminio/${BB_BUCKET_NAME:-ieee-storage};
+      exit 0;
+      "
+
+  backend:
+    build: .
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=postgresql://${DB_USER:-postgres}:${DB_PASSWORD:-password}@postgres:5432/${DB_NAME:-ieee_db}
+      - REDIS_URL=redis://redis:6379
+      - BB_ENDPOINT=http://minio:9000
+      - BB_ACCESS_KEY_ID=${MINIO_ROOT_USER:-admin}
+      - BB_SECRET_ACCESS_KEY=${MINIO_ROOT_PASSWORD:-admin12345}
+      - BB_BUCKET_NAME=${BB_BUCKET_NAME:-ieee-storage}
+      - BB_REGION=us-east-1
+      # IMPORTANT: Include your other .env variables here when running
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+      - redis
+      - minio
+
+volumes:
+  postgres_data:
+  redis_data:
+  minio_data:
