@@ -37,4 +37,6 @@ export class VacancyQuestion {
 
   @Column({ type: 'int', default: 0 })
   order!: number;
+  @Column({ type: 'boolean', default: false })
+  allow_multiple_selection!: boolean;
 }
