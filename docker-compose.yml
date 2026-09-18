@@ -22,7 +22,7 @@ services:
       - redis_data:/data
 
   minio:
-    image: minio/minio
+    image: quay.io/minio/minio
     restart: always
     command: server /data --console-address ":9001"
     environment:
@@ -36,7 +36,7 @@ services:
 
   # This helper container creates the default bucket automatically
   minio-create-bucket:
-    image: minio/mc
+    image: quay.io/minio/mc
     depends_on:
       - minio
     entrypoint: >
