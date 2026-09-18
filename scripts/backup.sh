@@ -37,7 +37,7 @@ docker-compose exec -T postgres pg_dump -U "$DB_USER" -d "$DB_NAME" > "$DB_BACKU
 echo "Backing up MinIO files..."
 mkdir -p "$BACKUP_DIR/minio_tmp"
 docker run --rm -v $(pwd)/$BACKUP_DIR/minio_tmp:/export --network="$NETWORK_NAME" quay.io/minio/mc \
-  /bin/sh -c "mc config host add myminio http://minio:9000 $MINIO_USER $MINIO_PASS; mc mirror myminio/$BUCKET_NAME /export"
+  /bin/sh -c "mc alias set myminio http://minio:9000 $MINIO_USER $MINIO_PASS; mc mirror myminio/$BUCKET_NAME /export"
 tar -czvf "$MINIO_BACKUP_FILE" -C "$BACKUP_DIR/minio_tmp" .
 rm -rf "$BACKUP_DIR/minio_tmp"
 

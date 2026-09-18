@@ -48,7 +48,7 @@ services:
       - minio
     entrypoint: >
       /bin/sh -c "
-      /usr/bin/mc config host add myminio http://minio:9000 ${MINIO_ROOT_USER:-admin} ${MINIO_ROOT_PASSWORD:-admin12345};
+      /usr/bin/mc alias set myminio http://minio:9000 ${MINIO_ROOT_USER:-admin} ${MINIO_ROOT_PASSWORD:-admin12345};
       /usr/bin/mc rm -r --force myminio/${BB_BUCKET_NAME:-ieee-storage} || true;
       /usr/bin/mc mb myminio/${BB_BUCKET_NAME:-ieee-storage};
       /usr/bin/mc anonymous set public myminio/${BB_BUCKET_NAME:-ieee-storage};

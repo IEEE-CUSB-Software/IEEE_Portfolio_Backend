@@ -46,7 +46,7 @@ mkdir -p ./backups/minio_tmp
 tar -xzvf "$MINIO_BACKUP_FILE" -C ./backups/minio_tmp
 
 docker run --rm -v $(pwd)/backups/minio_tmp:/export --network="$NETWORK_NAME" quay.io/minio/mc \
-  /bin/sh -c "mc config host add myminio http://minio:9000 $MINIO_USER $MINIO_PASS; mc mirror /export myminio/$BUCKET_NAME"
+  /bin/sh -c "mc alias set myminio http://minio:9000 $MINIO_USER $MINIO_PASS; mc mirror /export myminio/$BUCKET_NAME"
 
 rm -rf ./backups/minio_tmp
 
