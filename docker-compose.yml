@@ -1,6 +1,32 @@
 version: '3.8'
 
 services:
+  nginx:
+    image: nginxproxy/nginx-proxy
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - certs:/etc/nginx/certs
+      - vhost:/etc/nginx/vhost.d
+      - html:/usr/share/nginx/html
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+
+  acme-companion:
+    image: nginxproxy/acme-companion
+    restart: always
+    environment:
+      - DEFAULT_EMAIL=${LETSENCRYPT_EMAIL:-admin@ieeecusb.org}
+    volumes:
+      - certs:/etc/nginx/certs
+      - vhost:/etc/nginx/vhost.d
+      - html:/usr/share/nginx/html
+      - acme:/etc/acme.sh
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    depends_on:
+      - nginx
+
   postgres:
     image: postgres:15-alpine
     restart: always
@@ -34,7 +60,6 @@ services:
     volumes:
       - minio_data:/data
 
-  # This helper container creates the default bucket automatically
   minio-create-bucket:
     image: quay.io/minio/mc
     depends_on:
@@ -51,9 +76,10 @@ services:
   backend:
     build: .
     restart: always
-    ports:
-      - "3000:3000"
     environment:
+      - VIRTUAL_HOST=api.ieeecusb.org
+      - LETSENCRYPT_HOST=api.ieeecusb.org
+      - VIRTUAL_PORT=3000
       - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@postgres:5432/${POSTGRES_DB:-ieeecusb}
       - REDIS_URL=redis://redis:6379
       - BB_ENDPOINT=http://minio:9000
@@ -61,7 +87,6 @@ services:
       - BB_SECRET_ACCESS_KEY=${MINIO_ROOT_PASSWORD:-admin12345}
       - BB_BUCKET_NAME=${BB_BUCKET_NAME:-ieee-storage}
       - BB_REGION=us-east-1
-      # IMPORTANT: Include your other .env variables here when running
     env_file:
       - .env
     depends_on:
@@ -73,3 +98,7 @@ volumes:
   postgres_data:
   redis_data:
   minio_data:
+  certs:
+  vhost:
+  html:
+  acme:
