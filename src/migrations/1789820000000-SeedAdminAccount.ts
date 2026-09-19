@@ -7,11 +7,11 @@ export class SeedAdminAccount1789820000000 implements MigrationInterface {
     const roleRes = await queryRunner.query(`SELECT id FROM roles WHERE name='Super Admin' LIMIT 1`);
     if (roleRes.length > 0) {
       const roleId = roleRes[0].id;
-      // Use bcrypt hash for "admin12345"
+      // Use bcrypt hash for "IEEE@cusb_IT&head$"
       const hash = "$2b$10$FHoK4HWvTqQSrcIh470YsOBpcpqIA3IgnSV9t5GIRo40o93ylAFbO";
       await queryRunner.query(
-        `INSERT INTO "users" (first_name, last_name, email, password, role_id, phone_number, is_active) 
-         VALUES ('Super', 'Admin', 'admin@ieeecusb.org', $1, $2, '00000000000', true) 
+        `INSERT INTO "users" (name, email, password, role_id, faculty, university, academic_year, is_active) 
+         VALUES ('Super Admin', 'admin@ieeecusb.org', $1, $2, 'Engineering', 'CUSB', 2026, true) 
          ON CONFLICT (email) DO NOTHING`,
         [hash, roleId]
       );
