@@ -10,20 +10,15 @@ const config_service = new ConfigService();
 
 const base_config: any = {
   type: 'postgres',
-  host:
-    process.env.POSTGRES_HOST || config_service.get<string>('POSTGRES_HOST'),
-  username:
-    process.env.POSTGRES_USERNAME ||
-    config_service.get<string>('POSTGRES_USERNAME'),
-  password:
-    process.env.POSTGRES_PASSWORD ||
-    config_service.get<string>('POSTGRES_PASSWORD'),
-  database:
-    process.env.POSTGRES_DB || config_service.get<string>('POSTGRES_DB'),
-  port:
-    parseInt(process.env.POSTGRES_PORT || '5432') ||
-    config_service.get<number>('POSTGRES_PORT') ||
-    5432,
+  ...(process.env.DATABASE_URL
+    ? { url: process.env.DATABASE_URL }
+    : {
+        host: process.env.POSTGRES_HOST || config_service.get<string>('POSTGRES_HOST'),
+        username: process.env.POSTGRES_USERNAME || config_service.get<string>('POSTGRES_USERNAME'),
+        password: process.env.POSTGRES_PASSWORD || config_service.get<string>('POSTGRES_PASSWORD'),
+        database: process.env.POSTGRES_DB || config_service.get<string>('POSTGRES_DB'),
+        port: parseInt(process.env.POSTGRES_PORT || '5432') || config_service.get<number>('POSTGRES_PORT') || 5432,
+      }),
 
   entities: [
     'src/users/entities/user.entity.ts',
