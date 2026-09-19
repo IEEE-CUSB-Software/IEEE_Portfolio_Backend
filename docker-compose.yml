@@ -64,7 +64,7 @@ services:
     environment:
       - VIRTUAL_HOST=api.ieeecusb.org
       - VIRTUAL_PORT=3000
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@postgres:5432/${POSTGRES_DB:-ieeecusb}
+      - DATABASE_URL=${DATABASE_URL:-postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@postgres:5432/${POSTGRES_DB:-ieeecusb}}
       - REDIS_URL=redis://redis:6379
       - BB_ENDPOINT=${BB_ENDPOINT:-https://storage.ieeecusb.org}
       - BB_ACCESS_KEY_ID=${MINIO_ROOT_USER:-admin}
